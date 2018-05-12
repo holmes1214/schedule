@@ -1,0 +1,88 @@
+server:
+  port: 8090
+# 日志设定
+logging:
+  level:
+    com.sagacn: INFO
+  config: classpath:logback-prod.xml
+  
+# 数据源设定
+druid:
+  url: jdbc:mysql://rm-uf68vw73s6lj1f15s.mysql.rds.aliyuncs.com:3306/br?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&cachePrepStmts=true&useServerPrepStmts=true&prepStmtCacheSize=250&prepStmtCacheSqlLimit=2048&useSSL=false
+  username: root
+  password: Easysnack!@#
+  driver-class-name: com.mysql.jdbc.Driver
+  initialSize: 50
+  minIdle: 50
+  maxActive: 50
+  timeBetweenEvictionRunsMillis: 60000
+  minEvictableIdleTimeMillis: 300000
+  validationQuery: select '1+1'
+  testWhileIdle: true
+
+# redis等设定
+sharded:
+  redis:
+    server: 192.168.0.159
+    pwd:
+    pool:
+      max:
+        active: 100
+        idle: 20
+        wait: 1000
+      test:
+        on:
+          borrow: true
+
+# 线程池设定
+threadpool:
+  core:
+    pool:
+      size: 200
+  maximum:
+    pool:
+      size: 200
+  keep:
+    alive:
+      time: 200
+
+aliyun:
+  ecs:
+    number: 0
+  oss:
+    endpoint: vpc100-oss-cn-shanghai.aliyuncs.com
+    external: oss-cn-shanghai.aliyuncs.com
+    accessKeyId: LTAIcrYqxO8Gf4AF
+    accessKeySecret: fYRyYurDPZl3bnQc4jjeI6VfRIXb3A
+    bucket: evtape
+    expire: 600000
+  redis:
+    host: 172.19.127.123
+    password: abc123
+    port: 55555
+    max-idle: 50
+    min-idle: 30
+    max-active: 100
+    max-wait: 100
+    timeout: 1000
+
+hlsdl:
+  config:
+    rootPath: /home/appusr/hlsdl
+    exeName: /hlsdl.py
+    param:
+    userVideoDir: /down/uservideo
+    period: 3600
+
+user:
+  token:
+    expire: 360000
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: mysql
+    show-sql: false
+    generate-ddl: true
+    database-platform: org.hibernate.dialect.MySQL5Dialect

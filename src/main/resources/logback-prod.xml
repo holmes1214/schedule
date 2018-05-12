@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+	<appender name="logfile"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>/home/appusr/logs/br.log</File>
+		<encoder>
+			<pattern>%-20(%d{yyyy-MM-dd HH:mm:ss.SSS}) [%thread] %-5level %logger{80}.%method - %msg%n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>/home/appusr/logs/br.log%d{yyyy-MM-dd}.log</fileNamePattern>
+		</rollingPolicy>
+		<encoder>
+            <pattern>
+                %d{HH:mm:ss.SSS} %-4relative [%thread] %-3level %logger{26} - %marker %msg%n
+            </pattern>
+        </encoder>
+	</appender>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %-5level %19logger{19}[%line] - %msg %mdc %n</pattern>
+		</encoder>
+	</appender>
+	<logger name="druid.sql" level="INFO" additivity="false">
+		<appender-ref ref="logfile" />
+	</logger>
+	<logger name="com.sagacn" level="INFO" additivity="false">
+		<appender-ref ref="logfile" />
+	</logger>
+	<logger name="org.apache" level="ERROR" />
+	<logger name="org.springframework" level="ERROR" />
+	<logger name="net.sf" level="ERROR" />
+	<logger name="com.alibaba.druid" level="ERROR" />
+	<logger name="org.springframework.web.client" level="ERROR" />
+	<logger name="org.springframework.beans" level="ERROR" />
+	<root level="INFO">
+		<appender-ref ref="logfile" />
+	</root>
+</configuration>
