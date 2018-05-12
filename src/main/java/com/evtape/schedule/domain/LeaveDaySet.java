@@ -6,7 +6,7 @@ import lombok.Setter;
 import javax.persistence.*;
 
 /**
- * 站区
+ * 离岗字典表
  */
 @Entity
 @Getter
@@ -30,8 +30,14 @@ public class LeaveDaySet {
 	 */
 	private Integer workingHourCount;
 
+	/**
+	 * 是否按小时计时
+	 */
 	private Integer isHourly;
 
+	/**
+	 * 是否增加工时
+	 */
 	private Integer isPositive;
 
 	private Integer districtId;

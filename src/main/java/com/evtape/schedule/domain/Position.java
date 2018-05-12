@@ -5,6 +5,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+/**
+ * 岗位
+ */
 @Entity
 @Getter
 @Setter

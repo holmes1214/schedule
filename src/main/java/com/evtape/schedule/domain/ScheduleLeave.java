@@ -6,7 +6,7 @@ import lombok.Setter;
 import javax.persistence.*;
 
 /**
- * 排班模板单元格
+ * 离岗记录
  */
 @Entity
 @Getter
