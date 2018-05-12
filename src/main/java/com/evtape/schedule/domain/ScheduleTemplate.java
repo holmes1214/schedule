@@ -11,9 +11,9 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@Table(name="sys_schedule_template",indexes = {
+@Table(name="biz_schedule_template",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,stationId"),
-		@Index(name="IDX_SUITE_ID", columnList="suiteId"),
+		@Index(name="IDX_SUITE_ID", columnList="districtId,suiteId"),
 		@Index(name="IDX_POSITION_ID", columnList="districtId,positionId")
 })
 public class ScheduleTemplate {

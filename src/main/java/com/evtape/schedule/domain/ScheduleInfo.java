@@ -12,7 +12,7 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
-@Table(name="sys_schedule_info",indexes = {
+@Table(name="biz_schedule_info",indexes = {
 		@Index(name="IDX_CLASS_ID", columnList="districtId,workFlowId")
 })
 public class ScheduleInfo {

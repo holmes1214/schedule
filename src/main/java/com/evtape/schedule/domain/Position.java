@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@Table(name="sys_position",indexes = {
+@Table(name="biz_position",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,stationId")
 })
 public class Position {

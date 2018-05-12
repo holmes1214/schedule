@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@Table(name="sys_schedule_work_flow_content",indexes = {
+@Table(name="biz_schedule_work_flow_content",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,workFlowId"),
 		@Index(name="IDX_SUITE_ID", columnList="suiteId")
 })

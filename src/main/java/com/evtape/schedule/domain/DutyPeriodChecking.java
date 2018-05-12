@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Setter
 @Table(name="sys_duty_period",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,stationId"),
-		@Index(name="IDX_SUITE_ID", columnList="suiteId"),
+		@Index(name="IDX_SUITE_ID", columnList="districtId,suiteId"),
 		@Index(name="IDX_POSITION_ID", columnList="districtId,positionId")
 })
 public class DutyPeriodChecking {
