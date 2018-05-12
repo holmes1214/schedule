@@ -6,17 +6,17 @@ import lombok.Setter;
 import javax.persistence.*;
 
 /**
- * 班制时间段验证
+ * 排班模板单元格
  */
 @Entity
 @Getter
 @Setter
-@Table(name="sys_duty_period",indexes = {
+@Table(name="sys_schedule_work_flow",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,stationId"),
 		@Index(name="IDX_SUITE_ID", columnList="suiteId"),
 		@Index(name="IDX_POSITION_ID", columnList="districtId,positionId")
 })
-public class DutyPeriodChecking {
+public class ScheduleWorkFlow {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -30,6 +30,7 @@ public class DutyPeriodChecking {
 
 	private Integer suiteId;
 
-	private Integer backup;
+	private Integer dutyClassId;
 
+	private String workFlowCode;
 }

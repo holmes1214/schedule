@@ -29,6 +29,18 @@ public class DutySuite {
 
 	private Integer positionId;
 
+	private Integer maxWorkingHour;
+
+	private Integer minWorkingHour;
+
+	private Integer maxWeeklyRestDays;
+
+	private Integer minWeeklyRestDays;
+
+	private Integer monthlyWorkingHourLimit;
+
+	private Integer yearlyWorkingHourLimit;
+
 	private Integer backup;
 
 }

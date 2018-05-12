@@ -34,6 +34,19 @@ public class DutyClass {
 
 	private Integer suiteId;
 
+	private Integer userCount;
+
+	private Integer classColor;
+
+	private Integer startTime;
+
+	private Integer endTime;
+
+	private Integer workingLength;
+
+	private Integer restHours;
+
 	private Integer backup;
+
 
 }
