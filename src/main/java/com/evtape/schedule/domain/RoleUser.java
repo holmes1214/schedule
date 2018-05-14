@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Setter
 @Table(name = "sys_role_user", indexes = {
         @Index(name = "IDX_ROLE_ID", columnList = "roleId"),
-        @Index(name = "ID_USER_ID", columnList = "userId")
+        @Index(name = "IDX_USER_ID", columnList = "userId")
 })
 public class RoleUser {
 
