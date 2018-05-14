@@ -5,11 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface BaseRepository extends JpaRepository<User, Integer> {
 
 	// findbyid用getone
 	// insert和update用saveAndFlush
 	// 查找全部用findAll
+	// 刪除用deleteInBatch
 	
 	List<User> findById(Integer id);
 

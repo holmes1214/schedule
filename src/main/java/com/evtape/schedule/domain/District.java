@@ -11,17 +11,20 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@Table(name="sys_district")
+@Table(name = "sys_district")
 public class District {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-	
+
+	/**
+	 * 站区名
+	 */
 	private String districtName;
 
-	private String phoneNumber;
-
-	private Integer districtId;
-
+	/**
+	 * 站区说明
+	 */
+	private String content;
 }

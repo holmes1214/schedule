@@ -6,7 +6,7 @@ import lombok.Setter;
 import javax.persistence.*;
 
 /**
- * 班制时间段验证
+ * 班制的检查规则，每天几点到几点，应该有多少人在岗，一个岗，有多条数据
  */
 @Entity
 @Getter

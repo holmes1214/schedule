@@ -5,14 +5,13 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-
 /**
- * 角色
+ * 角色字典表 
  */
 @Entity
 @Getter
 @Setter
-@Table(name="sys_role")
+@Table(name = "sys_role")
 public class Role {
 
 	@Id

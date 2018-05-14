@@ -1,8 +1,13 @@
 package com.evtape.schedule.persistent;
 
-import com.evtape.schedule.domain.District;
-import com.evtape.schedule.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface DistrictRepository extends JpaRepository<District, Integer>{
+import com.evtape.schedule.domain.District;
+
+public interface DistrictRepository extends JpaRepository<District, Integer> {
+
+	// findbyid用getone
+	// insert和update用saveAndFlush
+	// 查找全部用findAll
+	// 刪除用deleteInBatch
 }

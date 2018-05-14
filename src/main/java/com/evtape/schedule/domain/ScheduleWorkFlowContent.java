@@ -32,7 +32,7 @@ public class ScheduleWorkFlowContent {
 	private Integer startTime;
 
 	private Integer endTime;
-
+	
 	private String content;
 
 	private String color;

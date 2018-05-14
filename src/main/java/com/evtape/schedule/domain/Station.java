@@ -21,8 +21,14 @@ public class Station {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
+	/**
+	 * 站点名
+	 */
 	private String stationName;
 
+	/**
+	 * 站点所在站区
+	 */
 	private Integer districtId;
 
 }

@@ -30,8 +30,6 @@ public class ScheduleUser {
 
 	private Integer suiteId;
 
-	private Integer dutyClassId;
-
 	private Integer weekNum;
 
 	private Integer userId;
