@@ -35,4 +35,6 @@ public class ScheduleInfo {
 
 	private Date modifyDate;
 
+	private Integer modified;
+
 }
