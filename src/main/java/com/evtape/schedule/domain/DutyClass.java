@@ -6,7 +6,7 @@ import lombok.Setter;
 import javax.persistence.*;
 
 /**
- * 班次
+ * 班次，一个岗有多条数据
  */
 @Entity
 @Getter

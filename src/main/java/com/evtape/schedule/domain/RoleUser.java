@@ -6,7 +6,7 @@ import lombok.Setter;
 import javax.persistence.*;
 
 /**
- * 用户角色
+ * 用户可以有多个角色
  */
 @Entity
 @Getter

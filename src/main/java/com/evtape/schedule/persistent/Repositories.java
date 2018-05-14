@@ -6,11 +6,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class Repositories {
 
-    public static UserRepository userRepository;
+	public static DistrictRepository districtRepository;
 
-    @Autowired
-    public void setUserRepository(UserRepository repository){
-        Repositories.userRepository=repository;
-    }
+	public static StationRepository stationRepository;
 
+	public static PositionRepository positionRepository;
+
+	public static UserRepository userRepository;
+
+	@Autowired
+	public void setDistrictRepository(DistrictRepository districtRepository) {
+		Repositories.districtRepository = districtRepository;
+	}
+
+	@Autowired
+	public void setStationRepository(StationRepository stationRepository) {
+		Repositories.stationRepository = stationRepository;
+	}
+
+	@Autowired
+	public void setPositionRepository(PositionRepository positionRepository) {
+		Repositories.positionRepository = positionRepository;
+	}
+
+	@Autowired
+	public void setUserRepository(UserRepository repository) {
+		Repositories.userRepository = repository;
+	}
 }

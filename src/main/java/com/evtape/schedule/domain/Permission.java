@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
- * 权限
+ * 权限字典表
  */
 @Entity
 @Getter
