@@ -1,6 +1,7 @@
 package com.evtape.schedule.support.domain;
 
-import com.ducetech.app.support.service.ScheduleCalculator;
+
+import com.evtape.schedule.support.service.ScheduleCalculator;
 
 import java.util.List;
 

@@ -36,5 +36,11 @@ public class ScheduleTemplate {
 
 	private Integer dayNum;
 
+	private Integer workingLength;
+
+	private Integer orderIndex;
+
+	private String cellColor;
+
 	private String cellCode;
 }

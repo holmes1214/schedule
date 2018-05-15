@@ -44,7 +44,12 @@ public class DutyClass {
 
 	private Integer workingLength;
 
-	private Integer restHours;
+	private Integer restMinutes;
+
+	private Integer relevantClassId;
+
+	@Transient
+	private DutyClass relevant;
 
 	private Integer backup;
 

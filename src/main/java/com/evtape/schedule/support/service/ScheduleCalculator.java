@@ -1,18 +1,16 @@
 package com.evtape.schedule.support.service;
 
-import com.ducetech.app.model.ScheduleInfoTemplate;
-import com.ducetech.app.model.ShiftModel;
-import com.ducetech.app.model.ShiftSetting;
-import com.ducetech.app.support.domain.PersonPair;
-import com.ducetech.app.support.domain.PersonalDuty;
-import com.ducetech.app.support.domain.Task;
+import com.evtape.schedule.domain.DutyClass;
+import com.evtape.schedule.domain.DutySuite;
+import com.evtape.schedule.domain.ScheduleTemplate;
+import com.evtape.schedule.support.domain.PersonPair;
+import com.evtape.schedule.support.domain.PersonalDuty;
+import com.evtape.schedule.support.domain.Task;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ScheduleCalculator {
@@ -22,16 +20,16 @@ public class ScheduleCalculator {
     private static Logger logger = LoggerFactory.getLogger(ScheduleCalculator.class);
 
 
-    public static List<ScheduleInfoTemplate> calculate(List<ShiftSetting> shifts, ShiftModel model) {
+    public static List<ScheduleTemplate> calculate(List<DutyClass> shifts, DutySuite model) {
         int taskCountPerDay = 0;
         int totalHours = 0;
         for (int i = 0; i < shifts.size(); i++) {
-            ShiftSetting shift = shifts.get(i);
-            taskCountPerDay += shift.getShiftNum();
-            totalHours += (shift.getTotalAt() * shift.getShiftNum());
+            DutyClass shift = shifts.get(i);
+            taskCountPerDay += shift.getUserCount();
+            totalHours += (shift.getWorkingLength() * shift.getUserCount());
         }
-        int workerCount = taskCountPerDay * WEEK_DAYS / (WEEK_DAYS - model.getMinWeeklyRest()) + 1;
-        int count = totalHours * WEEK_DAYS / model.getMaxWeeklyReason() + 1;
+        int workerCount = taskCountPerDay * WEEK_DAYS / (WEEK_DAYS - model.getMinWeeklyRestDays()) + 1;
+        int count = totalHours * WEEK_DAYS / model.getMaxWeeklyRestDays() + 1;
         workerCount = Math.max(workerCount, count);
         while (true){
             try{
@@ -50,14 +48,14 @@ public class ScheduleCalculator {
      * @param shifts
      * @return int
      */
-    public static List<ScheduleInfoTemplate> calculate(List<ShiftSetting> shifts, int count, ShiftModel model) {
+    public static List<ScheduleTemplate> calculate(List<DutyClass> shifts, int count, DutySuite model) {
         LinkedHashMap<Integer, PersonalDuty> prMap = new LinkedHashMap<>();
-        initPriorityQueue(shifts, count, model, prMap);
-        List<String> relShiftIds = new ArrayList<>();
-        for (ShiftSetting s :
+        initPriorityQueue(count, prMap);
+        List<Integer> relShiftIds = new ArrayList<>();
+        for (DutyClass s :
                 shifts) {
-            if (s.getRelevanceId() != null) {
-                relShiftIds.add(s.getRelevanceId());
+            if (s.getRelevantClassId() != null) {
+                relShiftIds.add(s.getRelevantClassId());
             }
         }
 
@@ -67,7 +65,7 @@ public class ScheduleCalculator {
         while (index < taskList.size() && index >= 0) {
             Task task = taskList.get(index);
             if (forward) {
-                forward = calcForward(task, prMap, model);
+                forward = calcForward(task, prMap);
             } else {
                 forward = calcBackward(task, taskList, prMap, index);
             }
@@ -91,16 +89,16 @@ public class ScheduleCalculator {
     }
 
 
-    private static List<ScheduleInfoTemplate> trans(List<Task> taskList, ShiftModel model) {
-        List<ScheduleInfoTemplate> result = new LinkedList<>();
+    private static List<ScheduleTemplate> trans(List<Task> taskList, DutySuite model) {
+        List<ScheduleTemplate> result = new LinkedList<>();
         for (Task t :
                 taskList) {
-            ScheduleInfoTemplate template = new ScheduleInfoTemplate();
-            template.setModelId(model.getModelId());
-            template.setShiftId(t.shift.getShiftId());
-            template.setShiftName(t.shift.getShiftName());
-            template.setShiftMinutes(t.shift.getTotalAt());
-            template.setShiftColor(t.shift.getShiftColor());
+            ScheduleTemplate template = new ScheduleTemplate();
+            template.setSuiteId(model.getId());
+            template.setDutyClassId(t.shift.getId());
+            template.setCellCode(t.shift.getDutyName());
+            template.setWorkingLength(t.shift.getWorkingLength());
+            template.setCellColor(t.shift.getClassColor());
             template.setOrderIndex(t.userId * WEEK_DAYS + t.day);
             result.add(template);
         }
@@ -115,45 +113,40 @@ public class ScheduleCalculator {
      * @param prMap
      * @param relShifts
      */
-    private static void adjustCycling(List<Task> taskList, LinkedHashMap<Integer, PersonalDuty> prMap, List<ShiftSetting> shifts, List<String> relShifts) {
+    private static void adjustCycling(List<Task> taskList, LinkedHashMap<Integer, PersonalDuty> prMap, List<DutyClass> shifts, List<Integer> relShifts) {
         for (Task t :
                 taskList) {
             t.parent = null;
             t.relevance = null;
         }
 
-        final Map<String, List<String>> availableMap = new HashMap<>();
-        Map<String, List<Integer>> resourceMap = new HashMap<>();
-        Map<Integer, String> beginMap = new HashMap<>();
-        Map<Integer, String> endMap = new HashMap<>();
-        availableMap.put(null, new LinkedList<String>());
-        for (ShiftSetting s1 :
+        final Map<Integer, List<Integer>> availableMap = new HashMap<>();
+        Map<Integer, List<Integer>> resourceMap = new HashMap<>();
+        Map<Integer, Integer> beginMap = new HashMap<>();
+        Map<Integer, Integer> endMap = new HashMap<>();
+        availableMap.put(null, new LinkedList<>());
+        for (DutyClass s1 :
                 shifts) {
             if (judgeConnect(null, s1, relShifts)) {
-                availableMap.get(null).add(s1.getShiftId());
+                availableMap.get(null).add(s1.getId());
             }
         }
-        for (ShiftSetting s :
+        for (DutyClass s :
                 shifts) {
-            ArrayList<String> aList = new ArrayList<>();
-            availableMap.put(s.getShiftId(), aList);
+            ArrayList<Integer> aList = new ArrayList<>();
+            availableMap.put(s.getId(), aList);
             if (judgeConnect(s, null, relShifts)) {
                 aList.add(null);
             }
-            for (ShiftSetting s1 :
+            for (DutyClass s1 :
                     shifts) {
                 if (judgeConnect(s, s1, relShifts)) {
-                    aList.add(s1.getShiftId());
+                    aList.add(s1.getId());
                 }
             }
         }
-        for (String key : availableMap.keySet()) {
-            Collections.sort(availableMap.get(key), new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    return availableMap.get(o1).size() - availableMap.get(o2).size();
-                }
-            });
+        for (Integer key : availableMap.keySet()) {
+            Collections.sort(availableMap.get(key), Comparator.comparingInt(o -> availableMap.get(o).size()));
         }
 
         int start = -1;
@@ -164,10 +157,10 @@ public class ScheduleCalculator {
             if (start == -1 && task == null) {
                 start = i;
             }
-            String shiftId = task == null ? null : task.shift.getShiftId();
-            String shiftId2 = task2 == null ? null : task2.shift.getShiftId();
+            Integer shiftId = task == null ? null : task.shift.getId();
+            Integer shiftId2 = task2 == null ? null : task2.shift.getId();
             if (!resourceMap.containsKey(shiftId)) {
-                resourceMap.put(shiftId, new LinkedList<Integer>());
+                resourceMap.put(shiftId, new LinkedList<>());
             }
             beginMap.put(i, shiftId);
             endMap.put(i, shiftId2);
@@ -212,14 +205,14 @@ public class ScheduleCalculator {
      * @param current
      * @return
      */
-    private static boolean checkCircuitDFS(Stack<Integer> circuit, Map<String, List<String>> aMap, Map<String, List<Integer>> rMap,
-                                           Map<Integer, String> bMap, Map<Integer, String> eMap, Integer current, Integer max) {
+    private static boolean checkCircuitDFS(Stack<Integer> circuit, Map<Integer, List<Integer>> aMap, Map<Integer, List<Integer>> rMap,
+                                           Map<Integer, Integer> bMap, Map<Integer, Integer> eMap, Integer current, Integer max) {
         circuit.push(current);
-        String endShift = eMap.get(current);
-        String beginShift = bMap.get(current);
+        Integer endShift = eMap.get(current);
+        Integer beginShift = bMap.get(current);
         rMap.get(beginShift).remove(current);
-        List<String> available = aMap.get(endShift);
-        for (String begin : available) {
+        List<Integer> available = aMap.get(endShift);
+        for (Integer begin : available) {
             List<Integer> resources = rMap.get(begin);
 
             if (resources.size() > 0) {
@@ -241,24 +234,24 @@ public class ScheduleCalculator {
         return false;
     }
 
-    private static boolean judgeConnect(ShiftSetting s1, ShiftSetting s2, List<String> relShifts) {
+    private static boolean judgeConnect(DutyClass s1, DutyClass s2, List<Integer> relShifts) {
         if (s1 == null) {
-            if (s2 != null && !relShifts.contains(s2.getShiftId())) {
+            if (s2 != null && !relShifts.contains(s2.getId())) {
                 return true;
             }
         } else {
             if (s2 == null) {
-                if (s1.getRelevanceId() == null) {
+                if (s1.getRelevantClassId() == null) {
                     return true;
                 }
             } else {
 
-                if (s1.getRelevanceId() != null) {
-                    if (s1.getRelevanceId().equals(s2.getShiftId())) {
+                if (s1.getRelevantClassId() != null) {
+                    if (s1.getRelevantClassId().equals(s2.getId())) {
                         return true;
                     }
-                } else if (s1.getEndAt() + s1.getIntervalAt() - 24 * 60 <= s2.getStartAt()
-                        && !relShifts.contains(s2.getShiftId())) {
+                } else if (s1.getEndTime() + s1.getRestMinutes() - 24 * 60 <= s2.getStartTime()
+                        && !relShifts.contains(s2.getId())) {
                     return true;
                 }
             }
@@ -281,12 +274,12 @@ public class ScheduleCalculator {
                     prMap.values()) {
                 int count = 0;
                 for (int i = 0; i < WEEK_DAYS; i++) {
-                    if (p.hasWork(i) && p.workingMap.get(i).shift.getRelevanceId() != null) {
+                    if (p.hasWork(i) && p.workingMap.get(i).shift.getRelevantClassId() != null) {
                         count++;
                     }
                 }
                 if (!countMap.containsKey(count)) {
-                    countMap.put(count, new ArrayList<PersonalDuty>());
+                    countMap.put(count, new ArrayList<>());
                 }
                 countMap.get(count).add(p);
             }
@@ -313,7 +306,7 @@ public class ScheduleCalculator {
                     PersonalDuty pf = pMax.size() > pMin.size() ? pn : pm;
                     PersonalDuty pl = pMax.size() > pMin.size() ? pm : pn;
                     if (!solutionMap.containsKey(pf)) {
-                        solutionMap.put(pf, new HashMap<PersonalDuty, int[]>());
+                        solutionMap.put(pf, new HashMap<>());
                     }
                     int[] target = checkRelevanceChangeable(pm, pn);
                     if (target != null) {
@@ -387,20 +380,10 @@ public class ScheduleCalculator {
             }
             if (pd == null) {
                 List<PersonalDuty> keys = new ArrayList<>(solutionMap.keySet());
-                Collections.sort(keys, new Comparator<PersonalDuty>() {
-                    @Override
-                    public int compare(PersonalDuty o1, PersonalDuty o2) {
-                        return solutionMap.get(o2).size() - solutionMap.get(o1).size();
-                    }
-                });
+                Collections.sort(keys, (o1,o2)->solutionMap.get(o2).size()-solutionMap.get(o1).size());
                 pd = keys.get(0);
                 List<PersonalDuty> values = new ArrayList<>(solutionMap.get(pd).keySet());
-                Collections.sort(values, new Comparator<PersonalDuty>() {
-                    @Override
-                    public int compare(PersonalDuty o1, PersonalDuty o2) {
-                        return referenceMap.get(o1) - referenceMap.get(o2);
-                    }
-                });
+                Collections.sort(values, Comparator.comparingInt(referenceMap::get));
                 pv = values.get(0);
             }
             if (pd == null) {
@@ -469,16 +452,16 @@ public class ScheduleCalculator {
             return -1;
         }
         Task last = p.workingMap.get(end - 1);
-        if (last != null && last.shift.getRelevanceId() != null) {
+        if (last != null && last.shift.getRelevantClassId() != null) {
             return -1;
         }
         int c = 0;
         for (int i = start; i < end; i++) {
             Task task = p.workingMap.get(i);
-            if (task != null && task.shift.getRelevanceId() != null) {
+            if (task != null && task.shift.getRelevantClassId() != null) {
                 if (i + 1 < end) {
                     Task t = p.workingMap.get(i + 1);
-                    if (t != null && t.shift.getShiftId().equals(task.shift.getRelevanceId())) {
+                    if (t != null && t.shift.getId().equals(task.shift.getRelevantClassId())) {
                         c++;
                     }
                 }
@@ -514,31 +497,26 @@ public class ScheduleCalculator {
             return false;
         }
         if (t1 != null && t2 != null) {
-            int a = t1.shift.getEndAt() + t1.shift.getIntervalAt();
-            int b = t2.shift.getStartAt();
+            int a = t1.shift.getEndTime() + t1.shift.getRestMinutes();
+            int b = t2.shift.getStartTime();
             return (a - DAY_MINUTES) < b;
         }
         return true;
     }
 
 
-    private static void adjustWorkingHours(List<Task> taskList, LinkedHashMap<Integer, PersonalDuty> prMap,List<ShiftSetting> settings) {
+    private static void adjustWorkingHours(List<Task> taskList, LinkedHashMap<Integer, PersonalDuty> prMap,List<DutyClass> settings) {
         final List<PersonalDuty> list = new ArrayList<>(prMap.values());
         boolean loop = true, lazy = true;
         List<Integer> distances=new ArrayList<>();
         int dist=Integer.MAX_VALUE;
-        for (ShiftSetting s :
+        for (DutyClass s :
                 settings) {
-            dist=Math.min(dist,s.getTotalAt());
+            dist=Math.min(dist,s.getWorkingLength());
         }
         dist=Math.max(THRESHOLD,dist);
         while (loop) {
-            Collections.sort(list, new Comparator<PersonalDuty>() {
-                @Override
-                public int compare(PersonalDuty o1, PersonalDuty o2) {
-                    return o1.total - o2.total;
-                }
-            });
+            Collections.sort(list, Comparator.comparingInt(o -> o.total));
             PersonalDuty laziest = list.get(0);
             PersonalDuty busiest = list.get(list.size() - 1);
             int distance = busiest.total - laziest.total;
@@ -601,12 +579,7 @@ public class ScheduleCalculator {
         for (int i = 0; i <= list.size() / 2; i++) {
             PersonalDuty laziest = list.get(i);
             List<PersonPair> pairs = checkChangeableDays(busiest, laziest);
-            Collections.sort(pairs, new Comparator<PersonPair>() {
-                @Override
-                public int compare(PersonPair o1, PersonPair o2) {
-                    return (o1.pmHours - o1.pnHours) - (o2.pmHours - o2.pnHours);
-                }
-            });
+            Collections.sort(pairs, Comparator.comparingInt(o -> (o.pmHours - o.pnHours)));
             if (pairs.size() > 0) {
                 changePair(taskList, prMap, pairs.get(0));
                 return true;
@@ -619,12 +592,7 @@ public class ScheduleCalculator {
         for (int i = list.size() - 1; i >= list.size() / 2; i--) {
             PersonalDuty busiest = list.get(i);
             List<PersonPair> pairs = checkChangeableDays(busiest, laziest);
-            Collections.sort(pairs, new Comparator<PersonPair>() {
-                @Override
-                public int compare(PersonPair o1, PersonPair o2) {
-                    return (o1.pmHours - o1.pnHours) - (o2.pmHours - o2.pnHours);
-                }
-            });
+            Collections.sort(pairs, Comparator.comparingInt(o -> (o.pmHours - o.pnHours)));
             if (pairs.size() > 0) {
                 changePair(taskList, prMap, pairs.get(0));
                 return true;
@@ -676,7 +644,7 @@ public class ScheduleCalculator {
         for (int i = start; i < end; i++) {
             Task task = pb.workingMap.get(i);
             if (task != null) {
-                r += task.shift.getTotalAt();
+                r += task.shift.getWorkingLength();
             }
         }
         return r;
@@ -746,9 +714,9 @@ public class ScheduleCalculator {
      * @return
      */
     private static boolean sameShift(Task t1, Task t2) {
-        ShiftSetting shift1 = t1.shift;
-        ShiftSetting shift2 = t2.shift;
-        return t1.day == t2.day && shift1.getShiftId().equals(shift2.getShiftId());
+        DutyClass shift1 = t1.shift;
+        DutyClass shift2 = t2.shift;
+        return t1.day == t2.day && shift1.getId().equals(shift2.getId());
     }
 
 
@@ -757,17 +725,16 @@ public class ScheduleCalculator {
      *
      * @param task
      * @param prMap
-     * @param position
      * @return
      */
-    private static boolean calcForward(Task task, LinkedHashMap<Integer, PersonalDuty> prMap, ShiftModel position) {
+    private static boolean calcForward(Task task, LinkedHashMap<Integer, PersonalDuty> prMap) {
         if (task.parent != null) {
             return true;
         }
         task.userAvailable.clear();
         for (PersonalDuty p :
                 prMap.values()) {
-            if (isAvailable(p, position, task, prMap)) {
+            if (isAvailable(p, task)) {
                 task.userAvailable.add(p);
             }
         }
@@ -825,7 +792,7 @@ public class ScheduleCalculator {
                 int d = list.get(j).day;
                 int t = d / 7;
                 int r = d % 7;
-                table[i + 1][t * 8 + r + 1] = list.get(j).shift.getShiftName();
+                table[i + 1][t * 8 + r + 1] = list.get(j).shift.getDutyName();
             }
             i++;
         }
@@ -856,7 +823,7 @@ public class ScheduleCalculator {
                 continue;
             }
             if (!pMap.containsKey(task.userId)) {
-                pMap.put(task.userId, new LinkedList<Task>());
+                pMap.put(task.userId, new LinkedList<>());
             }
             pMap.get(task.userId).add(task);
         }
@@ -871,7 +838,6 @@ public class ScheduleCalculator {
      * @param t
      */
     private static void setTask(PersonalDuty p, Task t) {
-//        logger.debug("set task days:" + t + "," + p);
         if (t.userId != null) {
             if (t.userId != p.userId) {
                 throw new IllegalArgumentException("同一班次排了多人");
@@ -921,25 +887,20 @@ public class ScheduleCalculator {
      * 判断用户是否可以分配当前任务
      *
      * @param peek
-     * @param position
      * @param t
-     * @param prMap
      * @return
      */
-    private static boolean isAvailable(PersonalDuty peek, ShiftModel position, Task t, LinkedHashMap<Integer, PersonalDuty> prMap) {
+    private static boolean isAvailable(PersonalDuty peek, Task t) {
 
         int pri = t.priBefore;
         if (pri < peek.available) {
-//            logger.debug("unavailable");
             return false;
         }
 
         if (peek.hasWork(t.day)) {
-//            logger.debug("has work " + t.day);
             return false;
         }
         if (t.relevance != null && peek.hasWork(t.day + 1)) {
-//            logger.debug("has work " + t.day);
             return false;
         }
 
@@ -952,41 +913,36 @@ public class ScheduleCalculator {
      * @param shifts
      * @return
      */
-    private static List<Task> initShifts(List<ShiftSetting> shifts) {
-        Map<String, ShiftSetting> shiftMap = new HashMap<>();
-        Set<String> relShiftSet = new HashSet<>();
-        for (ShiftSetting s : shifts) {
-            shiftMap.put(s.getShiftId(), s);
-            if (s.getRelevanceId() != null) {
-                relShiftSet.add(s.getRelevanceId());
+    private static List<Task> initShifts(List<DutyClass> shifts) {
+        Map<Integer, DutyClass> shiftMap = new HashMap<>();
+        Set<Integer> relShiftSet = new HashSet<>();
+        for (DutyClass s : shifts) {
+            shiftMap.put(s.getId(), s);
+            if (s.getRelevantClassId() != null) {
+                relShiftSet.add(s.getRelevantClassId());
             }
         }
-        Collections.sort(shifts, new Comparator<ShiftSetting>() {
-            @Override
-            public int compare(ShiftSetting o1, ShiftSetting o2) {
-                return o2.getTotalAt() - o1.getTotalAt();
-            }
-        });
+        Collections.sort(shifts, (o1,o2)->o2.getWorkingLength()-o1.getWorkingLength());
         List<Task> PersonalDuty = new LinkedList<>();
         for (int d = 0; d < WEEK_DAYS; d++) {
-            for (ShiftSetting s : shifts) {
-                if (relShiftSet.contains(s.getShiftId()) && d != 0) {
+            for (DutyClass s : shifts) {
+                if (relShiftSet.contains(s.getId()) && d != 0) {
                     continue;
                 }
-                for (int i = 0; i < s.getShiftNum(); i++) {
+                for (int i = 0; i < s.getUserCount(); i++) {
                     Task t = new Task();
                     t.shift = s;
                     t.day = d;
-                    t.priBefore = d * DAY_MINUTES + s.getStartAt();
-                    t.priAfter = d * DAY_MINUTES + s.getEndAt() + s.getIntervalAt();
+                    t.priBefore = d * DAY_MINUTES + s.getStartTime();
+                    t.priAfter = d * DAY_MINUTES + s.getEndTime() + s.getRestMinutes();
                     PersonalDuty.add(t);
-                    if (s.getRelevanceId() != null && d != WEEK_DAYS - 1) {
-                        ShiftSetting s2 = shiftMap.get(s.getRelevanceId());
+                    if (s.getRelevantClassId() != null && d != WEEK_DAYS - 1) {
+                        DutyClass s2 = shiftMap.get(s.getRelevantClassId());
                         Task t2 = new Task();
                         t2.shift = s2;
                         t2.day = d + 1;
-                        t2.priBefore = t2.day * DAY_MINUTES + s2.getStartAt();
-                        t2.priAfter = t2.day * DAY_MINUTES + s2.getEndAt() + s.getIntervalAt();
+                        t2.priBefore = t2.day * DAY_MINUTES + s2.getStartTime();
+                        t2.priAfter = t2.day * DAY_MINUTES + s2.getEndTime() + s.getRestMinutes();
                         t.relevance = t2;
                         t2.parent = t;
                         PersonalDuty.add(t2);
@@ -1000,12 +956,9 @@ public class ScheduleCalculator {
     /**
      * 生成用户列表
      *
-     * @param shifts
-     * @param post
      * @param prMap
      */
-    public static void initPriorityQueue(List<ShiftSetting> shifts, int count, ShiftModel post,
-                                         LinkedHashMap<Integer, PersonalDuty> prMap) {
+    public static void initPriorityQueue(int count, LinkedHashMap<Integer, PersonalDuty> prMap) {
         for (int i = 0; i < count; i++) {
             PersonalDuty d = new PersonalDuty();
             d.userId = i;
@@ -1014,64 +967,63 @@ public class ScheduleCalculator {
     }
 
     public static void main(String[] args) throws ParseException {
-        List<ShiftSetting> shifts = new ArrayList<>();
-        ShiftSetting s = new ShiftSetting();
-        s.setStartAt(0);
-        s.setEndAt(540);
-        s.setTotalAt(540);
-        s.setIntervalAt(12 * 60);
-        s.setShiftName("下");
-        s.setShiftId("下");
-        s.setShiftNum(2);
+        List<DutyClass> shifts = new ArrayList<>();
+        DutyClass s = new DutyClass();
+        s.setStartTime(0);
+        s.setEndTime(540);
+        s.setWorkingLength(540);
+        s.setRestMinutes(12 * 60);
+        s.setDutyName("下");
+        s.setId(1);
+        s.setUserCount(2);
         shifts.add(s);
 
-        s = new ShiftSetting();
-        s.setStartAt(420);
-        s.setEndAt(1020);
-        s.setTotalAt(600);
-        s.setIntervalAt(12 * 60);
-        s.setShiftName("白");
-        s.setShiftId("白");
-        s.setShiftNum(2);
+        s = new DutyClass();
+        s.setStartTime(420);
+        s.setEndTime(1020);
+        s.setWorkingLength(600);
+        s.setRestMinutes(12 * 60);
+        s.setDutyName("白");
+        s.setId(2);
+        s.setUserCount(2);
         shifts.add(s);
 
-        s = new ShiftSetting();
-        s.setStartAt(420);
-        s.setEndAt(960);
-        s.setTotalAt(540);
-        s.setIntervalAt(12 * 60);
-        s.setShiftId("中");
-        s.setShiftName("中");
-        s.setShiftNum(1);
+        s = new DutyClass();
+        s.setStartTime(420);
+        s.setEndTime(960);
+        s.setWorkingLength(540);
+        s.setRestMinutes(12 * 60);
+        s.setDutyName("中");
+        s.setId(3);
+        s.setUserCount(1);
         shifts.add(s);
 
-        s = new ShiftSetting();
-        s.setStartAt(960);
-        s.setEndAt(1260);
-        s.setTotalAt(300);
-        s.setIntervalAt(12 * 60);
-        s.setShiftName("小");
-        s.setShiftId("小");
-        s.setShiftNum(2);
+        s = new DutyClass();
+        s.setStartTime(960);
+        s.setEndTime(1260);
+        s.setWorkingLength(300);
+        s.setRestMinutes(12 * 60);
+        s.setDutyName("小");
+        s.setId(4);
+        s.setUserCount(2);
         shifts.add(s);
 
-        s = new ShiftSetting();
-        s.setStartAt(1020);
-        s.setEndAt(1440);
-        s.setTotalAt(420);
-        s.setIntervalAt(0);
-        s.setRelevanceId("下");
-        s.setShiftId("夜");
-        s.setShiftName("夜");
-        s.setShiftNum(2);
+        s = new DutyClass();
+        s.setStartTime(1020);
+        s.setEndTime(1440);
+        s.setWorkingLength(420);
+        s.setRestMinutes(0);
+        s.setRelevantClassId(1);
+        s.setId(5);
+        s.setDutyName("夜");
+        s.setUserCount(2);
         shifts.add(s);
-        ShiftModel position = new ShiftModel();
-        position.setMinWeeklyRest(2);
-        position.setMaxWeeklyRest(3);
-        position.setMinWeeklyReason(35 * 60);
-        position.setMaxWeeklyReason(41 * 60);
+        DutySuite position = new DutySuite();
+        position.setMinWeeklyRestDays(2);
+        position.setMaxWeeklyRestDays(3);
+        position.setMinWorkingHour(35 * 60);
+        position.setMaxWorkingHour(41 * 60);
 
-        DateFormat df = new SimpleDateFormat("yyyyMMdd");
         ScheduleCalculator.calculate(shifts, 13, position);
 
     }

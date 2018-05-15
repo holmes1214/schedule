@@ -1,13 +1,13 @@
 package com.evtape.schedule.support.domain;
 
-import com.ducetech.app.model.ShiftSetting;
+import com.evtape.schedule.domain.DutyClass;
 
 import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class Task implements Cloneable {
     public int day;
-    public ShiftSetting shift;
+    public DutyClass shift;
     public Integer userId;
     public int priBefore;
     public int priAfter;
@@ -16,7 +16,7 @@ public class Task implements Cloneable {
     public Queue<PersonalDuty> userAvailable = new PriorityQueue<>();
 
     public String toString() {
-        return "day:" + day + ",pri:" + priBefore + ", shift:" + shift.getShiftId() + ", user:" + userId;
+        return "day:" + day + ",pri:" + priBefore + ", shift:" + shift.getId() + ", user:" + userId;
     }
 
 

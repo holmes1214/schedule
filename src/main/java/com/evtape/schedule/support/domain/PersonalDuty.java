@@ -12,12 +12,12 @@ public class PersonalDuty implements Comparable<PersonalDuty> {
 
     public void addWorkingDays(int day, Task t) {
         workingMap.put(day, t);
-        total += t.shift.getTotalAt();
+        total += t.shift.getWorkingLength();
     }
 
     public void removeWorkingDays(int day) {
         Task task = workingMap.remove(day);
-        total -= task.shift.getTotalAt();
+        total -= task.shift.getWorkingLength();
     }
 
     public boolean hasWork(int day) {
