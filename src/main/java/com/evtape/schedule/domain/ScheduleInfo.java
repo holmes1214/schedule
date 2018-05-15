@@ -13,7 +13,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Table(name="biz_schedule_info",indexes = {
-		@Index(name="IDX_CLASS_ID", columnList="districtId,workFlowId")
+		@Index(name="IDX_CLASS_ID", columnList="districtId,dutySuiteId,dutyClassId")
 })
 public class ScheduleInfo {
 
@@ -23,13 +23,23 @@ public class ScheduleInfo {
 	
 	private Integer districtId;
 
+	private Integer dutySuiteId;
+
+	private Integer dutyClassId;
+
 	private Integer workFlowId;
+
+	private String workFlowCode;
 
 	private String dutyName;
 
 	private Integer userId;
 
 	private String dateStr;
+
+	private String scheduleWeek;
+
+	private String serialNumber;
 
 	private Date createDate;
 

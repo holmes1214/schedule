@@ -36,7 +36,7 @@ public class DutyClass {
 
 	private Integer userCount;
 
-	private Integer classColor;
+	private String classColor;
 
 	private Integer startTime;
 
