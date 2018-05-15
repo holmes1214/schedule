@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan(basePackages = {"com.evtape"})
 @EnableTransactionManagement
 @EnableScheduling
-public class RecorderApplication {
+public class ScheduleApplication {
 
 	public static void main(String[] args) {
-		SpringApplication application = new SpringApplication(RecorderApplication.class);
-		ConfigurableApplicationContext context = application.run(RecorderApplication.class, args);
+		SpringApplication application = new SpringApplication(ScheduleApplication.class);
+		ConfigurableApplicationContext context = application.run(ScheduleApplication.class, args);
 	}
 }

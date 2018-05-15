@@ -1,7 +1,5 @@
 package com.evtape.schedule.persistent;
 
-import com.evtape.schedule.domain.DutySuite;
-import com.evtape.schedule.domain.ScheduleTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
