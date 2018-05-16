@@ -95,7 +95,7 @@ public class ScheduleCalculator {
                 taskList) {
             ScheduleTemplate template = new ScheduleTemplate();
             template.setSuiteId(model.getId());
-            template.setDutyClassId(t.shift.getId());
+            template.setClassId(t.shift.getId());
             template.setCellCode(t.shift.getDutyName());
             template.setWorkingLength(t.shift.getWorkingLength());
             template.setCellColor(t.shift.getClassColor());

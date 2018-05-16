@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Setter
 @Table(name="biz_schedule_work_flow",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,stationId"),
-		@Index(name="IDX_SUITE_ID", columnList="districtId,suiteId"),
+		@Index(name="IDX_SUITE_ID", columnList="suiteId,classId"),
 		@Index(name="IDX_POSITION_ID", columnList="districtId,positionId")
 })
 public class ScheduleWorkFlow {
@@ -30,7 +30,7 @@ public class ScheduleWorkFlow {
 
 	private Integer suiteId;
 
-	private Integer dutyClassId;
+	private Integer classId;
 
 	private String workFlowCode;
 }

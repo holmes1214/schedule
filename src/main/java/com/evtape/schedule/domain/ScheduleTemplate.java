@@ -13,7 +13,8 @@ import javax.persistence.*;
 @Setter
 @Table(name="biz_schedule_template",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,stationId"),
-		@Index(name="IDX_SUITE_ID", columnList="districtId,suiteId"),
+		@Index(name="IDX_SUITE_ID", columnList="suiteId,weekNum,dayNum", unique = true),
+		@Index(name="IDX_CLASS_ID", columnList="suiteId,classId"),
 		@Index(name="IDX_POSITION_ID", columnList="districtId,positionId")
 })
 public class ScheduleTemplate {
@@ -30,7 +31,7 @@ public class ScheduleTemplate {
 
 	private Integer suiteId;
 
-	private Integer dutyClassId;
+	private Integer classId;
 
 	private Integer weekNum;
 
