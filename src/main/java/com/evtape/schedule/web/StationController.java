@@ -12,7 +12,7 @@ import com.evtape.schedule.domain.Station;
 import com.evtape.schedule.persistent.Repositories;
 
 /**
- * @author ripper 站下岗位,增刪改查
+ * @author ripper 站列表接口,增刪改查
  */
 @Controller
 @RequestMapping("/station")
@@ -31,18 +31,18 @@ public class StationController {
 		return resultMap;
 	}
 
-	@ResponseBody
-	@RequestMapping(value = "/allStation", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap allStation() {
-		ResultMap resultMap;
-		try {
-			resultMap = new ResultMap(ResultCode.SUCCESS);
-			Repositories.stationRepository.findAll();
-		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
-		}
-		return resultMap;
-	}
+//	@ResponseBody
+//	@RequestMapping(value = "/allStation", method = { RequestMethod.POST, RequestMethod.GET })
+//	public ResultMap allStation() {
+//		ResultMap resultMap;
+//		try {
+//			resultMap = new ResultMap(ResultCode.SUCCESS);
+//			Repositories.stationRepository.findAll();
+//		} catch (Exception e) {
+//			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
+//		}
+//		return resultMap;
+//	}
 
 	@ResponseBody
 	@RequestMapping(value = "/addStation", method = { RequestMethod.POST, RequestMethod.GET })

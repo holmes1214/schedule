@@ -20,6 +20,11 @@ public class DutySuite {
 	private Integer id;
 
 	private String dutyName;
+	
+	/**
+	 * 当前启用的suite为1,。1-0
+	 */
+	private String isActive;
 
 	private Integer districtId;
 

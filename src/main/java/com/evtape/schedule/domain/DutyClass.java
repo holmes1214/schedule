@@ -32,16 +32,34 @@ public class DutyClass {
 
 	private Integer positionId;
 
+	/**
+	 * 班制id
+	 */
 	private Integer suiteId;
 
+	/**
+	 * 班次人数
+	 */
 	private Integer userCount;
 
+	/**
+	 * 班次颜色
+	 */
 	private String classColor;
 
+	/**
+	 * 班次几点上班
+	 */
 	private Integer startTime;
 
+	/**
+	 * 班次几点下班
+	 */
 	private Integer endTime;
 
+	/**
+	 * 班次时长
+	 */
 	private Integer workingLength;
 
 	private Integer restMinutes;

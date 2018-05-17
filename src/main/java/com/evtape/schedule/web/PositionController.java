@@ -12,7 +12,7 @@ import com.evtape.schedule.domain.Position;
 import com.evtape.schedule.persistent.Repositories;
 
 /**
- * @author ripper 站列表接口,增刪改查
+ * @author ripper 站下岗位,增刪改查
  */
 @Controller
 @RequestMapping("/position")

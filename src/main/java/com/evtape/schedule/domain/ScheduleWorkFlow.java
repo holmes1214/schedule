@@ -33,4 +33,6 @@ public class ScheduleWorkFlow {
 	private Integer classId;
 
 	private String workFlowCode;
+	
+	private String dutyClassId;
 }

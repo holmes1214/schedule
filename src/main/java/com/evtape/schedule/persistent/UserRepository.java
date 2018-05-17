@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 	List<User> findByDistrictIdAndStationIdAndPositionId(Integer districtId, Integer stationId, Integer positionId);
 
+	List<User> findByDistrictIdAndBackup(Integer districtId,Integer backup);
+
 }

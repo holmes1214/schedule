@@ -1,8 +1,12 @@
 package com.evtape.schedule.persistent;
 
-import com.evtape.schedule.domain.DutyClass;
-import com.evtape.schedule.domain.User;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface DutyClassRepository extends JpaRepository<DutyClass, Integer>{
+import com.evtape.schedule.domain.DutyClass;
+
+public interface DutyClassRepository extends JpaRepository<DutyClass, Integer> {
+	List<DutyClass> findBySuitId(Integer suitId);
+
 }
