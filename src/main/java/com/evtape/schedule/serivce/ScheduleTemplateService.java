@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ScheduleTemplateService {
 
-    public void saveTemplate(Integer dutySuiteId,Integer dutyClassId,Integer weekNum,Integer dayNum){
+    public ScheduleTemplate saveTemplate(Integer dutySuiteId,Integer dutyClassId,Integer weekNum,Integer dayNum){
         ScheduleTemplate template=Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(dutySuiteId,dutyClassId,weekNum,dayNum);
         long count=Repositories.scheduleTemplateRepository.countBySuiteIdAndClassId(dutySuiteId,dutyClassId);
         List<ScheduleWorkFlow> workFlows=Repositories.workflowRepository.findBySuiteIdAndClassId(dutySuiteId,dutyClassId);
@@ -38,6 +38,11 @@ public class ScheduleTemplateService {
             template.setCellCode(dutyClass.getDutyName());
         }
         Repositories.scheduleTemplateRepository.save(template);
+        return template;
+    }
+
+    public void exchangeTemplate(Integer suiteId,Integer classId,Integer weekNum1,Integer dayNum1,Integer weekNum2,Integer dayNum2){
+
     }
 
 
