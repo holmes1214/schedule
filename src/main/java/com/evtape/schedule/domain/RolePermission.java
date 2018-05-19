@@ -23,14 +23,14 @@ public class RolePermission {
 
 	private Integer roleId;
 
-	private Integer roleCold;
+	private String roleCold;
 
-	private Integer roleName;
+	private String roleName;
 
 	private Integer permissionId;
 
-	private Integer permissionCode;
+	private String permissionCode;
 
-	private Integer permissionName;
+	private String permissionName;
 
 }
