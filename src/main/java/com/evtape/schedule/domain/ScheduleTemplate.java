@@ -43,5 +43,11 @@ public class ScheduleTemplate {
 
 	private String cellColor;
 
-	private String cellCode;
+	private Integer workflowId;
+
+	private String workflowCode;
+
+	private String dutyName;
+
+	private String dutyCode;
 }

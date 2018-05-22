@@ -96,7 +96,8 @@ public class ScheduleCalculator {
             ScheduleTemplate template = new ScheduleTemplate();
             template.setSuiteId(model.getId());
             template.setClassId(t.shift.getId());
-            template.setCellCode(t.shift.getDutyName());
+            template.setDutyName(t.shift.getDutyName());
+            template.setDutyCode(t.shift.getDutyCode());
             template.setWorkingLength(t.shift.getWorkingLength());
             template.setCellColor(t.shift.getClassColor());
             template.setOrderIndex(t.userId * WEEK_DAYS + t.day);

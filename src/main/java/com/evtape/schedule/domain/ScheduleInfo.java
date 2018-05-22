@@ -27,19 +27,19 @@ public class ScheduleInfo {
 
 	private Integer dutyClassId;
 
-	private Integer workFlowId;
+	private Integer workflowId;
 
-	private String workFlowCode;
+	private String workflowCode;
 
 	private String dutyName;
+
+	private String dutyCode;
 
 	private Integer userId;
 
 	private String dateStr;
 
 	private String scheduleWeek;
-
-	private String serialNumber;
 
 	private Date createDate;
 

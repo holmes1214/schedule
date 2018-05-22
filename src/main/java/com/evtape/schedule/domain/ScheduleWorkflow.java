@@ -16,7 +16,7 @@ import javax.persistence.*;
 		@Index(name="IDX_SUITE_ID", columnList="suiteId,classId"),
 		@Index(name="IDX_POSITION_ID", columnList="districtId,positionId")
 })
-public class ScheduleWorkFlow {
+public class ScheduleWorkflow {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,7 +32,7 @@ public class ScheduleWorkFlow {
 
 	private Integer classId;
 
-	private String workFlowCode;
+	private String code;
 	
 	private String dutyClassId;
 }

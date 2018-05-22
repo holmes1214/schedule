@@ -31,7 +31,7 @@ public class PictureUtil {
     static final String[] PERIODS = new String[]{"0100", "0200", "0300", "0400", "0500", "0600", "0700", "0800", "0900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700", "1800", "1900", "2000", "2100", "2200", "2300", "0000"};
 
     public static void createUserSchedulePicture(Map<User, List<ScheduleInfo>> scheduleMap, Map<Integer, DutyClass> shiftMap,
-                                                 Map<Integer, List<ScheduleWorkFlow>> workflowMap, Map<Integer, List<ScheduleWorkFlowContent>> contentMap, OutputStream ouputStream) throws Exception {
+                                                 Map<Integer, List<ScheduleWorkflow>> workflowMap, Map<Integer, List<ScheduleWorkFlowContent>> contentMap, OutputStream ouputStream) throws Exception {
         //生成压缩包
         ZipOutputStream zip = new ZipOutputStream(ouputStream);
 
@@ -51,7 +51,7 @@ public class PictureUtil {
     }
 
     private static BufferedImage createUserImage(User user, List<ScheduleInfo> scheduleInfos, Map<Integer, DutyClass> shiftMap,
-                                                 Map<Integer, List<ScheduleWorkFlow>> workflowMap, Map<Integer, List<ScheduleWorkFlowContent>> contentMap) {
+                                                 Map<Integer, List<ScheduleWorkflow>> workflowMap, Map<Integer, List<ScheduleWorkFlowContent>> contentMap) {
         //左右留边，日期，星期，班次，时间，位置，工作流程
         int width = MARGIN;
         for (int i = 0; i < VERTICALS.length; i++) {
@@ -182,7 +182,7 @@ public class PictureUtil {
 
 
 
-        text = info.getSerialNumber();
+        text = info.getDutyCode()+info.getWorkflowCode();
         left += VERTICALS[x - 1];
         width = VERTICALS[x++];
 
@@ -197,16 +197,16 @@ public class PictureUtil {
         }
     }
 
-    private static void drawTimeLine(Graphics graphics, int number, ScheduleInfo info, List<ScheduleWorkFlow> workflows, Map<Integer, List<ScheduleWorkFlowContent>> contentMap) {
+    private static void drawTimeLine(Graphics graphics, int number, ScheduleInfo info, List<ScheduleWorkflow> workflows, Map<Integer, List<ScheduleWorkFlowContent>> contentMap) {
         if (workflows == null) {
             return;
         }
         Integer shiftId = info.getDutyClassId();
-        String serialNumber = info.getSerialNumber();
+        String serialNumber = info.getDutyCode()+info.getWorkflowCode();
         List<ScheduleWorkFlowContent> contents = null;
-        for (ScheduleWorkFlow w :
+        for (ScheduleWorkflow w :
                 workflows) {
-            if (w.getDutyClassId().toString().equals(shiftId) && serialNumber != null && serialNumber.endsWith(w.getWorkFlowCode())) {
+            if (w.getDutyClassId().toString().equals(shiftId) && serialNumber != null && serialNumber.endsWith(w.getCode())) {
                 contents = contentMap.get(w.getId());
             }
         }
