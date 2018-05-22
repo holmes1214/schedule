@@ -36,7 +36,7 @@ public class RoleController {
 		ResultMap resultMap;
 		try {
 			resultMap = new ResultMap(ResultCode.SUCCESS);
-			RoleUser roleUser = Repositories.roleUserRepository.findByUserid(userId);
+			RoleUser roleUser = Repositories.roleUserRepository.findByUserId(userId);
 			List<RolePermission> rolePermission = Repositories.rolePermissionRepository
 					.findByRoleId(roleUser.getRoleId());
 			resultMap.setData(rolePermission);
@@ -49,7 +49,6 @@ public class RoleController {
 	/**
 	 * 添加role
 	 * 
-	 * @param userId
 	 * @return
 	 */
 	@ResponseBody
@@ -68,7 +67,6 @@ public class RoleController {
 	/**
 	 * 添加permission
 	 * 
-	 * @param userId
 	 * @return
 	 */
 	@ResponseBody
@@ -127,7 +125,7 @@ public class RoleController {
 		ResultMap resultMap;
 		try {
 			resultMap = new ResultMap(ResultCode.SUCCESS);
-			RoleUser roleUser = Repositories.roleUserRepository.findByUserid(userId);
+			RoleUser roleUser = Repositories.roleUserRepository.findByUserId(userId);
 			if (roleUser == null) {
 				roleUser = new RoleUser();
 			}

@@ -20,16 +20,6 @@ import javax.sql.DataSource;
  */
 @Configuration
 public class DataSourceConfig {
-
-    @Value("${aliyun.redis.max-idle}")
-    private int redisPoolMaxIdle;
-    @Value("${aliyun.redis.min-idle}")
-    private int redisPoolMinIdle;
-    @Value("${aliyun.redis.max-active}")
-    private int redisPoolMaxActive;
-    @Value("${aliyun.redis.max-wait}")
-    private int redisPoolMaxWait;
-
     /**
      *
      * 定义数据源 ,参数来自 application.yml 中前缀为druid

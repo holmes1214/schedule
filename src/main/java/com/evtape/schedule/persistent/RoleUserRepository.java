@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RoleUserRepository extends JpaRepository<RoleUser, Integer> {
 
-	RoleUser findByUserid(Integer userId);
+	RoleUser findByUserId(Integer userId);
 }

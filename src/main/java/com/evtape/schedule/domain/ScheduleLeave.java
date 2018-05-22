@@ -11,9 +11,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@Table(name="biz_schedule_leave",indexes = {
-		@Index(name="IDX_CLASS_ID", columnList="districtId,workFlowId")
-})
+@Table(name="biz_schedule_leave")
 public class ScheduleLeave {
 
 	@Id

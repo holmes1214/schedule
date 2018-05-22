@@ -13,7 +13,7 @@
 	<logger name="druid.sql" level="DEBUG" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
-	<logger name="com.sagacn" level="DEBUG" additivity="false">
+	<logger name="com.evtape" level="DEBUG" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 

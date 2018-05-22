@@ -43,9 +43,6 @@ public class DutyController {
 	/**
 	 * 班次和班制查询
 	 * 
-	 * @param districtId
-	 * @param stationId
-	 * @param positionId
 	 * @return
 	 */
 	@ResponseBody
@@ -56,7 +53,7 @@ public class DutyController {
 			resultMap = new ResultMap(ResultCode.SUCCESS);
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("dutysuite", Repositories.dutySuiteRepository.getOne(suitid));
-			map.put("dutyclass", Repositories.dutyClassRepository.findBySuitId(suitid));
+			map.put("dutyclass", Repositories.dutyClassRepository.findBySuiteId(suitid));
 			resultMap.setData(map);
 		} catch (Exception e) {
 			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
@@ -91,9 +88,6 @@ public class DutyController {
 	/**
 	 * 班次更新,新增，更新，刪除
 	 * 
-	 * @param districtId
-	 * @param stationId
-	 * @param positionId
 	 * @return
 	 */
 	@ResponseBody
@@ -115,9 +109,6 @@ public class DutyController {
 	/**
 	 * 新增suit
 	 * 
-	 * @param districtId
-	 * @param stationId
-	 * @param positionId
 	 * @return
 	 */
 	@ResponseBody
@@ -136,9 +127,6 @@ public class DutyController {
 	/**
 	 * 删除班次
 	 * 
-	 * @param districtId
-	 * @param stationId
-	 * @param positionId
 	 * @return
 	 */
 	@ResponseBody
@@ -148,7 +136,7 @@ public class DutyController {
 		try {
 			resultMap = new ResultMap(ResultCode.SUCCESS);
 			Repositories.dutySuiteRepository.delete(suitid);
-			List<DutyClass> dutylist = Repositories.dutyClassRepository.findBySuitId(suitid);
+			List<DutyClass> dutylist = Repositories.dutyClassRepository.findBySuiteId(suitid);
 			for (DutyClass dutyClass : dutylist) {
 				Repositories.dutyClassRepository.delete(dutyClass.getId());
 			}
