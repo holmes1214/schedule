@@ -26,7 +26,7 @@ import com.evtape.schedule.persistent.Repositories;
 public class DutyController {
 
 	@ResponseBody
-	@RequestMapping(value = "/suitlist", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/suitelist", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResultMap suitlist(@RequestParam("districtId") Integer districtId,
 			@RequestParam("stationId") Integer stationId, @RequestParam("positionId") Integer positionId) {
 		ResultMap resultMap;
@@ -47,13 +47,13 @@ public class DutyController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/classlist", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap classlist(@RequestParam("suitid") Integer suitid) {
+	public ResultMap classlist(@RequestParam("suiteId") Integer suiteId) {
 		ResultMap resultMap;
 		try {
 			resultMap = new ResultMap(ResultCode.SUCCESS);
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("dutysuite", Repositories.dutySuiteRepository.getOne(suitid));
-			map.put("dutyclass", Repositories.dutyClassRepository.findBySuiteId(suitid));
+			map.put("dutysuite", Repositories.dutySuiteRepository.getOne(suiteId));
+			map.put("dutyclass", Repositories.dutyClassRepository.findBySuiteId(suiteId));
 			resultMap.setData(map);
 		} catch (Exception e) {
 			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
@@ -62,17 +62,17 @@ public class DutyController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/suitactive", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/suiteactive", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResultMap suitactive(@RequestParam("districtId") Integer districtId,
 			@RequestParam("stationId") Integer stationId, @RequestParam("positionId") Integer positionId,
-			@RequestParam("suitid") Integer suitid) {
+			@RequestParam("suiteId") Integer suiteId) {
 		ResultMap resultMap;
 		try {
 			resultMap = new ResultMap(ResultCode.SUCCESS);
 			List<DutySuite> suitlist = Repositories.dutySuiteRepository
 					.findByDistrictIdAndStationIdAndPositionId(districtId, stationId, positionId);
 			for (DutySuite dutySuite : suitlist) {
-				if (dutySuite.getId().equals(suitid)) {
+				if (dutySuite.getId().equals(suiteId)) {
 					dutySuite.setIsActive("1");
 				} else {
 					dutySuite.setIsActive("0");
@@ -112,7 +112,7 @@ public class DutyController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/suitadd", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/suiteadd", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResultMap suitadd(@RequestBody DutySuite dutySuite) {
 		ResultMap resultMap;
 		try {
@@ -130,13 +130,13 @@ public class DutyController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/suitdelete", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap suitdelete(@RequestParam("suitid") Integer suitid) {
+	@RequestMapping(value = "/suitedelete", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResultMap suitdelete(@RequestParam("suiteId") Integer suiteId) {
 		ResultMap resultMap;
 		try {
 			resultMap = new ResultMap(ResultCode.SUCCESS);
-			Repositories.dutySuiteRepository.delete(suitid);
-			List<DutyClass> dutylist = Repositories.dutyClassRepository.findBySuiteId(suitid);
+			Repositories.dutySuiteRepository.delete(suiteId);
+			List<DutyClass> dutylist = Repositories.dutyClassRepository.findBySuiteId(suiteId);
 			for (DutyClass dutyClass : dutylist) {
 				Repositories.dutyClassRepository.delete(dutyClass.getId());
 			}

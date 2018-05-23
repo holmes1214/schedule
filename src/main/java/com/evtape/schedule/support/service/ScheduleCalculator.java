@@ -1,17 +1,28 @@
 package com.evtape.schedule.support.service;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.evtape.schedule.domain.DutyClass;
 import com.evtape.schedule.domain.DutySuite;
 import com.evtape.schedule.domain.ScheduleTemplate;
 import com.evtape.schedule.support.domain.PersonPair;
 import com.evtape.schedule.support.domain.PersonalDuty;
 import com.evtape.schedule.support.domain.Task;
-import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.ParseException;
-import java.util.*;
 
 public class ScheduleCalculator {
     public static final int WEEK_DAYS = 7;
@@ -20,47 +31,59 @@ public class ScheduleCalculator {
     private static Logger logger = LoggerFactory.getLogger(ScheduleCalculator.class);
 
 
+    /**
+     * 排班，先根据班次和班制算出需要的人数，再排班
+     * @param shifts
+     * @param model
+     * @return
+     */
     public static List<ScheduleTemplate> calculate(List<DutyClass> shifts, DutySuite model) {
-        int taskCountPerDay = 0;
-        int totalHours = 0;
-        for (int i = 0; i < shifts.size(); i++) {
-            DutyClass shift = shifts.get(i);
-            taskCountPerDay += shift.getUserCount();
-            totalHours += (shift.getWorkingLength() * shift.getUserCount());
-        }
-        int workerCount = taskCountPerDay * WEEK_DAYS / (WEEK_DAYS - model.getMinWeeklyRestDays()) + 1;
-        int count = totalHours * WEEK_DAYS / model.getMaxWeeklyRestDays() + 1;
-        workerCount = Math.max(workerCount, count);
-        while (true){
-            try{
-                return calculate(shifts, workerCount, model);
-            }catch (Exception e){
-                workerCount++;
-            }
-        }
-    }
+		// 每天需要多少个人上班
+		int taskCountPerDay = 0;
+		// 每天一个站一个岗位所有人的总工时（小时）
+		int totalHours = 0;
+		for (int i = 0; i < shifts.size(); i++) {
+			DutyClass shift = shifts.get(i);
+			taskCountPerDay += shift.getUserCount();
+			totalHours += (shift.getWorkingLength() * shift.getUserCount());
+		}
+		// 至少需要多少人：每天需要的人数*7，除以每个人每周工作多少天（有余数则商数加一）
+		int workerCount = taskCountPerDay * WEEK_DAYS / (WEEK_DAYS - model.getMinWeeklyRestDays()) + 1;
+		// 每天总工时数*7，除以每人一周的最大工时，得到至少需要多少人
+		int count = totalHours * WEEK_DAYS / model.getMaxWorkingHour() + 1;
+		// TODO int count = totalHours * WEEK_DAYS / model.getMaxWeeklyRestDays() + 1;
+		workerCount = Math.max(workerCount, count);
+		while (true) {
+			try {
+				return calculate(shifts, workerCount, model);
+			} catch (Exception e) {
+				workerCount++;
+			}
+		}
+	}
 
     /**
-     * 计算排班
+     * 计算排班，得到排班模板
      *
-     * @param count
-     * @param model
-     * @param shifts
+     * @param count 根据班制和班次计算出的所需最小人数
+     * @param model 班制
+     * @param shifts 班次
      * @return int
      */
     public static List<ScheduleTemplate> calculate(List<DutyClass> shifts, int count, DutySuite model) {
         LinkedHashMap<Integer, PersonalDuty> prMap = new LinkedHashMap<>();
+        //根据人数初始化prMap，PersonalDuty这个bean里存放的是某一人的全部工作
         initPriorityQueue(count, prMap);
+        // DutyClass relevant relevantClassId
         List<Integer> relShiftIds = new ArrayList<>();
-        for (DutyClass s :
-                shifts) {
-            if (s.getRelevantClassId() != null) {
-                relShiftIds.add(s.getRelevantClassId());
-            }
-        }
-
-        List<Task> taskList = initShifts(shifts);
-        int index = 0;
+		for (DutyClass s : shifts) {
+			if (s.getRelevantClassId() != null) {
+				relShiftIds.add(s.getRelevantClassId());
+			}
+		}
+		// 处理班次关系，生成task列表，中间产物
+		List<Task> taskList = initShifts(shifts);
+	    int index = 0;
         boolean forward = true;
         while (index < taskList.size() && index >= 0) {
             Task task = taskList.get(index);
@@ -85,6 +108,74 @@ public class ScheduleCalculator {
         return trans(taskList, model);
     }
 
+	/**
+	 * 根据人数初始化prMap，PersonalDuty这个bean里存放的是某一人的全部工作
+	 * @param count
+	 * @param prMap
+	 */
+	public static void initPriorityQueue(int count, LinkedHashMap<Integer, PersonalDuty> prMap) {
+		for (int i = 0; i < count; i++) {
+			PersonalDuty d = new PersonalDuty();
+			d.userId = i;
+			prMap.put(d.userId, d);
+		}
+	}
+	/**
+	 * 处理班次关系，生成task列表，中间产物
+	 *
+	 * @param shifts
+	 * @return
+	 */
+	private static List<Task> initShifts(List<DutyClass> shifts) {
+		Map<Integer, DutyClass> shiftMap = new HashMap<>();
+		Set<Integer> relShiftSet = new HashSet<>();
+		for (DutyClass s : shifts) {
+			shiftMap.put(s.getId(), s);
+			if (s.getRelevantClassId() != null) {
+				relShiftSet.add(s.getRelevantClassId());
+			}
+		}
+		Collections.sort(shifts, (o1, o2) -> o2.getWorkingLength() - o1.getWorkingLength());
+		List<Task> PersonalDuty = new LinkedList<>();
+		// 按周来,一周7天，循环7次。
+		for (int d = 0; d < WEEK_DAYS; d++) {
+			// 每天都有固定的班次数，循环一遍所有班次
+			for (DutyClass s : shifts) {
+				// 除了，每周第一天的关联班次(大夜班次)不跳过本次循环，其余的关联班次都全跳过本次循环
+				if (relShiftSet.contains(s.getId()) && d != 0) {
+					continue;
+				}
+				// 非被关联的班次，以及本周第一天的夜班，进入下面的循环， TODO 没毛病，这逻辑老正确了
+				// 循环每个班次的人数，有一个算一个，生成task
+				for (int i = 0; i < s.getUserCount(); i++) {
+					Task t = new Task();
+					t.shift = s;
+					// 一周的第几天
+					t.day = d;
+					// 这一周的第几分钟开始上此班
+					t.priBefore = d * DAY_MINUTES + s.getStartTime();
+					// 这一周的第几分钟开始上此班
+					t.priAfter = d * DAY_MINUTES + s.getEndTime() + s.getRestMinutes();
+					PersonalDuty.add(t);
+					if (s.getRelevantClassId() != null && d != WEEK_DAYS - 1) {
+						DutyClass s2 = shiftMap.get(s.getRelevantClassId());
+						Task t2 = new Task();
+						t2.shift = s2;
+						// TODO 这里会出现一周的第7天（正常是0~6）
+						t2.day = d + 1;
+						t2.priBefore = t2.day * DAY_MINUTES + s2.getStartTime();
+						t2.priAfter = t2.day * DAY_MINUTES + s2.getEndTime() + s.getRestMinutes();
+						// t班关联天t2班
+						t.relevance = t2;
+						// t2接着t
+						t2.parent = t;
+						PersonalDuty.add(t2);
+					}
+				}
+			}
+		}
+		return PersonalDuty;
+	}
     private static void adjustDensity(List<Task> taskList, LinkedHashMap<Integer, PersonalDuty> prMap) {
     }
 
@@ -908,64 +999,9 @@ public class ScheduleCalculator {
         return true;
     }
 
-    /**
-     * 处理班次关系，生成任务列表
-     *
-     * @param shifts
-     * @return
-     */
-    private static List<Task> initShifts(List<DutyClass> shifts) {
-        Map<Integer, DutyClass> shiftMap = new HashMap<>();
-        Set<Integer> relShiftSet = new HashSet<>();
-        for (DutyClass s : shifts) {
-            shiftMap.put(s.getId(), s);
-            if (s.getRelevantClassId() != null) {
-                relShiftSet.add(s.getRelevantClassId());
-            }
-        }
-        Collections.sort(shifts, (o1,o2)->o2.getWorkingLength()-o1.getWorkingLength());
-        List<Task> PersonalDuty = new LinkedList<>();
-        for (int d = 0; d < WEEK_DAYS; d++) {
-            for (DutyClass s : shifts) {
-                if (relShiftSet.contains(s.getId()) && d != 0) {
-                    continue;
-                }
-                for (int i = 0; i < s.getUserCount(); i++) {
-                    Task t = new Task();
-                    t.shift = s;
-                    t.day = d;
-                    t.priBefore = d * DAY_MINUTES + s.getStartTime();
-                    t.priAfter = d * DAY_MINUTES + s.getEndTime() + s.getRestMinutes();
-                    PersonalDuty.add(t);
-                    if (s.getRelevantClassId() != null && d != WEEK_DAYS - 1) {
-                        DutyClass s2 = shiftMap.get(s.getRelevantClassId());
-                        Task t2 = new Task();
-                        t2.shift = s2;
-                        t2.day = d + 1;
-                        t2.priBefore = t2.day * DAY_MINUTES + s2.getStartTime();
-                        t2.priAfter = t2.day * DAY_MINUTES + s2.getEndTime() + s.getRestMinutes();
-                        t.relevance = t2;
-                        t2.parent = t;
-                        PersonalDuty.add(t2);
-                    }
-                }
-            }
-        }
-        return PersonalDuty;
-    }
 
-    /**
-     * 生成用户列表
-     *
-     * @param prMap
-     */
-    public static void initPriorityQueue(int count, LinkedHashMap<Integer, PersonalDuty> prMap) {
-        for (int i = 0; i < count; i++) {
-            PersonalDuty d = new PersonalDuty();
-            d.userId = i;
-            prMap.put(d.userId, d);
-        }
-    }
+
+
 
     public static void main(String[] args) throws ParseException {
         List<DutyClass> shifts = new ArrayList<>();

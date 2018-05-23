@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DutyEntity {
-	Integer suitid;
+	Integer suiteId;
 	
 	List<DutyClass> updatelist;
 	

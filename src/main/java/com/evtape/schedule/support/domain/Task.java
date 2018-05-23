@@ -6,7 +6,14 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class Task implements Cloneable {
+	
+    /**
+     * 星期几
+     */
     public int day;
+    /**
+     * 所在班次
+     */
     public DutyClass shift;
     public Integer userId;
     public int priBefore;

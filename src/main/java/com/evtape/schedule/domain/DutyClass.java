@@ -48,12 +48,12 @@ public class DutyClass {
 	private String classColor;
 
 	/**
-	 * 班次几点上班
+	 * 班次几点上班(从零点开始算，第多少分钟开始上班)
 	 */
 	private Integer startTime;
 
 	/**
-	 * 班次几点下班
+	 * 班次几点下班(从零点开始算，第多少分钟下班)
 	 */
 	private Integer endTime;
 

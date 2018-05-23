@@ -80,16 +80,16 @@ public class StationController {
 		return resultMap;
 	}
 
-	@ResponseBody
-	@RequestMapping(value = "/deleteStation", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap deleteStation(@RequestParam("id") Integer id) {
-		ResultMap resultMap;
-		try {
-			resultMap = new ResultMap(ResultCode.SUCCESS);
-			Repositories.stationRepository.delete(id);
-		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
-		}
-		return resultMap;
-	}
+//	@ResponseBody
+//	@RequestMapping(value = "/deleteStation", method = { RequestMethod.POST, RequestMethod.GET })
+//	public ResultMap deleteStation(@RequestParam("id") Integer id) {
+//		ResultMap resultMap;
+//		try {
+//			resultMap = new ResultMap(ResultCode.SUCCESS);
+//			Repositories.stationRepository.delete(id);
+//		} catch (Exception e) {
+//			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
+//		}
+//		return resultMap;
+//	}
 }
