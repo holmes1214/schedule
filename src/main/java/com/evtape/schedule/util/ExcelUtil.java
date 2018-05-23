@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -18,8 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import net.sf.json.JSONObject;
 
 public class ExcelUtil {
 
@@ -63,7 +62,7 @@ public class ExcelUtil {
 		for (Object o : datalist) {
 			try {
 				String string = objectMapper.writeValueAsString(o);
-				JSONObject object = JSONObject.fromObject(string);
+				JSONObject object = JSONObject.parseObject(string);
 				row = sheet.createRow(a);
 				for (int i = 0; i < key.size(); i++) {
 					cell = row.createCell(i);
