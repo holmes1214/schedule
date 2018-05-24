@@ -1,10 +1,5 @@
 package com.evtape.schedule.serivce;
 
-import com.evtape.schedule.domain.*;
-import com.evtape.schedule.persistent.Repositories;
-import com.evtape.schedule.util.DateUtil;
-import org.apache.commons.lang3.time.DateUtils;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,10 +7,41 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.stereotype.Service;
+
+import com.evtape.schedule.domain.DutyClass;
+import com.evtape.schedule.domain.DutySuite;
+import com.evtape.schedule.domain.ScheduleInfo;
+import com.evtape.schedule.domain.ScheduleTemplate;
+import com.evtape.schedule.domain.ScheduleUser;
+import com.evtape.schedule.domain.ScheduleWorkflow;
+import com.evtape.schedule.persistent.Repositories;
+import com.evtape.schedule.support.service.ScheduleCalculator;
+
 /**
  * Created by holmes1214 on 2018/5/16.
  */
+@Service
 public class ScheduleTemplateService {
+	
+	/**
+	 * 生成模板，先清库再入库
+	 * @return
+	 */
+	@Transactional
+	public List<ScheduleTemplate> removeAndSaveTemplates(Integer suiteId) {
+		DutySuite dutySuite = Repositories.dutySuiteRepository.getOne(suiteId);
+		List<DutyClass> classlist = Repositories.dutyClassRepository.findBySuiteId(suiteId);
+		List<ScheduleTemplate> templates = ScheduleCalculator.calculate(classlist, dutySuite);
+		List<ScheduleTemplate> list = Repositories.scheduleTemplateRepository.findBySuiteId(suiteId);
+		Repositories.scheduleTemplateRepository.delete(list);
+		Repositories.scheduleTemplateRepository.save(templates);
+		Repositories.scheduleTemplateRepository.flush();
+		return templates;
+	}
 
     public ScheduleTemplate saveTemplate(Integer dutySuiteId, Integer weekNum, Integer dayNum) {
         ScheduleTemplate template = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(dutySuiteId, weekNum, dayNum);

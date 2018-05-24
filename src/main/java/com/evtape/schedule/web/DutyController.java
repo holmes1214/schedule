@@ -19,7 +19,7 @@ import com.evtape.schedule.entity.DutyEntity;
 import com.evtape.schedule.persistent.Repositories;
 
 /**
- * @author ripper 用戶列表
+ * @author ripper duty列表
  */
 @Controller
 @RequestMapping("/duty")

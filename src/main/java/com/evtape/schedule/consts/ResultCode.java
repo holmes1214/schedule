@@ -2,7 +2,8 @@ package com.evtape.schedule.consts;
 
 public enum ResultCode {
 	SUCCESS("200", "OK"), 
-	SERVER_ERROR("201", "server端系统异常。"),;
+	SERVER_ERROR("201", "server端系统异常。"),
+	NOTEXISTS("202", "未查到该讯息"),;
 
 	private String status;
 	private String message;

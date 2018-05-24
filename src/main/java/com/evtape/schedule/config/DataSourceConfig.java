@@ -1,11 +1,6 @@
-/*
- * Copyright (c) 2016. 版权所有,归北京易精灵科技有限公司.
- */
-
 package com.evtape.schedule.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

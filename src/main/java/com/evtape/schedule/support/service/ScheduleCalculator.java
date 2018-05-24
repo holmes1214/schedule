@@ -81,7 +81,8 @@ public class ScheduleCalculator {
 				relShiftIds.add(s.getRelevantClassId());
 			}
 		}
-		// 处理班次关系，生成task列表，中间产物
+		// 处理班次关系，生成task列表，中间产物，task列表是描述一周内，一共需要多少人次的上班，夜班会被拆开。
+		// 一周有多少班
 		List<Task> taskList = initShifts(shifts);
 	    int index = 0;
         boolean forward = true;
@@ -121,7 +122,7 @@ public class ScheduleCalculator {
 		}
 	}
 	/**
-	 * 处理班次关系，生成task列表，中间产物
+	 * 处理班次关系，生成task列表，中间产物，task列表是描述一周内，一共需要多少人次的上班，夜班会被拆开。
 	 *
 	 * @param shifts
 	 * @return
@@ -145,8 +146,8 @@ public class ScheduleCalculator {
 				if (relShiftSet.contains(s.getId()) && d != 0) {
 					continue;
 				}
-				// 非被关联的班次，以及本周第一天的夜班，进入下面的循环， TODO 没毛病，这逻辑老正确了
-				// 循环每个班次的人数，有一个算一个，生成task
+				// 非被关联的班次（夜班的前半段），以及本周第一天的夜班，进入下面的循环， TODO 没毛病，这逻辑老正确了
+				// 循环每个班次需要的人数，有一个算一个，生成task
 				for (int i = 0; i < s.getUserCount(); i++) {
 					Task t = new Task();
 					t.shift = s;
@@ -154,14 +155,14 @@ public class ScheduleCalculator {
 					t.day = d;
 					// 这一周的第几分钟开始上此班
 					t.priBefore = d * DAY_MINUTES + s.getStartTime();
-					// 这一周的第几分钟开始上此班
+					// 这一周的第几分钟开始下此班
 					t.priAfter = d * DAY_MINUTES + s.getEndTime() + s.getRestMinutes();
 					PersonalDuty.add(t);
+					//如果此班有关联班次，且不为一周的最后一天，将被关联的班次也生成task
 					if (s.getRelevantClassId() != null && d != WEEK_DAYS - 1) {
 						DutyClass s2 = shiftMap.get(s.getRelevantClassId());
 						Task t2 = new Task();
 						t2.shift = s2;
-						// TODO 这里会出现一周的第7天（正常是0~6）
 						t2.day = d + 1;
 						t2.priBefore = t2.day * DAY_MINUTES + s2.getStartTime();
 						t2.priAfter = t2.day * DAY_MINUTES + s2.getEndTime() + s.getRestMinutes();
@@ -176,6 +177,28 @@ public class ScheduleCalculator {
 		}
 		return PersonalDuty;
 	}
+	
+    /**
+     * 任务列表向前计算
+     *
+     * @param task
+     * @param prMap
+     * @return
+     */
+    private static boolean calcForward(Task task, LinkedHashMap<Integer, PersonalDuty> prMap) {
+        if (task.parent != null) {
+            return true;
+        }
+        task.userAvailable.clear();
+        for (PersonalDuty p :
+                prMap.values()) {
+            if (isAvailable(p, task)) {
+                task.userAvailable.add(p);
+            }
+        }
+        return judgeDirection(task);
+    }
+	
     private static void adjustDensity(List<Task> taskList, LinkedHashMap<Integer, PersonalDuty> prMap) {
     }
 
@@ -812,26 +835,7 @@ public class ScheduleCalculator {
     }
 
 
-    /**
-     * 任务列表向前计算
-     *
-     * @param task
-     * @param prMap
-     * @return
-     */
-    private static boolean calcForward(Task task, LinkedHashMap<Integer, PersonalDuty> prMap) {
-        if (task.parent != null) {
-            return true;
-        }
-        task.userAvailable.clear();
-        for (PersonalDuty p :
-                prMap.values()) {
-            if (isAvailable(p, task)) {
-                task.userAvailable.add(p);
-            }
-        }
-        return judgeDirection(task);
-    }
+
 
     /**
      * 打印排班情况

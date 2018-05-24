@@ -12,4 +12,7 @@ public interface ScheduleTemplateRepository extends JpaRepository<ScheduleTempla
     long countBySuiteIdAndClassId(Integer dutySuiteId, Integer dutyClassId);
 
     List<ScheduleTemplate> findBySuiteIdOrderByOrderIndex(Integer suiteId);
+    
+    List<ScheduleTemplate> findBySuiteId(Integer suiteId);
+    
 }
