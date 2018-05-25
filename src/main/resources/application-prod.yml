@@ -1,5 +1,6 @@
 server:
     port: 8765
+    context-path: schedule-platform
 # 日志设定
 logging:
   level:
