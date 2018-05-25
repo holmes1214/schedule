@@ -1,3 +1,5 @@
+server:
+    port: 8765
 
 # 日志设定
 logging:
