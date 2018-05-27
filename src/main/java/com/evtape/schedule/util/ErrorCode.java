@@ -7,8 +7,10 @@ public enum ErrorCode {
 
     OK("0", "成功"),
     INVALID_TOKEN("1000", "用户登录已过期"),
-    INACTIVE_USER("1001","用户不存在或未激活" ),
-    ADMIN_REQUIRED("1002","需要管理员" ),
+    INACTIVE_USER("1001", "用户不存在或未激活"),
+    INVALID_USERNAME("1002", "用户不存在"),
+    INVALID_LOGIN("1003", "账号或密码错误"),
+    ADMIN_REQUIRED("1003", "需要管理员"),
     SystemError("9999", "服务器错误"),
     PARAMETER_ERROR("9001", "参数错误"),
     NO_METHOD("9002", "无对应method"),
@@ -27,13 +29,14 @@ public enum ErrorCode {
     WRONG_VALIDATION_CODE("100005", "验证码不正确"),
     ReachUrlTotalLimit("100006", "已达到设置的URL最大数目"),
     UPLOAD_ERROR("100007", "上传文件失败"),
-    URL_USER_NOT_MATCH("100008","设置的URL与用户信息不 符"),
-    FETCH_VIDEO_GET_PID_FAILURE("100009","抓取视频进程启动，获取PID失败"),
+    URL_USER_NOT_MATCH("100008", "设置的URL与用户信息不 符"),
+    FETCH_VIDEO_GET_PID_FAILURE("100009", "抓取视频进程启动，获取PID失败"),
 
     IS_RECORDING("100010", "主播正在录制中"),
-    SMS_SEND_ERROR("100011","短信发送失败" ),
+    SMS_SEND_ERROR("100011", "短信发送失败"),
     URL_ALREADY_EXIST("100011", "URL已存在"),
-    FILE_TRANSFORM_ERROR("100012","文件转换错误" );
+    FILE_TRANSFORM_ERROR("100012", "文件转换错误");
+
 
     public String value;
 

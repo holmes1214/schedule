@@ -26,7 +26,7 @@ public class RoleController {
 
 	/**
 	 * 查找用户的权限列表
-	 * 
+	 *
 	 * @param userId
 	 * @return
 	 */
@@ -36,7 +36,7 @@ public class RoleController {
 		ResultMap resultMap;
 		try {
 			resultMap = new ResultMap(ResultCode.SUCCESS);
-			RoleUser roleUser = Repositories.roleUserRepository.findByUserId(userId);
+            RoleUser roleUser = Repositories.roleUserRepository.findByUserId(userId);
 			List<RolePermission> rolePermission = Repositories.rolePermissionRepository
 					.findByRoleId(roleUser.getRoleId());
 			resultMap.setData(rolePermission);
@@ -48,7 +48,7 @@ public class RoleController {
 
 	/**
 	 * 添加role
-	 * 
+	 *
 	 * @return
 	 */
 	@ResponseBody
@@ -66,7 +66,7 @@ public class RoleController {
 
 	/**
 	 * 添加permission
-	 * 
+	 *
 	 * @return
 	 */
 	@ResponseBody
@@ -84,7 +84,7 @@ public class RoleController {
 
 	/**
 	 * 绑定role和permission
-	 * 
+	 *
 	 * @param permissionId
 	 * @param roleId
 	 * @return
@@ -114,7 +114,7 @@ public class RoleController {
 
 	/**
 	 * 绑定role和user TODO user只能有一个role，绑定之前需要先解绑别的
-	 * 
+	 *
 	 * @param userId
 	 * @param roleId
 	 * @return

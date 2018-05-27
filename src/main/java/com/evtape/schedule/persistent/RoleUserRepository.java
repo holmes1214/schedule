@@ -3,7 +3,8 @@ package com.evtape.schedule.persistent;
 import com.evtape.schedule.domain.RoleUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RoleUserRepository extends JpaRepository<RoleUser, Integer> {
+import java.util.List;
 
-	RoleUser findByUserId(Integer userId);
+public interface RoleUserRepository extends JpaRepository<RoleUser, Integer> {
+    List<RoleUser> findByUserId(Integer userId);
 }
