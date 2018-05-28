@@ -37,7 +37,7 @@ public class UserController {
 	@RequestMapping(value = "/addUser", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResultMap addUser(@RequestParam("backup") Integer backup, @RequestParam("districtId") Integer districtId,
 			@RequestParam("districtName") Integer districtName, @RequestParam("idCardNumber") Integer idCardNumber,
-			@RequestParam("password") Integer password, @RequestParam("positionId") Integer positionId,
+			@RequestParam("password") String password, @RequestParam("positionId") Integer positionId,
 			@RequestParam("stationId") Integer stationId, @RequestParam("stationName") Integer stationName,
 			@RequestParam("birthday") String birthday, @RequestParam("certLevel") String certLevel,
 			@RequestParam("certNo") String certNo, @RequestParam("eduBackGround") String eduBackGround,
@@ -86,7 +86,7 @@ public class UserController {
 	@RequestMapping(value = "/updateUser", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResultMap updateUser(@RequestParam("backup") Integer backup, @RequestParam("districtId") Integer districtId,
 			@RequestParam("districtName") Integer districtName, @RequestParam("idCardNumber") Integer idCardNumber,
-			@RequestParam("password") Integer password, @RequestParam("positionId") Integer positionId,
+			@RequestParam("password") String password, @RequestParam("positionId") Integer positionId,
 			@RequestParam("stationId") Integer stationId, @RequestParam("stationName") Integer stationName,
 			@RequestParam("birthday") String birthday, @RequestParam("certLevel") String certLevel,
 			@RequestParam("certNo") String certNo, @RequestParam("eduBackGround") String eduBackGround,

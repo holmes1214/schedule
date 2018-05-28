@@ -71,7 +71,7 @@ public class User {
 	/**
 	 * 密码
 	 */
-	private Integer password;
+	private String password;
 
 	/**
 	 * 身份证号
