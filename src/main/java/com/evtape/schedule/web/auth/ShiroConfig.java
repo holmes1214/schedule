@@ -43,10 +43,6 @@ public class ShiroConfig {
         filterMap.put("jwt", new JWTFilter());
         factoryBean.setFilters(filterMap);
 
-        factoryBean.setLoginUrl("/login");
-        factoryBean.setSuccessUrl("/home");
-        factoryBean.setUnauthorizedUrl("/403");
-
         Map<String, String> filterRuleMap = new HashMap<>();
         filterRuleMap.put("/**", "jwt");
         filterRuleMap.put("/401", "anon");
