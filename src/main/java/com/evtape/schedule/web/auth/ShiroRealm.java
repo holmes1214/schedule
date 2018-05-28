@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -43,27 +42,24 @@ public class ShiroRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         String userName = JWTUtil.getUserName(principals.toString());
-        Optional<User> optUser = Optional.ofNullable(userRepository.findByUserName(userName));
-        optUser.map(user -> {
-            List<RoleUser> roleUsers = roleUserRepository.findByUserId(user.getId());
-            List<String> roles = Lists.newArrayListWithCapacity(roleUsers.size());
-            Set<String> permissions = Sets.newHashSet();
-            roleUsers.forEach(roleUser -> {
-                Role role = roleRepository.findOne(roleUser.getRoleId());
-                roles.add(role.getName());
-                List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(roleUser.getRoleId());
-                rolePermissions.forEach(rolePermission -> {
-                    Permission permission = permissionRepository.findOne(rolePermission.getPermissionId());
-                    permissions.add(permission.getName());
-                });
+        User user = userRepository.findByUserName(userName);
+        List<RoleUser> roleUsers = roleUserRepository.findByUserId(user.getId());
+        List<String> roles = Lists.newArrayListWithCapacity(roleUsers.size());
+        Set<String> permissions = Sets.newHashSet();
+        roleUsers.forEach(roleUser -> {
+            Role role = roleRepository.findOne(roleUser.getRoleId());
+            roles.add(role.getName());
+            List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(roleUser.getRoleId());
+            rolePermissions.forEach(rolePermission -> {
+                Permission permission = permissionRepository.findOne(rolePermission.getPermissionId());
+                permissions.add(permission.getName());
             });
-
-            SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-            simpleAuthorizationInfo.addRoles(roles);
-            simpleAuthorizationInfo.addStringPermissions(permissions);
-            return simpleAuthorizationInfo;
         });
-        return null;
+
+        SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+        simpleAuthorizationInfo.addRoles(roles);
+        simpleAuthorizationInfo.addStringPermissions(permissions);
+        return simpleAuthorizationInfo;
     }
 
 
