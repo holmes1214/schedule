@@ -1,14 +1,10 @@
 package com.evtape.schedule.web;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.evtape.schedule.consts.ResultCode;
 import com.evtape.schedule.consts.ResultMap;
@@ -41,7 +37,7 @@ public class UserController {
 	@RequestMapping(value = "/addUser", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResultMap addUser(@RequestParam("backup") Integer backup, @RequestParam("districtId") Integer districtId,
 			@RequestParam("districtName") Integer districtName, @RequestParam("idCardNumber") Integer idCardNumber,
-			@RequestParam("passWord") Integer passWord, @RequestParam("positionId") Integer positionId,
+			@RequestParam("password") Integer password, @RequestParam("positionId") Integer positionId,
 			@RequestParam("stationId") Integer stationId, @RequestParam("stationName") Integer stationName,
 			@RequestParam("birthday") String birthday, @RequestParam("certLevel") String certLevel,
 			@RequestParam("certNo") String certNo, @RequestParam("eduBackGround") String eduBackGround,
@@ -60,7 +56,7 @@ public class UserController {
 			user.setDistrictId(districtId);
 			user.setDistrictName(districtName);
 			user.setIdCardNumber(idCardNumber);
-			user.setPassWord(passWord);
+			user.setPassword(password);
 			user.setPositionId(positionId);
 			user.setStationId(stationId);
 			user.setStationName(stationName);
@@ -90,7 +86,7 @@ public class UserController {
 	@RequestMapping(value = "/updateUser", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResultMap updateUser(@RequestParam("backup") Integer backup, @RequestParam("districtId") Integer districtId,
 			@RequestParam("districtName") Integer districtName, @RequestParam("idCardNumber") Integer idCardNumber,
-			@RequestParam("passWord") Integer passWord, @RequestParam("positionId") Integer positionId,
+			@RequestParam("password") Integer password, @RequestParam("positionId") Integer positionId,
 			@RequestParam("stationId") Integer stationId, @RequestParam("stationName") Integer stationName,
 			@RequestParam("birthday") String birthday, @RequestParam("certLevel") String certLevel,
 			@RequestParam("certNo") String certNo, @RequestParam("eduBackGround") String eduBackGround,
@@ -109,7 +105,7 @@ public class UserController {
 			user.setDistrictId(districtId);
 			user.setDistrictName(districtName);
 			user.setIdCardNumber(idCardNumber);
-			user.setPassWord(passWord);
+			user.setPassword(password);
 			user.setPositionId(positionId);
 			user.setStationId(stationId);
 			user.setStationName(stationName);
@@ -160,22 +156,22 @@ public class UserController {
 		}
 		return resultMap;
 	}
-	@ResponseBody
-	@RequestMapping(value = "/addUserExcel", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap addExcelUser(@RequestParam("excelfile") MultipartFile excelfile) {
-		ResultMap resultMap;
-		List<User> list= new ArrayList<User>();
-		Integer totalnum;
-		Integer successnum;
-		Integer failnum;
-		
-		try {
-			resultMap = new ResultMap(ResultCode.SUCCESS);
-			Repositories.userRepository.save(list);
-		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
-		}
-		return resultMap;
-	}
+//	@ResponseBody
+//	@RequestMapping(value = "/addUserExcel", method = { RequestMethod.POST, RequestMethod.GET })
+//	public ResultMap addExcelUser(@RequestParam("excelfile") MultipartFile excelfile) {
+//		ResultMap resultMap;
+//		List<User> list= new ArrayList<User>();
+//		Integer totalnum;
+//		Integer successnum;
+//		Integer failnum;
+//		
+//		try {
+//			resultMap = new ResultMap(ResultCode.SUCCESS);
+//			Repositories.userRepository.save(list);
+//		} catch (Exception e) {
+//			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
+//		}
+//		return resultMap;
+//	}
 
 }

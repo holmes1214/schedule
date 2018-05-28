@@ -1,5 +1,6 @@
 package com.evtape.schedule.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -36,9 +37,11 @@ public class RoleController {
 		ResultMap resultMap;
 		try {
 			resultMap = new ResultMap(ResultCode.SUCCESS);
-			RoleUser roleUser = Repositories.roleUserRepository.findByUserId(userId);
-			List<RolePermission> rolePermission = Repositories.rolePermissionRepository
-					.findByRoleId(roleUser.getRoleId());
+			List<RoleUser> roleUsers = Repositories.roleUserRepository.findByUserId(userId);
+			List<RolePermission> rolePermission = new ArrayList<>();
+			for (RoleUser roleUser : roleUsers) {
+				rolePermission.addAll(Repositories.rolePermissionRepository.findByRoleId(roleUser.getRoleId()));
+			}
 			resultMap.setData(rolePermission);
 		} catch (Exception e) {
 			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
@@ -113,7 +116,7 @@ public class RoleController {
 	}
 
 	/**
-	 * 绑定role和user TODO user只能有一个role，绑定之前需要先解绑别的
+	 * 绑定role和user ,返回，用户的role列表
 	 * 
 	 * @param userId
 	 * @param roleId
@@ -125,13 +128,36 @@ public class RoleController {
 		ResultMap resultMap;
 		try {
 			resultMap = new ResultMap(ResultCode.SUCCESS);
-			RoleUser roleUser = Repositories.roleUserRepository.findByUserId(userId);
-			if (roleUser == null) {
-				roleUser = new RoleUser();
-			}
+			RoleUser roleUser = new RoleUser();
 			roleUser.setRoleId(roleId);
 			roleUser.setUserId(userId);
 			Repositories.roleUserRepository.saveAndFlush(roleUser);
+			List<RoleUser> roleUsers = Repositories.roleUserRepository.findByUserId(userId);
+			resultMap.setData(roleUsers);
+		} catch (Exception e) {
+			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
+		}
+		return resultMap;
+	}
+	
+	/**
+	 * 解绑role和user ,返回，用户的role列表
+	 * 
+	 * @param userId
+	 * @param roleId
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/unbinduser", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResultMap unbinduser(@RequestParam("userId") Integer userId, @RequestParam("roleId") Integer roleId) {
+		ResultMap resultMap;
+		try {
+			resultMap = new ResultMap(ResultCode.SUCCESS);
+			RoleUser roleUser = Repositories.roleUserRepository.findByUserIdAndRoleId(userId, roleId);
+			Repositories.roleUserRepository.delete(roleUser.getId());
+			Repositories.roleUserRepository.flush();
+			List<RoleUser> roleUsers = Repositories.roleUserRepository.findByUserId(userId);
+			resultMap.setData(roleUsers);
 		} catch (Exception e) {
 			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
 		}
