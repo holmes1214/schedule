@@ -45,7 +45,7 @@ public class LoginController {
             if (ObjectUtils.notEqual(form.getPassword(), u.getPassword())) {
                 return new ResponseBundle().failure(ResponseMeta.ADMIN_PASSWD_NOT_ERROR);
             }
-            String token = JWTUtil.sign(u.getUserName(), u.getPassword());
+            String token = JWTUtil.sign(u.getPhoneNumber(), u.getPassword());
             LOGGER.info("create login token:{}", token);
             JSONObject response = new JSONObject();
             response.put("id", u.getId());

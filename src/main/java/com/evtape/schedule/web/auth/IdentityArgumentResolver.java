@@ -15,26 +15,27 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * Created by lianhai on 2018/5/27.
  */
 @Component
-public class UserMethodArgumentResolver implements HandlerMethodArgumentResolver {
+public class IdentityArgumentResolver implements HandlerMethodArgumentResolver {
+
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
         return (methodParameter.getParameterType().isAssignableFrom(String.class) &&
-                methodParameter.hasParameterAnnotation(UserName.class));
+                methodParameter.hasParameterAnnotation(Identity.class));
     }
 
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest
             webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        String userName = (String) webRequest.getAttribute("CurrentUser", RequestAttributes.SCOPE_REQUEST);
+        String phoneNumber = (String) webRequest.getAttribute("phoneNumber", RequestAttributes.SCOPE_REQUEST);
         String identification;
-        if (userName != null) {
-            identification = userName;
-            LOGGER.info("userName:{}", userName);
+        if (phoneNumber != null) {
+            identification = phoneNumber;
+            LOGGER.info("phoneNumber:{}", phoneNumber);
             return identification;
         }
         throw new AuthenticationException();
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserMethodArgumentResolver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IdentityArgumentResolver.class);
 }

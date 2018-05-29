@@ -6,25 +6,25 @@ import java.util.Optional;
 
 import com.evtape.schedule.domain.*;
 import com.evtape.schedule.domain.vo.ResponseBundle;
-import com.evtape.schedule.web.auth.UserName;
+import com.evtape.schedule.web.auth.Identity;
 import org.apache.shiro.authz.UnauthenticatedException;
+import org.omg.CORBA.INTERNAL;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import com.evtape.schedule.consts.ResultCode;
-import com.evtape.schedule.consts.ResultMap;
 import com.evtape.schedule.persistent.Repositories;
 
 /**
  * @author ripper 用戶列表
  */
-@Controller
+@RestController
 @RequestMapping("/role")
 public class RoleController {
 
     @GetMapping("/permission")
-    public ResponseBundle permissionlist(@UserName String userName) {
-        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByUserName(userName));
+    public ResponseBundle permissionlist(@Identity String phoneNumber) {
+        System.out.println("-----:" + phoneNumber);
+        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
             List<RoleUser> roleUsers = Repositories.roleUserRepository.findByUserId(u.getId());
             List<RolePermission> rolePermission = new ArrayList<>();
@@ -60,8 +60,8 @@ public class RoleController {
 //    }
 //    @RequestMapping(value = "/addrole", method = {RequestMethod.POST, RequestMethod.GET})
     @PostMapping
-    public ResponseBundle addrole(@RequestBody Role role, @UserName String userName) {
-        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByUserName(userName));
+    public ResponseBundle addrole(@RequestBody Role role, @Identity String phoneNumber) {
+        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
             Repositories.roleRepository.saveAndFlush(role);
             return new ResponseBundle().success();
@@ -87,8 +87,8 @@ public class RoleController {
 //    }
 
     @PostMapping("/permission")
-    public ResponseBundle addpermission(@RequestBody Permission permission, @UserName String userName) {
-        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByUserName(userName));
+    public ResponseBundle addpermission(@RequestBody Permission permission, @Identity String phoneNumber) {
+        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
             Repositories.permissionRepository.saveAndFlush(permission);
             return new ResponseBundle().success();
@@ -116,9 +116,9 @@ public class RoleController {
 
     @PutMapping("/permission/relation")
     public ResponseBundle bindpermission(@RequestParam("permissionId") Integer permissionId,
-                                         @RequestParam("roleId") Integer roleId, @UserName String userName) {
+                                         @RequestParam("roleId") Integer roleId, @Identity String phoneNumber) {
 
-        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByUserName(userName));
+        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
             Permission permission = Repositories.permissionRepository.getOne(permissionId);
             Role role = Repositories.roleRepository.getOne(roleId);
@@ -167,9 +167,8 @@ public class RoleController {
 
     @PutMapping("/user/relation")
     public ResponseBundle binduser(@RequestParam("userId") Integer userId, @RequestParam("roleId") Integer roleId,
-                                   @RequestParam("action") Integer action, @UserName String userName) {
-
-        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByUserName(userName));
+                                   @RequestParam("action") Integer action, @Identity String phoneNumber) {
+        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
             List<RoleUser> roleUsers;
             if (action == 0) {

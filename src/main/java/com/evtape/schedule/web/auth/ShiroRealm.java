@@ -41,8 +41,8 @@ public class ShiroRealm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        String userName = JWTUtil.getUserName(principals.toString());
-        User user = userRepository.findByUserName(userName);
+        String phoneNumber = JWTUtil.getPhoneNumber(principals.toString());
+        User user = userRepository.findByPhoneNumber(phoneNumber);
         List<RoleUser> roleUsers = roleUserRepository.findByUserId(user.getId());
 
         List<String> roles = Lists.newArrayListWithCapacity(roleUsers.size());
@@ -69,15 +69,15 @@ public class ShiroRealm extends AuthorizingRealm {
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws
             AuthenticationException {
         String token = (String) authenticationToken.getCredentials();
-        String userName = JWTUtil.getUserName(token);
-        if (userName == null) {
+        String phoneNumber = JWTUtil.getPhoneNumber(token);
+        if (phoneNumber == null) {
             throw new AuthenticationException(ErrorCode.INVALID_TOKEN.memo);
         }
-        User user = userRepository.findByUserName(userName);
+        User user = userRepository.findByPhoneNumber(phoneNumber);
         if (user == null) {
             throw new AuthenticationException(ErrorCode.INVALID_USERNAME.memo);
         }
-        if (!JWTUtil.verify(token, userName, user.getPassword())) {
+        if (!JWTUtil.verify(token, phoneNumber, user.getPassword())) {
             throw new AuthenticationException(ErrorCode.INVALID_LOGIN.memo);
         }
         return new SimpleAuthenticationInfo(token, token, REAM_NAME);

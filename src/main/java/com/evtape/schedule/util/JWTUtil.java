@@ -16,13 +16,13 @@ public class JWTUtil {
 
     private static final long EXPIRE_TIME = 24 * 60 * 60 * 1000;
 
-    private static final String USERNAME = "username";
+    private static final String PHONENUMBER = "phoneNumber";
 
     public static boolean verify(String token, String claimValue, String secret) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withClaim(USERNAME, claimValue)
+                    .withClaim(PHONENUMBER, claimValue)
                     .build();
             verifier.verify(token);
             return true;
@@ -36,7 +36,7 @@ public class JWTUtil {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
-                    .withClaim(USERNAME, claimValue)
+                    .withClaim(PHONENUMBER, claimValue)
                     .withExpiresAt(date)
                     .sign(algorithm);
         } catch (UnsupportedEncodingException e) {
@@ -44,10 +44,10 @@ public class JWTUtil {
         }
     }
 
-    public static String getUserName(String token) {
+    public static String getPhoneNumber(String token) {
         try {
             DecodedJWT jwt = JWT.decode(token);
-            return jwt.getClaim(USERNAME).asString();
+            return jwt.getClaim(PHONENUMBER).asString();
         } catch (JWTDecodeException e) {
             return null;
         }

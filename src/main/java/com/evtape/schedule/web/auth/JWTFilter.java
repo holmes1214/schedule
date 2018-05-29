@@ -32,8 +32,8 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         String authorization = servletRequest.getHeader("Authorization");
         JWTToken token = new JWTToken(authorization);
         getSubject(request, response).login(token);
-        Optional<String> optUserName = Optional.ofNullable(JWTUtil.getUserName((String) token.getCredentials()));
-        optUserName.ifPresent(userName -> request.setAttribute("CurrentUser", userName));
+        Optional<String> phoneNumber = Optional.ofNullable(JWTUtil.getPhoneNumber((String) token.getCredentials()));
+        phoneNumber.ifPresent(phone -> request.setAttribute("phoneNumber", phone));
         return true;
     }
 
