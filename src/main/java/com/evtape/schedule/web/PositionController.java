@@ -1,14 +1,15 @@
 package com.evtape.schedule.web;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.evtape.schedule.consts.ResultCode;
-import com.evtape.schedule.consts.ResultMap;
+import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.Position;
+import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 
 /**
@@ -18,69 +19,45 @@ import com.evtape.schedule.persistent.Repositories;
 @RequestMapping("/position")
 public class PositionController {
 
+	/**
+	 * Position 列表
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/list", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap positionList(@RequestParam("stationId") Integer stationId) {
-		ResultMap resultMap;
+	public ResponseBundle positionList(@RequestParam("stationId") Integer stationId) {
 		try {
-			resultMap = new ResultMap(ResultCode.SUCCESS);
-			resultMap.setData(Repositories.positionRepository.findByStationId(stationId));
+			return new ResponseBundle().success(Repositories.positionRepository.findByStationId(stationId));
 		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
-		return resultMap;
 	}
-
+	/**
+	 * Position 增改
+	 */
 	@ResponseBody
-	@RequestMapping(value = "/addPosition", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap addPosition(@RequestParam("positionName") String positionName,
-			@RequestParam("districtId") Integer districtId, @RequestParam("stationId") Integer stationId) {
-
-		ResultMap resultMap;
-		Position position = new Position();
+	@RequestMapping(value = "/update", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle updatePosition(@RequestBody Position position) {
 		try {
-			resultMap = new ResultMap(ResultCode.SUCCESS);
-			position.setDistrictId(districtId);
-			position.setPositionName(positionName);
-			position.setStationId(stationId);
 			Repositories.positionRepository.saveAndFlush(position);
+			return new ResponseBundle()
+					.success(Repositories.positionRepository.findByStationId(position.getStationId()));
 		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
-		return resultMap;
 	}
 
+	/**
+	 * Position 删
+	 */
 	@ResponseBody
-	@RequestMapping(value = "/updatePosition", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap updatePosition(@RequestParam("positionName") String positionName,
-			@RequestParam("districtId") Integer districtId, @RequestParam("stationId") Integer stationId,
-			@RequestParam("id") Integer id, @RequestParam("backupPosition") Integer backupPosition) {
-		ResultMap resultMap;
-		Position position = new Position();
+	@RequestMapping(value = "/delete", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle deletePosition(@RequestBody Position position) {
 		try {
-			resultMap = new ResultMap(ResultCode.SUCCESS);
-			position.setId(id);
-			position.setDistrictId(districtId);
-			position.setPositionName(positionName);
-			position.setStationId(stationId);
-			position.setBackupPosition(backupPosition);
-			Repositories.positionRepository.saveAndFlush(position);
+			Repositories.positionRepository.delete(position.getId());
+			return new ResponseBundle()
+					.success(Repositories.positionRepository.findByStationId(position.getStationId()));
 		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
-		return resultMap;
-	}
-
-	@ResponseBody
-	@RequestMapping(value = "/deletePosition", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap deletePosition(@RequestParam("id") Integer id) {
-		ResultMap resultMap;
-		try {
-			resultMap = new ResultMap(ResultCode.SUCCESS);
-			Repositories.positionRepository.delete(id);
-		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
-		}
-		return resultMap;
 	}
 }

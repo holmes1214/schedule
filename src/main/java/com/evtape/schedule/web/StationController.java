@@ -1,14 +1,15 @@
 package com.evtape.schedule.web;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.evtape.schedule.consts.ResultCode;
-import com.evtape.schedule.consts.ResultMap;
+import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.Station;
+import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 
 /**
@@ -17,79 +18,42 @@ import com.evtape.schedule.persistent.Repositories;
 @Controller
 @RequestMapping("/station")
 public class StationController {
-
+	
+	/**
+	 * Station 列表
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/list", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap stationList(@RequestParam("districtId") Integer districtId) {
-		ResultMap resultMap;
+	public ResponseBundle stationList(@RequestParam("districtId") Integer districtId) {
 		try {
-			resultMap = new ResultMap(ResultCode.SUCCESS);
-			resultMap.setData(Repositories.stationRepository.findByDistrictId(districtId));
+			return new ResponseBundle().success(Repositories.stationRepository.findByDistrictId(districtId));
 		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
-		return resultMap;
-	}
-
-//	@ResponseBody
-//	@RequestMapping(value = "/allStation", method = { RequestMethod.POST, RequestMethod.GET })
-//	public ResultMap allStation() {
-//		ResultMap resultMap;
-//		try {
-//			resultMap = new ResultMap(ResultCode.SUCCESS);
-//			Repositories.stationRepository.findAll();
-//		} catch (Exception e) {
-//			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
-//		}
-//		return resultMap;
-//	}
-
-	@ResponseBody
-	@RequestMapping(value = "/addStation", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap addStation(@RequestParam("stationName") String stationName,
-			@RequestParam("districtId") Integer districtId) {
-
-		ResultMap resultMap;
-		Station station = new Station();
-		try {
-			resultMap = new ResultMap(ResultCode.SUCCESS);
-			station.setDistrictId(districtId);
-			station.setStationName(stationName);
-			Repositories.stationRepository.saveAndFlush(station);
-		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
-		}
-		return resultMap;
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/updateStation", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap updateStation(@RequestParam("stationName") String stationName,
-			@RequestParam("districtId") Integer districtId, @RequestParam("id") Integer id) {
-		ResultMap resultMap;
-		Station station = new Station();
+	@RequestMapping(value = "/update", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle updateStation(@RequestBody Station station) {
 		try {
-			resultMap = new ResultMap(ResultCode.SUCCESS);
-			station.setId(id);
-			station.setDistrictId(districtId);
-			station.setStationName(stationName);
 			Repositories.stationRepository.saveAndFlush(station);
+			return new ResponseBundle()
+					.success(Repositories.stationRepository.findByDistrictId(station.getDistrictId()));
 		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
-		return resultMap;
 	}
 
-//	@ResponseBody
-//	@RequestMapping(value = "/deleteStation", method = { RequestMethod.POST, RequestMethod.GET })
-//	public ResultMap deleteStation(@RequestParam("id") Integer id) {
-//		ResultMap resultMap;
-//		try {
-//			resultMap = new ResultMap(ResultCode.SUCCESS);
-//			Repositories.stationRepository.delete(id);
-//		} catch (Exception e) {
-//			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
-//		}
-//		return resultMap;
-//	}
+	@ResponseBody
+	@RequestMapping(value = "/delete", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle deleteStation(@RequestBody Station station) {
+		try {
+			Repositories.stationRepository.delete(station.getId());
+			return new ResponseBundle()
+					.success(Repositories.stationRepository.findByDistrictId(station.getDistrictId()));
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+
 }

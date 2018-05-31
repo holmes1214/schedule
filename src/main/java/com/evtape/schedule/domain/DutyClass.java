@@ -56,12 +56,22 @@ public class DutyClass {
 	 * 班次几点下班(从零点开始算，第多少分钟下班)
 	 */
 	private Integer endTime;
-
+	
 	/**
-	 * 班次时长
+	 * 班次几点上班-小时
+	 */
+    private String startTimeStr;
+	/**
+	 * 班次几点下班-小时
+	 */
+    private String endTimeStr;
+	/**
+	 * 班次时长（分钟）
 	 */
 	private Integer workingLength;
-
+	/**
+	 * 两班间隔（分钟）
+	 */
 	private Integer restMinutes;
 
 	private Integer relevantClassId;

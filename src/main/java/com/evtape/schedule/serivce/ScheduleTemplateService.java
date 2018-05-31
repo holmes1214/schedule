@@ -33,7 +33,7 @@ public class ScheduleTemplateService {
 	 */
 	@Transactional
 	public List<ScheduleTemplate> removeAndSaveTemplates(Integer suiteId) {
-		DutySuite dutySuite = Repositories.dutySuiteRepository.getOne(suiteId);
+		DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
 		List<DutyClass> classlist = Repositories.dutyClassRepository.findBySuiteId(suiteId);
 		List<ScheduleTemplate> templates = ScheduleCalculator.calculate(classlist, dutySuite);
 		List<ScheduleTemplate> list = Repositories.scheduleTemplateRepository.findBySuiteId(suiteId);

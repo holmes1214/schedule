@@ -58,6 +58,9 @@ public class DutySuite {
 	 */
 	private Integer yearlyWorkingHourLimit;
 
+	/**
+	 * 备班班制，backup值为1
+	 */
 	private Integer backup;
 
 }

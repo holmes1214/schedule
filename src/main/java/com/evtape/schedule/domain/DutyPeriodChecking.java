@@ -29,6 +29,29 @@ public class DutyPeriodChecking {
 	private Integer positionId;
 
 	private Integer suiteId;
+	
+	/**
+	 * 班次几点上班-分钟
+	 */
+	private Integer startTime;
+
+	/**
+	 * 班次几点下班-分钟
+	 */
+	private Integer endTime;
+	/**
+	 * 班次几点上班-小时
+	 */
+    private String startTimeStr;
+	/**
+	 * 班次几点下班-小时
+	 */
+    private String endTimeStr;
+    
+	/**
+	 * 人数
+	 */
+    private Integer userCount;
 
 	private Integer backup;
 

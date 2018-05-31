@@ -120,8 +120,8 @@ public class RoleController {
 
         Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
-            Permission permission = Repositories.permissionRepository.getOne(permissionId);
-            Role role = Repositories.roleRepository.getOne(roleId);
+            Permission permission = Repositories.permissionRepository.findOne(permissionId);
+            Role role = Repositories.roleRepository.findOne(roleId);
             RolePermission rolePermission = new RolePermission();
             rolePermission.setPermissionCode(permission.getCode());
             rolePermission.setPermissionId(permission.getId());

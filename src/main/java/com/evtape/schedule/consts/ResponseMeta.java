@@ -39,6 +39,10 @@ public enum ResponseMeta {
     BUSINESS_VIDEO_PLAY_LIMIT(40005, "在线观看余额不足"),
     BUSINESS_GENARATE_FRAGMENT_LIMIT(40006, "片段生成余额不足"),
     BUSINESS_DOWNLOAD_VIDEO_LIMIT(40007, "视频下载余额不足"),
+    
+    SUITE_ISACTIVE(60001, "当前班制不能删除"),
+    
+    DISTRICT_HASSTATION(60101, "当前站区下仍包含有站，不能删除此站区"),
 
     /* 系统错误 */
     SYSTEM_INNER_ERROR(50001, "系统繁忙，请稍后重试");
