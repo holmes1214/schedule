@@ -30,9 +30,11 @@ public class ScheduleWorkflow {
 
 	private Integer suiteId;
 
+	/**
+	 * 流程编号
+	 */
 	private Integer classId;
 
 	private String code;
 	
-	private String dutyClassId;
 }

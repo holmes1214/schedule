@@ -206,7 +206,7 @@ public class PictureUtil {
         List<ScheduleWorkflowContent> contents = null;
         for (ScheduleWorkflow w :
                 workflows) {
-            if (w.getDutyClassId().toString().equals(shiftId) && serialNumber != null && serialNumber.endsWith(w.getCode())) {
+            if (w.getClassId().toString().equals(shiftId) && serialNumber != null && serialNumber.endsWith(w.getCode())) {
                 contents = contentMap.get(w.getId());
             }
         }

@@ -1,0 +1,23 @@
+package com.evtape.schedule.domain.vo;
+
+import java.util.List;
+
+import javax.persistence.Entity;
+
+import com.evtape.schedule.domain.DutyClass;
+
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * 班次，一个岗有多条数据
+ */
+@Entity
+@Getter
+@Setter
+public class DutyClassVo extends DutyClass {
+	
+	private  List<ScheduleWorkflowVo> scheduleWorkflowVolist;
+	
+
+}

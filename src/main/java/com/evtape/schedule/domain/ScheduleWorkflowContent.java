@@ -23,9 +23,13 @@ public class ScheduleWorkflowContent {
 	
 	private Integer districtId;
 
-	private Integer suiteId;
+	private Integer stationId;
 
-	private Integer dutyClassId;
+	private Integer positionId;
+	
+	private Integer classId;
+	
+	private Integer suiteId;
 
 	private Integer workFlowId;
 

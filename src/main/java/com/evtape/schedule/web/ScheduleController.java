@@ -13,9 +13,7 @@ import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.serivce.ScheduleTemplateService;
 
 /**
- * 站区接口,增刪改查
- * 
- * @author ripper
+ * 排班
  */
 @Controller
 @RequestMapping("/schedule")
