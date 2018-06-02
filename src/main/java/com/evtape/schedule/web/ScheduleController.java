@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.evtape.schedule.consts.ResultCode;
-import com.evtape.schedule.consts.ResultMap;
+import com.evtape.schedule.consts.ResponseMeta;
+import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.serivce.ScheduleTemplateService;
 
@@ -29,19 +29,33 @@ public class ScheduleController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/createtemplate", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResultMap createtemplate(@RequestParam("suiteId") Integer suiteId) {
-		ResultMap resultMap;
+	public ResponseBundle createtemplate(@RequestParam("suiteId") Integer suiteId) {
 		try {
 			if (Repositories.dutySuiteRepository.exists(suiteId)) {
-				resultMap = new ResultMap(ResultCode.SUCCESS);
-				resultMap.setData(scheduleTemplateService.removeAndSaveTemplates(suiteId));
-			} else {
-				resultMap = new ResultMap(ResultCode.NOTEXISTS);
+				return new ResponseBundle().success(scheduleTemplateService.removeAndSaveTemplates(suiteId));
 			}
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		} catch (Exception e) {
-			resultMap = new ResultMap(ResultCode.SERVER_ERROR);
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
-		return resultMap;
 	}
-
+	
+	/**
+	 * templatelist
+	 * 
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/templatelist", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle templatelist(@RequestParam("suiteId") Integer suiteId) {
+		try {
+			if (Repositories.dutySuiteRepository.exists(suiteId)) {
+				return new ResponseBundle().success(scheduleTemplateService.removeAndSaveTemplates(suiteId));
+			}
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+	
 }
