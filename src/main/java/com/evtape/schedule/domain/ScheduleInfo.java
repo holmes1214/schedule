@@ -41,6 +41,8 @@ public class ScheduleInfo {
 
 	private String scheduleWeek;
 
+	private Integer workingHours;
+
 	private Date createDate;
 
 	private Date modifyDate;
