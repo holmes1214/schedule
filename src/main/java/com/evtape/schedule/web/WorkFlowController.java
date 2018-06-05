@@ -28,7 +28,7 @@ public class WorkFlowController {
 
 	@ResponseBody
 	@RequestMapping(value = "/getAllWorkflowContent", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResponseBundle updateStation(@RequestParam("suiteId") Integer suiteId) {
+	public ResponseBundle getAllWorkflowContent(@RequestParam("suiteId") Integer suiteId) {
 		try {
 
 			List<DutyClassVo> dutyClassVolist = new ArrayList<DutyClassVo>();

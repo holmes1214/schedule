@@ -10,5 +10,5 @@ public interface ScheduleUserRepository extends JpaRepository<ScheduleUser, Inte
     ScheduleUser findBySuiteIdAndWeekNum(Integer suiteId, Integer weekNum);
 
     List<ScheduleUser> findBySuiteIdOrderByWeekNum(Integer suiteId);
-
+    
 }

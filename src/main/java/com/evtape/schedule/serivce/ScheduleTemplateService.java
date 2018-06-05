@@ -70,7 +70,11 @@ public class ScheduleTemplateService {
         return template;
     }
 
-    public void exchangeTemplate(Integer suiteId, Integer classId, Integer weekNum1, Integer dayNum1, Integer weekNum2, Integer dayNum2) {
+    /**
+     * 排班模板交换任务
+     * TODO 这是不是只保存了一条
+     */
+    public void exchangeTemplate(Integer suiteId, Integer weekNum1, Integer dayNum1, Integer weekNum2, Integer dayNum2) {
         ScheduleTemplate template1 = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum1, dayNum1);
         ScheduleTemplate template2 = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum2, dayNum2);
         if (template1 == null && template2 == null) {
