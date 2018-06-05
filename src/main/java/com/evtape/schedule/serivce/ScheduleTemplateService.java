@@ -142,8 +142,5 @@ public class ScheduleTemplateService {
         return df.format(DateUtils.addDays(date,days));
     }
 
-    public static void main(String[] a ){
-        System.out.print(-1%7);
-    }
 }
 
