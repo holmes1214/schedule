@@ -29,7 +29,6 @@ public class ScheduleTemplateService {
 	
 	/**
 	 * 生成模板，先清库再入库
-	 * @return
 	 */
 	@Transactional
 	public List<ScheduleTemplate> removeAndSaveTemplates(Integer suiteId) {
@@ -42,7 +41,9 @@ public class ScheduleTemplateService {
 		Repositories.scheduleTemplateRepository.flush();
 		return templates;
 	}
-
+	/**
+	 * 
+	 */
     public ScheduleTemplate saveTemplate(Integer dutySuiteId, Integer weekNum, Integer dayNum) {
         ScheduleTemplate template = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(dutySuiteId, weekNum, dayNum);
         long count = Repositories.scheduleTemplateRepository.countBySuiteIdAndClassId(dutySuiteId, template.getClassId());
@@ -70,28 +71,34 @@ public class ScheduleTemplateService {
         return template;
     }
 
-    /**
-     * 排班模板交换任务
-     * TODO 这是不是只保存了一条
-     */
-    public void exchangeTemplate(Integer suiteId, Integer weekNum1, Integer dayNum1, Integer weekNum2, Integer dayNum2) {
-        ScheduleTemplate template1 = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum1, dayNum1);
-        ScheduleTemplate template2 = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum2, dayNum2);
-        if (template1 == null && template2 == null) {
-            return;
-        } else if (template2 != null) {
-            template2.setWeekNum(weekNum1);
-            template2.setDayNum(dayNum1);
-            template2.setOrderIndex(weekNum1*7+dayNum1);
-            Repositories.scheduleTemplateRepository.save(template2);
-        } else if (template1 != null) {
-            template1.setWeekNum(weekNum2);
-            template1.setDayNum(dayNum2);
-            template2.setOrderIndex(weekNum2*7+dayNum2);
-            Repositories.scheduleTemplateRepository.save(template1);
-        }
-    }
-
+	/**
+	 * 排班模板交换任务
+	 */
+	public void exchangeTemplate(Integer suiteId, Integer weekNum1, Integer dayNum1, Integer weekNum2,
+			Integer dayNum2) {
+		ScheduleTemplate template1 = Repositories.scheduleTemplateRepository.
+				findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum1, dayNum1);
+		ScheduleTemplate template2 = Repositories.scheduleTemplateRepository.
+				findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum2, dayNum2);
+		if (template1 == null && template2 == null) {
+			return;
+		} 
+		if (template2 != null) {
+			template2.setWeekNum(weekNum1);
+			template2.setDayNum(dayNum1);
+			template2.setOrderIndex(weekNum1 * 7 + dayNum1);
+			Repositories.scheduleTemplateRepository.save(template2);
+		} 
+		if (template1 != null) {
+			template1.setWeekNum(weekNum2);
+			template1.setDayNum(dayNum2);
+			template2.setOrderIndex(weekNum2 * 7 + dayNum2);
+			Repositories.scheduleTemplateRepository.save(template1);
+		}
+	}
+	/**
+	 * 排班模板设置人员
+	 */
     public void setScheduleUser(Integer suiteId,Integer weekNum,Integer userId){
         ScheduleUser scheduleUser=new ScheduleUser();
         scheduleUser.setWeekNum(weekNum);
@@ -103,12 +110,17 @@ public class ScheduleTemplateService {
         scheduleUser.setPositionId(suite.getPositionId());
         Repositories.scheduleUserRepository.save(scheduleUser);
     }
-
+    
+	/**
+	 * 排班模板取消人员设置
+	 */
     public void removeScheduleUser(Integer suiteId,Integer weekNum){
         ScheduleUser user=Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(suiteId,weekNum);
         Repositories.scheduleUserRepository.delete(user);
     }
-
+	/**
+	 * 生成排班计划
+	 */
     public List<ScheduleInfo> createScheduleInfoData(Integer suiteId,String dateStr) throws ParseException {
         DateFormat df =new SimpleDateFormat("yyyyMMdd");
         Date from = df.parse(dateStr);

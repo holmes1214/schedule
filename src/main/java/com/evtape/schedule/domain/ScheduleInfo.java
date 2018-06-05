@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
- * 排班模板单元格
+ * 根据模板生成排班
  */
 @Entity
 @Getter
@@ -36,6 +36,8 @@ public class ScheduleInfo {
 	private String dutyCode;
 
 	private Integer userId;
+	
+	private Integer suiteId;
 
 	private String dateStr;
 

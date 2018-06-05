@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.DutySuite;
+import com.evtape.schedule.domain.ScheduleInfo;
 import com.evtape.schedule.domain.ScheduleTemplate;
 import com.evtape.schedule.domain.ScheduleUser;
 import com.evtape.schedule.domain.vo.ResponseBundle;
@@ -152,8 +153,6 @@ public class ScheduleController {
 
 	/**
 	 * 排班模板取消人员设置
-	 * 
-	 * @return
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/removescheduleuser", method = { RequestMethod.POST, RequestMethod.GET })
@@ -167,6 +166,37 @@ public class ScheduleController {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
+	
+	/**
+	 * 生成排班计划
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/createscheduleinfo", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle createscheduleinfo(@RequestParam("suiteId") Integer suiteId,
+			@RequestParam("dateStr") String dateStr) {
+		try {
+			List<ScheduleInfo> scheduleInfos = scheduleTemplateService.createScheduleInfoData(suiteId, dateStr);
+			return new ResponseBundle().success(scheduleInfos);
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+	
+	/**
+	 * 生成排班计划
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/getscheduleinfo", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle getscheduleinfo(@RequestParam("suiteId") Integer suiteId) {
+		try {
+			List<ScheduleInfo> scheduleInfos = Repositories.scheduleInfoRepository.findBySuiteId(suiteId);
+			return new ResponseBundle().success(scheduleInfos);
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+	
+	
 
 	// 排班模板生成排班计划 TODO
 }
