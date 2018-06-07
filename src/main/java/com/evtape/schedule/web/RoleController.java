@@ -8,8 +8,6 @@ import com.evtape.schedule.domain.*;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.web.auth.Identity;
 import org.apache.shiro.authz.UnauthenticatedException;
-import org.omg.CORBA.INTERNAL;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.evtape.schedule.persistent.Repositories;
