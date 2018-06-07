@@ -8,8 +8,6 @@ import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.util.JWTUtil;
 import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -46,7 +44,6 @@ public class LoginController {
                 return new ResponseBundle().failure(ResponseMeta.ADMIN_PASSWD_NOT_ERROR);
             }
             String token = JWTUtil.sign(u.getPhoneNumber(), u.getPassword());
-            LOGGER.info("create login token:{}", token);
             JSONObject response = new JSONObject();
             response.put("id", u.getId());
             response.put("userName", u.getUserName());
@@ -55,7 +52,5 @@ public class LoginController {
         }).orElse(new ResponseBundle().failure(ResponseMeta.ADMIN_ACCOUNT_NOT_EXISTE));
 
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
 
 }
