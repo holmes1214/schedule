@@ -186,7 +186,7 @@ public class ScheduleController {
 	}
 
 	/**
-	 * 生成排班计划
+	 * 查询排班计划
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/getscheduleinfo", method = { RequestMethod.POST, RequestMethod.GET })
