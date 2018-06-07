@@ -214,6 +214,8 @@ public class ScheduleCalculator {
             template.setDutyCode(t.shift.getDutyCode());
             template.setWorkingLength(t.shift.getWorkingLength());
             template.setCellColor(t.shift.getClassColor());
+            template.setWeekNum(t.userId);
+            template.setDayNum(t.day);
             template.setOrderIndex(t.userId * WEEK_DAYS + t.day);
             result.add(template);
         }
