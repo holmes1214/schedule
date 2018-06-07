@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.evtape.schedule.consts.ResponseMeta;
+import com.evtape.schedule.domain.DutyClass;
 import com.evtape.schedule.domain.DutySuite;
 import com.evtape.schedule.domain.ScheduleInfo;
 import com.evtape.schedule.domain.ScheduleTemplate;
 import com.evtape.schedule.domain.ScheduleUser;
+import com.evtape.schedule.domain.User;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.serivce.ScheduleTemplateService;
@@ -143,6 +145,7 @@ public class ScheduleController {
 			user.setStationId(dutySuite.getStationId());
 			user.setSuiteId(suiteId);
 			user.setWeekNum(weekNum);
+			user.setUserId(userId);
 			Repositories.scheduleUserRepository.saveAndFlush(user);
 
 			return new ResponseBundle().success(user);
@@ -166,7 +169,7 @@ public class ScheduleController {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
-	
+
 	/**
 	 * 生成排班计划
 	 */
@@ -181,9 +184,9 @@ public class ScheduleController {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
-	
+
 	/**
-	 * 生成排班计划
+	 * 查询排班计划
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/getscheduleinfo", method = { RequestMethod.POST, RequestMethod.GET })
@@ -195,8 +198,62 @@ public class ScheduleController {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
-	
-	
 
-	// 排班模板生成排班计划 TODO
+	/**
+	 * 手动排班
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/manualtemplate", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle manualtemplate(@RequestParam("suiteId") Integer suiteId) {
+		try {
+
+			DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
+			List<User> userlist = Repositories.userRepository.findByDistrictIdAndBackup(dutySuite.getDistrictId(), 1);
+			List<ScheduleUser> scheduleUsers = new ArrayList<ScheduleUser>();
+			ScheduleUser scheduleUser;
+			for (int i = 0; i < userlist.size(); i++) {
+				scheduleUser = new ScheduleUser();
+				scheduleUser.setDistrictId(dutySuite.getDistrictId());
+				scheduleUser.setPositionId(dutySuite.getPositionId());
+				scheduleUser.setStationId(dutySuite.getStationId());
+				scheduleUser.setSuiteId(suiteId);
+				scheduleUser.setWeekNum(i + 1);
+				scheduleUser.setUserId(userlist.get(i).getId());
+				scheduleUsers.add(scheduleUser);
+			}
+			Repositories.scheduleUserRepository.save(scheduleUsers);
+			Repositories.scheduleUserRepository.flush();
+			return new ResponseBundle().success(scheduleUsers);
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+
+	/**
+	 * 手动排班
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/settemplateclass", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle settemplateclass(@RequestParam("suiteId") Integer suiteId,
+			@RequestParam("classId") Integer classId, @RequestParam("weekNum") Integer weekNum,
+			@RequestParam("dayNum") Integer dayNum) {
+		try {
+			ScheduleTemplate scheduleTemplate = new ScheduleTemplate();
+			DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
+			DutyClass dutyClass = Repositories.dutyClassRepository.findOne(classId);
+			scheduleTemplate.setDistrictId(dutySuite.getDistrictId());
+			scheduleTemplate.setSuiteId(suiteId);
+			scheduleTemplate.setWeekNum(weekNum);
+			scheduleTemplate.setDayNum(dayNum);
+			scheduleTemplate.setClassId(classId);
+			scheduleTemplate.setCellColor(dutyClass.getClassColor());
+			scheduleTemplate.setWorkingLength(dutyClass.getWorkingLength());
+			scheduleTemplate.setDutyName(dutyClass.getDutyName());
+			scheduleTemplate.setDutyCode(dutyClass.getDutyCode());
+			Repositories.scheduleTemplateRepository.saveAndFlush(scheduleTemplate);
+			return new ResponseBundle().success(scheduleTemplate);
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
 }

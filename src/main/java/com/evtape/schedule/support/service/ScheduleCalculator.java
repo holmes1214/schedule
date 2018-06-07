@@ -122,7 +122,7 @@ public class ScheduleCalculator {
 		}
 	}
 	/**
-	 * 处理班次关系，生成task列表，中间产物，task列表是描述一周内，一共需要多少人次的上班，夜班会被拆开。
+	 * 处理班次关系，生成task列表，中间产物，List<Task>列表是描述一周内，一共需要多少人次的上班，夜班会被拆开。
 	 *
 	 * @param shifts
 	 * @return
@@ -214,6 +214,8 @@ public class ScheduleCalculator {
             template.setDutyCode(t.shift.getDutyCode());
             template.setWorkingLength(t.shift.getWorkingLength());
             template.setCellColor(t.shift.getClassColor());
+            template.setWeekNum(t.userId);
+            template.setDayNum(t.day);
             template.setOrderIndex(t.userId * WEEK_DAYS + t.day);
             result.add(template);
         }

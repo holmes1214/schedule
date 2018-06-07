@@ -10,11 +10,9 @@ import lombok.Setter;
 /**
  * 班次，一个岗有多条数据
  */
-//@Entity
+
 @Getter
 @Setter
 public class DutyClassVo extends DutyClass {
-	
-	private  List<ScheduleWorkflowVo> scheduleWorkflowVolist;
-
+    private List<ScheduleWorkflowVo> scheduleWorkflowVolist;
 }
