@@ -21,7 +21,6 @@ public class RoleController {
 
     @GetMapping("/permission")
     public ResponseBundle permissionlist(@Identity String phoneNumber) {
-        System.out.println("-----:" + phoneNumber);
         Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
             List<RoleUser> roleUsers = Repositories.roleUserRepository.findByUserId(u.getId());

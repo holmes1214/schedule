@@ -7,6 +7,10 @@ import com.evtape.schedule.domain.form.LoginForm;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.util.JWTUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
@@ -21,13 +25,18 @@ import java.util.stream.Collectors;
 /**
  * @author ripper 用戶列表
  */
+@Api(value = "用户登录接口")
 @RestController
 @RequestMapping(value = "/login", produces = "application/json;charset=UTF-8")
 public class LoginController {
 
-    /**
-     * 登录
-     */
+    @ApiOperation(value = "用户登录", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userName", value = "用户名", required = true, paramType = "body",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "password", value = "密码", required = true, paramType = "body",
+                    dataType = "string"),
+    })
     @PostMapping
     public ResponseBundle login(@RequestBody @Validated LoginForm form, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -50,7 +59,6 @@ public class LoginController {
             response.put("token", token);
             return new ResponseBundle().success(response);
         }).orElse(new ResponseBundle().failure(ResponseMeta.ADMIN_ACCOUNT_NOT_EXISTE));
-
     }
 
 }
