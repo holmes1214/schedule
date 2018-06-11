@@ -34,7 +34,7 @@ public class ScheduleController {
 	private ScheduleTemplateService scheduleTemplateService;
 
 	/**
-	 * 创建ScheduleTemplate,删除旧的，并入库
+	 * 删除旧排班模板，创建新模板
 	 * 
 	 * @return
 	 */
@@ -200,7 +200,7 @@ public class ScheduleController {
 	}
 
 	/**
-	 * 手动排班
+	 * 手动排班创建数据
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/manualtemplate", method = { RequestMethod.POST, RequestMethod.GET })
@@ -230,7 +230,7 @@ public class ScheduleController {
 	}
 
 	/**
-	 * 手动排班
+	 * 手动排班设置班次
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/settemplateclass", method = { RequestMethod.POST, RequestMethod.GET })

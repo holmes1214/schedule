@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.evtape.schedule.consts.ResponseMeta;
@@ -47,14 +48,14 @@ public class DistrictController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/delete", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResponseBundle deleteDistrict(@RequestBody District district) {
+	public ResponseBundle deleteDistrict(@RequestParam("districtId") Integer districtId) {
 		try {
 
-			List<Station> list = Repositories.stationRepository.findByDistrictId(district.getId());
+			List<Station> list = Repositories.stationRepository.findByDistrictId(districtId);
 			if (list != null && list.size() > 0) {
 				return new ResponseBundle().failure(ResponseMeta.DISTRICT_HASSTATION);
 			}
-			Repositories.districtRepository.delete(district.getId());
+			Repositories.districtRepository.delete(districtId);
 			return new ResponseBundle().success(Repositories.districtRepository.findAll());
 		} catch (Exception e) {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);

@@ -23,12 +23,12 @@ import com.evtape.schedule.persistent.Repositories;
  * @author ripper 站列表接口,增刪改查
  */
 @Controller
-@RequestMapping("/workflow")
+@RequestMapping("workflow")
 public class WorkFlowController {
 
 	@ResponseBody
-	@RequestMapping(value = "/getAllWorkflowContent", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResponseBundle getAllWorkflowContent(@RequestParam("suiteId") Integer suiteId) {
+	@RequestMapping(value = "/getallworkflowcontent", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle getallworkflowcontent(@RequestParam("suiteId") Integer suiteId) {
 		try {
 
 			List<DutyClassVo> dutyClassVolist = new ArrayList<DutyClassVo>();
@@ -91,6 +91,7 @@ public class WorkFlowController {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
+	
 	@ResponseBody
 	@RequestMapping(value = "/updatecontent", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseBundle updatecontent(@RequestBody ScheduleWorkflowContent scheduleWorkflowContent) {

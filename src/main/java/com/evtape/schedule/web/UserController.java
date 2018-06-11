@@ -44,10 +44,10 @@ public class UserController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/deleteUser", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResponseBundle deleteUser(@RequestParam("id") Integer id) {
+	@RequestMapping(value = "/deleteuser", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle deleteuser(@RequestParam("userId") Integer userId) {
 		try {
-			Repositories.userRepository.delete(id);
+			Repositories.userRepository.delete(userId);
 			return new ResponseBundle().success(null);
 		} catch (Exception e) {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
@@ -55,8 +55,8 @@ public class UserController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/backupList", method = { RequestMethod.POST, RequestMethod.GET })
-	public ResponseBundle backupList(@RequestParam("districtId") Integer districtId) {
+	@RequestMapping(value = "/backuplist", method = { RequestMethod.POST, RequestMethod.GET })
+	public ResponseBundle backuplist(@RequestParam("districtId") Integer districtId) {
 		try {
 			return new ResponseBundle().success(Repositories.userRepository.findByDistrictIdAndBackup(districtId, 1));
 		} catch (Exception e) {
