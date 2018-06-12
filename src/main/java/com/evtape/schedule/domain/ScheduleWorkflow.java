@@ -21,20 +21,30 @@ public class ScheduleWorkflow {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-	
+    /**
+     * 站区表id
+     */
 	private Integer districtId;
-
+    /**
+     * 站点表id
+     */
 	private Integer stationId;
-
+    /**
+     * 岗位表id
+     */
 	private Integer positionId;
-
+    /**
+     * 班制id
+     */
 	private Integer suiteId;
 
 	/**
 	 * 流程编号
 	 */
 	private Integer classId;
-
+	/**
+	 * 流程code
+	 */
 	private String code;
 	
 }

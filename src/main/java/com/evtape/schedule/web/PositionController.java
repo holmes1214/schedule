@@ -23,7 +23,7 @@ public class PositionController {
 	 * Position 列表
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/list", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/list", method = { RequestMethod.GET })
 	public ResponseBundle positionList(@RequestParam("stationId") Integer stationId) {
 		try {
 			return new ResponseBundle().success(Repositories.positionRepository.findByStationId(stationId));
@@ -31,11 +31,27 @@ public class PositionController {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
+
 	/**
 	 * Position 增改
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/update", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/add", method = { RequestMethod.POST })
+	public ResponseBundle addPosition(@RequestBody Position position) {
+		try {
+			Repositories.positionRepository.saveAndFlush(position);
+			return new ResponseBundle()
+					.success(Repositories.positionRepository.findByStationId(position.getStationId()));
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+
+	/**
+	 * Position 增改
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/update", method = { RequestMethod.PUT })
 	public ResponseBundle updatePosition(@RequestBody Position position) {
 		try {
 			Repositories.positionRepository.saveAndFlush(position);
@@ -50,7 +66,7 @@ public class PositionController {
 	 * Position 删
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/delete", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/delete", method = { RequestMethod.DELETE })
 	public ResponseBundle deletePosition(@RequestBody Position position) {
 		try {
 			Repositories.positionRepository.delete(position.getId());

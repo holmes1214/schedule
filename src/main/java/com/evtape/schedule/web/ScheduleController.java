@@ -39,7 +39,7 @@ public class ScheduleController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/createtemplate", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/createtemplate", method = { RequestMethod.POST })
 	public ResponseBundle createtemplate(@RequestParam("suiteId") Integer suiteId) {
 		try {
 			if (Repositories.dutySuiteRepository.exists(suiteId)) {
@@ -57,7 +57,7 @@ public class ScheduleController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/templatelist", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/templatelist", method = { RequestMethod.GET })
 	public ResponseBundle templatelist(@RequestParam("suiteId") Integer suiteId) {
 		try {
 			return returntemplete(suiteId);
@@ -72,7 +72,7 @@ public class ScheduleController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/exchangeTemplate", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/exchangeTemplate", method = { RequestMethod.PUT })
 	public ResponseBundle exchangeTemplate(@RequestParam("suiteId") Integer suiteId,
 			@RequestParam("weekNum1") Integer weekNum1, @RequestParam("dayNum1") Integer dayNum1,
 			@RequestParam("weekNum2") Integer weekNum2, @RequestParam("dayNum2") Integer dayNum2) {
@@ -100,7 +100,7 @@ public class ScheduleController {
 	 * 排班模板删除一周
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/deleteoneweek", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/deleteoneweek", method = { RequestMethod.DELETE })
 	public ResponseBundle deleteoneweek(@RequestParam("suiteId") Integer suiteId,
 			@RequestParam("weekNum") Integer weekNum) {
 		try {
@@ -134,7 +134,7 @@ public class ScheduleController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/setscheduleuser", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/setscheduleuser", method = { RequestMethod.PUT })
 	public ResponseBundle setscheduleuser(@RequestParam("suiteId") Integer suiteId,
 			@RequestParam("weekNum") Integer weekNum, @RequestParam("userId") Integer userId) {
 		try {
@@ -158,7 +158,7 @@ public class ScheduleController {
 	 * 排班模板取消人员设置
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/removescheduleuser", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/removescheduleuser", method = { RequestMethod.PUT })
 	public ResponseBundle removescheduleuser(@RequestParam("suiteId") Integer suiteId,
 			@RequestParam("weekNum") Integer weekNum, @RequestParam("userId") Integer userId) {
 		try {
@@ -174,7 +174,7 @@ public class ScheduleController {
 	 * 生成排班计划
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/createscheduleinfo", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/createscheduleinfo", method = { RequestMethod.POST })
 	public ResponseBundle createscheduleinfo(@RequestParam("suiteId") Integer suiteId,
 			@RequestParam("dateStr") String dateStr) {
 		try {
@@ -189,7 +189,7 @@ public class ScheduleController {
 	 * 查询排班计划
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/getscheduleinfo", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/getscheduleinfo", method = { RequestMethod.GET })
 	public ResponseBundle getscheduleinfo(@RequestParam("suiteId") Integer suiteId) {
 		try {
 			List<ScheduleInfo> scheduleInfos = Repositories.scheduleInfoRepository.findBySuiteId(suiteId);
@@ -203,7 +203,7 @@ public class ScheduleController {
 	 * 手动排班创建数据
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/manualtemplate", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/manualtemplate", method = { RequestMethod.POST })
 	public ResponseBundle manualtemplate(@RequestParam("suiteId") Integer suiteId) {
 		try {
 
@@ -233,7 +233,7 @@ public class ScheduleController {
 	 * 手动排班设置班次
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/settemplateclass", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/settemplateclass", method = { RequestMethod.PUT })
 	public ResponseBundle settemplateclass(@RequestParam("suiteId") Integer suiteId,
 			@RequestParam("classId") Integer classId, @RequestParam("weekNum") Integer weekNum,
 			@RequestParam("dayNum") Integer dayNum) {

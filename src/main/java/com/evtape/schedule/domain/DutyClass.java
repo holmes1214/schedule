@@ -22,14 +22,25 @@ public class DutyClass {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
+	/**
+	 * 班次名
+	 */
 	private String dutyName;
-
+	/**
+	 * 班次code
+	 */
 	private String dutyCode;
-
+	/**
+	 * 站区id
+	 */
 	private Integer districtId;
-
+	/**
+	 * 站id
+	 */
 	private Integer stationId;
-
+	/**
+	 * 岗位id
+	 */
 	private Integer positionId;
 
 	/**
@@ -73,12 +84,16 @@ public class DutyClass {
 	 * 两班间隔（分钟）
 	 */
 	private Integer restMinutes;
-
+	/**
+	 * 关联班次
+	 */
 	private Integer relevantClassId;
 
 	@Transient
 	private DutyClass relevant;
-
+	/**
+	 * 备班标识
+	 */
 	private Integer backup;
 
 

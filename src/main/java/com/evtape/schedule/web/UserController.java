@@ -20,7 +20,7 @@ import com.evtape.schedule.persistent.Repositories;
 public class UserController {
 
 	@ResponseBody
-	@RequestMapping(value = "/list", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/list", method = { RequestMethod.GET })
 	public ResponseBundle userList(@RequestParam("districtId") Integer districtId,
 			@RequestParam("stationId") Integer stationId, @RequestParam("positionId") Integer positionId) {
 		try {
@@ -32,7 +32,18 @@ public class UserController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/updateuser", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/add", method = { RequestMethod.POST })
+	public ResponseBundle adduser(@RequestBody User user) {
+
+		try {
+			Repositories.userRepository.saveAndFlush(user);
+			return new ResponseBundle().success(user);
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+	@ResponseBody
+	@RequestMapping(value = "/update", method = { RequestMethod.PUT })
 	public ResponseBundle updateuser(@RequestBody User user) {
 
 		try {
@@ -42,9 +53,8 @@ public class UserController {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
-
 	@ResponseBody
-	@RequestMapping(value = "/deleteuser", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/delete", method = { RequestMethod.DELETE })
 	public ResponseBundle deleteuser(@RequestParam("userId") Integer userId) {
 		try {
 			Repositories.userRepository.delete(userId);
@@ -55,7 +65,7 @@ public class UserController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/backuplist", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/backuplist", method = { RequestMethod.GET })
 	public ResponseBundle backuplist(@RequestParam("districtId") Integer districtId) {
 		try {
 			return new ResponseBundle().success(Repositories.userRepository.findByDistrictIdAndBackup(districtId, 1));

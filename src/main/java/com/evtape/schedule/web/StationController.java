@@ -18,12 +18,12 @@ import com.evtape.schedule.persistent.Repositories;
 @Controller
 @RequestMapping("/station")
 public class StationController {
-	
+
 	/**
 	 * Station 列表
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/list", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/list", method = { RequestMethod.GET })
 	public ResponseBundle stationList(@RequestParam("districtId") Integer districtId) {
 		try {
 			return new ResponseBundle().success(Repositories.stationRepository.findByDistrictId(districtId));
@@ -33,7 +33,19 @@ public class StationController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/update", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/add", method = { RequestMethod.POST })
+	public ResponseBundle addStation(@RequestBody Station station) {
+		try {
+			Repositories.stationRepository.saveAndFlush(station);
+			return new ResponseBundle()
+					.success(Repositories.stationRepository.findByDistrictId(station.getDistrictId()));
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/update", method = { RequestMethod.PUT })
 	public ResponseBundle updateStation(@RequestBody Station station) {
 		try {
 			Repositories.stationRepository.saveAndFlush(station);
@@ -45,7 +57,7 @@ public class StationController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/delete", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/delete", method = { RequestMethod.DELETE })
 	public ResponseBundle deleteStation(@RequestBody Station station) {
 		try {
 			Repositories.stationRepository.delete(station.getId());

@@ -19,17 +19,29 @@ public class DutySuite {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 
+	/**
+	 * 班制名
+	 */
 	private String dutyName;
 	
 	/**
-	 * 当前启用的suite为1,。1-0
+	 * 当前启用的suite为1,没启用为0
 	 */
 	private String isActive;
 
+	/**
+	 * 站区id
+	 */
 	private Integer districtId;
 
+	/**
+	 * 站id
+	 */
 	private Integer stationId;
 
+	/**
+	 * 岗位id
+	 */
 	private Integer positionId;
 
 	/**

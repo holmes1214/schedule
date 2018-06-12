@@ -136,20 +136,20 @@ public class User {
      */
     private String certLevel;
 
-    // /**
-    // * 消防证书编号
-    // */
-    // private String xfzNo;
-    //
-    // /**
-    // * 综控员证书编号
-    // */
-    // private String zwyNo;
-    //
-    // /**
-    // * 综控员证书级别
-    // */
-    // private String zwyLevel;
+     /**
+     * 消防证书编号
+     */
+     private String xfzNo;
+    
+     /**
+     * 综控员证书编号
+     */
+     private String zwyNo;
+    
+     /**
+     * 综控员证书级别
+     */
+     private String zwyLevel;
     /**
      * 是否是补位人员1是0不是，默认0
      */

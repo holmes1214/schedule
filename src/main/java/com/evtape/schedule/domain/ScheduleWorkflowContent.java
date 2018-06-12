@@ -20,26 +20,51 @@ public class ScheduleWorkflowContent {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-	
+    /**
+     * 站区表id
+     */
 	private Integer districtId;
-
+    /**
+     * 站点表id
+     */
 	private Integer stationId;
-
+    /**
+     * 岗位表id
+     */
 	private Integer positionId;
-	
+    /**
+     * 班次id
+     */
 	private Integer classId;
-	
+    /**
+     * 班制id
+     */
 	private Integer suiteId;
 
+	/**
+	 * 流程id
+	 */
 	private Integer workFlowId;
 
+	/**
+	 * 开始时间
+	 */
 	private Integer startTime;
-
+	/**
+	 * 结束时间
+	 */
 	private Integer endTime;
 	
+	/**
+	 * 描述
+	 */
 	private String content;
-
+	/**
+	 * 颜色
+	 */
 	private String color;
-
+	/**
+	 * 第几行
+	 */
 	private Integer lineNumber;
 }

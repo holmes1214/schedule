@@ -35,7 +35,7 @@ public class DutyController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/suitelist", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/suitelist", method = { RequestMethod.GET })
 	public ResponseBundle suitlist(@RequestParam("districtId") Integer districtId,
 			@RequestParam("stationId") Integer stationId, @RequestParam("positionId") Integer positionId,
 			@RequestParam("backup") Integer backup) {
@@ -58,7 +58,7 @@ public class DutyController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/getsuite", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/getsuite", method = { RequestMethod.GET })
 	public ResponseBundle getsuite(@RequestParam("suiteId") Integer suiteId) {
 		try {
 			return new ResponseBundle().success(selectSuiteInfo(suiteId));
@@ -72,7 +72,7 @@ public class DutyController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/suiteadd", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/suiteadd", method = { RequestMethod.POST })
 	public ResponseBundle suitadd(@RequestBody DutySuite dutySuite) {
 		try {
 			Repositories.dutySuiteRepository.saveAndFlush(dutySuite);
@@ -88,7 +88,7 @@ public class DutyController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/suiteactive", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/suiteactive", method = { RequestMethod.PUT })
 	public ResponseBundle suitactive(@RequestParam("districtId") Integer districtId,
 			@RequestParam("stationId") Integer stationId, @RequestParam("positionId") Integer positionId,
 			@RequestParam("suiteId") Integer suiteId) {
@@ -109,14 +109,29 @@ public class DutyController {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
-
 	/**
-	 * 班次增改
+	 * 班次增
 	 * 
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/classupdate", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/classadd", method = { RequestMethod.POST })
+	public ResponseBundle classadd(@RequestBody DutyClass dutyClass) {
+		try {
+			Integer suiteId = dutyClass.getSuiteId();
+			Repositories.dutyClassRepository.saveAndFlush(dutyClass);
+			return new ResponseBundle().success(selectSuiteInfo(suiteId));
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+	/**
+	 * 班次改
+	 * 
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/classupdate", method = { RequestMethod.PUT })
 	public ResponseBundle classupdate(@RequestBody DutyClass dutyClass) {
 		try {
 			Integer suiteId = dutyClass.getSuiteId();
@@ -132,7 +147,7 @@ public class DutyController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/classdelete", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/classdelete", method = { RequestMethod.DELETE })
 	public ResponseBundle classdelete(@RequestBody DutyClass dutyClass) {
 		try {
 			Integer suiteId = dutyClass.getSuiteId();
@@ -149,7 +164,23 @@ public class DutyController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/periodupdate", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/periodadd", method = { RequestMethod.POST })
+	public ResponseBundle periodadd(@RequestBody DutyPeriodChecking dutyPeriodChecking) {
+		try {
+			Integer suiteId = dutyPeriodChecking.getSuiteId();
+			Repositories.dutyPeriodCheckingRepository.saveAndFlush(dutyPeriodChecking);
+			return new ResponseBundle().success(selectSuiteInfo(suiteId));
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+	/**
+	 * 检查条件增改
+	 * 
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/periodupdate", method = { RequestMethod.PUT })
 	public ResponseBundle periodupdate(@RequestBody DutyPeriodChecking dutyPeriodChecking) {
 		try {
 			Integer suiteId = dutyPeriodChecking.getSuiteId();
@@ -165,7 +196,7 @@ public class DutyController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/perioddelete", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/perioddelete", method = { RequestMethod.DELETE })
 	public ResponseBundle perioddelete(@RequestBody DutyPeriodChecking dutyPeriodChecking) {
 		try {
 			Integer suiteId = dutyPeriodChecking.getSuiteId();
@@ -184,7 +215,7 @@ public class DutyController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/suitedelete", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/suitedelete", method = { RequestMethod.DELETE })
 	public ResponseBundle suitdelete(@RequestBody DutySuite dutySuite) {
 		try {
 			Integer suiteId = dutySuite.getId();

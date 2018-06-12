@@ -27,7 +27,7 @@ import com.evtape.schedule.persistent.Repositories;
 public class WorkFlowController {
 
 	@ResponseBody
-	@RequestMapping(value = "/getallworkflowcontent", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/getallworkflowcontent", method = { RequestMethod.GET })
 	public ResponseBundle getallworkflowcontent(@RequestParam("suiteId") Integer suiteId) {
 		try {
 
@@ -82,7 +82,7 @@ public class WorkFlowController {
 		}
 	}
 	@ResponseBody
-	@RequestMapping(value = "/updateworkflow", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/updateworkflow", method = { RequestMethod.PUT })
 	public ResponseBundle updateworkflow(@RequestBody ScheduleWorkflow scheduleWorkflow) {
 		try {
 			Repositories.workflowRepository.saveAndFlush(scheduleWorkflow);
@@ -93,7 +93,7 @@ public class WorkFlowController {
 	}
 	
 	@ResponseBody
-	@RequestMapping(value = "/updatecontent", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/updatecontent", method = { RequestMethod.PUT })
 	public ResponseBundle updatecontent(@RequestBody ScheduleWorkflowContent scheduleWorkflowContent) {
 		try {
 			Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
@@ -103,7 +103,7 @@ public class WorkFlowController {
 		}
 	}
 	@ResponseBody
-	@RequestMapping(value = "/deletecontent", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/deletecontent", method = { RequestMethod.DELETE })
 	public ResponseBundle deletecontent(@RequestBody ScheduleWorkflowContent scheduleWorkflowContent) {
 		try {
 			Repositories.contentRepository.delete(scheduleWorkflowContent);

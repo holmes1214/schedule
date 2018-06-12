@@ -25,16 +25,30 @@ public class DistrictController {
 	 * district列表
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/list", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/list", method = { RequestMethod.GET })
 	public ResponseBundle districtList() {
 		return new ResponseBundle().success(Repositories.districtRepository.findAll());
 	}
 
 	/**
-	 * district增改
+	 * district增
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/update", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/add", method = { RequestMethod.POST })
+	public ResponseBundle addDistrict(@RequestBody District district) {
+		try {
+			Repositories.districtRepository.saveAndFlush(district);
+			return new ResponseBundle().success(Repositories.districtRepository.findAll());
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
+
+	/**
+	 * district改
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/update", method = { RequestMethod.PUT })
 	public ResponseBundle updateDistrict(@RequestBody District district) {
 		try {
 			Repositories.districtRepository.saveAndFlush(district);
@@ -43,11 +57,12 @@ public class DistrictController {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
+
 	/**
 	 * district删
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/delete", method = { RequestMethod.POST, RequestMethod.GET })
+	@RequestMapping(value = "/delete", method = { RequestMethod.DELETE })
 	public ResponseBundle deleteDistrict(@RequestParam("districtId") Integer districtId) {
 		try {
 
