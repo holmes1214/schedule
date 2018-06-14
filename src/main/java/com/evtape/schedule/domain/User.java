@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * 用户
@@ -37,7 +38,7 @@ public class User {
     /**
      * 站区名
      */
-    private Integer districtName;
+    private String districtName;
     /**
      * 站点表id
      */
@@ -46,7 +47,7 @@ public class User {
     /**
      * 站点名
      */
-    private Integer stationName;
+    private String stationName;
 
     /**
      * 岗位表id
@@ -76,32 +77,32 @@ public class User {
     /**
      * 身份证号
      */
-    private Integer idCardNumber;
+    private String idCardNumber;
 
     /**
      * 生日
      */
-    private String birthday;
+    private Date birthday;
 
     /**
-     * 性别男女0男1女
+     * 性别 0男1女
      */
-    private String gender;
+    private Integer gender;
 
     /**
      * 入职时间
      */
-    private String entryDate;
+    private Date entryDate;
 
     /**
-     * 未婚已婚
+     * 未婚已婚 0未婚 1已婚
      */
-    private String isMarried;
+    private Integer isMarried;
 
     /**
-     * 已育未育
+     * 已育未育 0未育 1已育
      */
-    private String hasChild;
+    private Integer hasChild;
 
     /**
      * 员工卡号
@@ -111,15 +112,15 @@ public class User {
     /**
      * 学历，高中以下，本科，专科，研究生，博士
      */
-    private String eduBackGround;
+    private Integer eduBackGround;
     /**
-     * 是否党员，群众共产党员，共青团员
+     * 群众共产党员，共青团员
      */
-    private String isPartyMember;
+    private Integer partyMember;
     /**
      * 入党入团时间
      */
-    private String joinDate;
+    private Date joinDate;
 
     /**
      * 家庭住址
@@ -136,23 +137,23 @@ public class User {
      */
     private String certLevel;
 
-     /**
+    /**
      * 消防证书编号
      */
-     private String xfzNo;
-    
-     /**
+    private String xfzNo;
+
+    /**
      * 综控员证书编号
      */
-     private String zwyNo;
-    
-     /**
+    private String zwyNo;
+
+    /**
      * 综控员证书级别
      */
-     private String zwyLevel;
+    private String zwyLevel;
     /**
-     * 是否是补位人员1是0不是，默认0
+     * 是否是补位人员 1是0不是，默认0
      */
-    private Integer backup;
+    private Integer backup = 0;
 
 }
