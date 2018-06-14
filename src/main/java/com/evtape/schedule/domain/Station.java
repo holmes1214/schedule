@@ -30,5 +30,4 @@ public class Station {
 	 * 站点所在站区
 	 */
 	private Integer districtId;
-
 }

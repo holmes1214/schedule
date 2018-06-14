@@ -35,7 +35,7 @@ public class DutyClass {
 	 */
 	private Integer districtId;
 	/**
-	 * 站id
+	 * 站点id
 	 */
 	private Integer stationId;
 	/**

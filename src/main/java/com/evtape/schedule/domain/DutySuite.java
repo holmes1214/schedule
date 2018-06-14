@@ -27,7 +27,7 @@ public class DutySuite {
 	/**
 	 * 当前启用的suite为1,没启用为0
 	 */
-	private String isActive;
+	private Integer active;
 
 	/**
 	 * 站区id

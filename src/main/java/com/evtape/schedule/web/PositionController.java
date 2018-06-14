@@ -1,11 +1,11 @@
 package com.evtape.schedule.web;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.Position;
@@ -15,65 +15,92 @@ import com.evtape.schedule.persistent.Repositories;
 /**
  * @author ripper 站下岗位,增刪改查
  */
+@Api(value = "岗位接口")
 @Controller
 @RequestMapping("/position")
 public class PositionController {
 
-	/**
-	 * Position 列表
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/list", method = { RequestMethod.GET })
-	public ResponseBundle positionList(@RequestParam("stationId") Integer stationId) {
-		try {
-			return new ResponseBundle().success(Repositories.positionRepository.findByStationId(stationId));
-		} catch (Exception e) {
-			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-		}
-	}
 
-	/**
-	 * Position 增改
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/add", method = { RequestMethod.POST })
-	public ResponseBundle addPosition(@RequestBody Position position) {
-		try {
-			Repositories.positionRepository.saveAndFlush(position);
-			return new ResponseBundle()
-					.success(Repositories.positionRepository.findByStationId(position.getStationId()));
-		} catch (Exception e) {
-			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-		}
-	}
+    @ApiOperation(value = "根据站点id获取岗位列表", produces = "application/json")
+    @ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "query",
+            dataType = "int")
+    @ResponseBody
+    @GetMapping
+    public ResponseBundle positionList(@RequestParam("stationId") Integer stationId) {
+        try {
+            return new ResponseBundle().success(Repositories.positionRepository.findByStationId(stationId));
+        } catch (Exception e) {
+            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+        }
+    }
 
-	/**
-	 * Position 增改
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/update", method = { RequestMethod.PUT })
-	public ResponseBundle updatePosition(@RequestBody Position position) {
-		try {
-			Repositories.positionRepository.saveAndFlush(position);
-			return new ResponseBundle()
-					.success(Repositories.positionRepository.findByStationId(position.getStationId()));
-		} catch (Exception e) {
-			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-		}
-	}
+    @ApiOperation(value = "新增岗位", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "positionName", value = "岗位名", required = true, paramType = "body",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "districtId", value = "所属站区id", required = true, paramType = "body",
+                    dataType = "integer"),
+            @ApiImplicitParam(name = "stationId", value = "所属站点id", required = true, paramType = "body",
+                    dataType = "integer"),
+            @ApiImplicitParam(name = "backupPosition", value = "是否有备班(1备班，0正常)", required = true, paramType = "body",
+                    dataType = "integer"),
+    })
+    @ResponseBody
+    @PostMapping
+    public ResponseBundle addPosition(@RequestBody Position position) {
+        try {
+            Repositories.positionRepository.saveAndFlush(position);
+            return new ResponseBundle()
+                    .success(Repositories.positionRepository.findByStationId(position.getStationId()));
+        } catch (Exception e) {
+            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+        }
+    }
 
-	/**
-	 * Position 删
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/delete", method = { RequestMethod.DELETE })
-	public ResponseBundle deletePosition(@RequestBody Position position) {
-		try {
-			Repositories.positionRepository.delete(position.getId());
-			return new ResponseBundle()
-					.success(Repositories.positionRepository.findByStationId(position.getStationId()));
-		} catch (Exception e) {
-			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-		}
-	}
+
+    @ApiOperation(value = "更新岗位", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "岗位id", required = true, paramType = "path",
+                    dataType = "int"),
+            @ApiImplicitParam(name = "positionName", value = "岗位名", required = true, paramType = "body",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "districtId", value = "所属站区id", required = true, paramType = "body",
+                    dataType = "integer"),
+            @ApiImplicitParam(name = "stationId", value = "所属站点id", required = true, paramType = "body",
+                    dataType = "integer"),
+            @ApiImplicitParam(name = "backupPosition", value = "是否有备班(1备班，0正常)", required = true, paramType = "body",
+                    dataType = "integer"),
+    })
+    @ResponseBody
+    @PutMapping("/{id}")
+    public ResponseBundle updatePosition(@PathVariable("id") Integer id, @RequestBody Position form) {
+        try {
+            Position position = Repositories.positionRepository.findOne(id);
+            position.setBackupPosition(form.getBackupPosition());
+            position.setDistrictId(form.getDistrictId());
+            position.setPositionName(form.getPositionName());
+            position.setStationId(form.getStationId());
+            Repositories.positionRepository.saveAndFlush(position);
+            return new ResponseBundle()
+                    .success(Repositories.positionRepository.findByStationId(form.getStationId()));
+        } catch (Exception e) {
+            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+        }
+    }
+
+    @ApiOperation(value = "根据id删除岗位", produces = "application/json")
+    @ApiImplicitParam(name = "id", value = "岗位id", required = true, paramType = "path", dataType
+            = "int")
+    @ResponseBody
+    @DeleteMapping("/{id}")
+    public ResponseBundle deletePosition(@PathVariable("id") Integer positionId) {
+        try {
+            Position position = Repositories.positionRepository.findOne(positionId);
+            Repositories.positionRepository.delete(positionId);
+            return new ResponseBundle()
+                    .success(Repositories.positionRepository.findByStationId(position.getStationId()));
+        } catch (Exception e) {
+            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+        }
+    }
 }

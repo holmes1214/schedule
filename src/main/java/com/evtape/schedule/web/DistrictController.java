@@ -2,6 +2,10 @@ package com.evtape.schedule.web;
 
 import java.util.List;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,20 +18,25 @@ import com.evtape.schedule.persistent.Repositories;
 /**
  * @author ripper 站区接口,增刪改查
  */
+@Api(value = "站区接口")
 @RestController
 @RequestMapping("/district")
 public class DistrictController {
-    /**
-     * district列表
-     */
+
+    @ApiOperation(value = "获取站区列表", produces = "application/json")
     @GetMapping
-    public ResponseBundle districtList() {
+    public ResponseBundle getDistricts() {
         return new ResponseBundle().success(Repositories.districtRepository.findAll());
     }
 
-    /**
-     * district增
-     */
+
+    @ApiOperation(value = "新增站区", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "content", value = "站区说明", required = true, paramType = "body",
+                    dataType = "string"),
+    })
     @PostMapping
     public ResponseBundle addDistrict(@RequestBody District district) {
         try {
@@ -38,9 +47,15 @@ public class DistrictController {
         }
     }
 
-    /**
-     * district改
-     */
+    @ApiOperation(value = "修改站区信息", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "站区id", required = true, paramType = "path",
+                    dataType = "int"),
+            @ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "content", value = "站区说明", required = true, paramType = "body",
+                    dataType = "string"),
+    })
     @PutMapping("/{id}")
     public ResponseBundle updateDistrict(@PathVariable("id") Integer id, @RequestBody District form) {
         try {
@@ -54,9 +69,10 @@ public class DistrictController {
         }
     }
 
-    /**
-     * district删
-     */
+
+    @ApiOperation(value = "根据id删除站区", produces = "application/json")
+    @ApiImplicitParam(name = "id", value = "站区id", required = true, paramType = "path", dataType
+            = "int")
     @DeleteMapping("/{id}")
     public ResponseBundle deleteDistrict(@PathVariable("id") Integer districtId) {
         try {
