@@ -5,18 +5,21 @@ import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.User;
 import com.evtape.schedule.domain.form.LoginForm;
 import com.evtape.schedule.domain.vo.ResponseBundle;
+import com.evtape.schedule.domain.vo.UserVo;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.util.JWTUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -53,10 +56,16 @@ public class LoginController {
                 return new ResponseBundle().failure(ResponseMeta.ADMIN_PASSWD_NOT_ERROR);
             }
             String token = JWTUtil.sign(u.getPhoneNumber(), u.getPassword());
+            UserVo vo = new UserVo();
+            try {
+                BeanUtils.copyProperties(vo, u);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
             JSONObject response = new JSONObject();
             response.put("id", u.getId());
-            response.put("userName", u.getUserName());
             response.put("token", token);
+            response.put("user", vo);
             return new ResponseBundle().success(response);
         }).orElse(new ResponseBundle().failure(ResponseMeta.ADMIN_ACCOUNT_NOT_EXISTE));
     }
