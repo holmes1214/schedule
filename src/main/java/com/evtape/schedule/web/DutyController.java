@@ -4,13 +4,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.DutyClass;
@@ -19,6 +22,11 @@ import com.evtape.schedule.domain.DutySuite;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 
 /**
  * TODO 权限没加，最后一块儿加，现在加上权限调接口费劲
@@ -26,7 +34,7 @@ import com.evtape.schedule.persistent.Repositories;
  * @author ripper duty列表
  */
 @Api(value = "班制接口")
-@Controller
+@RestController
 @RequestMapping("/duty")
 public class DutyController {
 
@@ -61,18 +69,17 @@ public class DutyController {
         }
     }
 
-    @ApiOperation(value = "根据班制id获取班次", produces = "application/json")
-    @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query",
-            dataType = "int")
-    @ResponseBody
-    @GetMapping("/suite")
-    public ResponseBundle getsuite(@RequestParam("suiteId") Integer suiteId) {
-        try {
-            return new ResponseBundle().success(selectSuiteInfo(suiteId));
-        } catch (Exception e) {
-            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-        }
-    }
+	@ApiOperation(value = "根据班制id获取班次", produces = "application/json")
+	@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "int")
+	@ResponseBody
+	@GetMapping("/suite")
+	public ResponseBundle getsuite(@RequestParam("suiteId") Integer suiteId) {
+		try {
+			return new ResponseBundle().success(selectSuiteInfo(suiteId));
+		} catch (Exception e) {
+			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+		}
+	}
 
     @ApiOperation(value = "新增班制", produces = "application/json")
     @ApiImplicitParams({
@@ -112,17 +119,18 @@ public class DutyController {
         }
     }
 
-    /**
-     * 激活某个suite，同时把同岗位的其他suite置成未激活，激活的suite前端可以特殊展示
-     *
-     * @return
-     */
+
+	@ApiOperation(value = "启用某班制", produces = "application/json")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "query", dataType = "int"),
+			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "query", dataType = "int"),
+			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "query", dataType = "int"),
+			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "int"), })
     @ResponseBody
-    @RequestMapping(value = "/suiteactive", method = {RequestMethod.PUT})
+    @PutMapping("/suiteactive")
     public ResponseBundle suitactive(@RequestParam("districtId") Integer districtId,
                                      @RequestParam("stationId") Integer stationId,
-                                     @RequestParam("positionId")
-                                             Integer positionId,
+                                     @RequestParam("positionId") Integer positionId,
                                      @RequestParam("suiteId") Integer suiteId) {
         try {
             List<DutySuite> suitlist = Repositories.dutySuiteRepository
@@ -191,14 +199,29 @@ public class DutyController {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
-
-    /**
-     * 班次改
-     *
-     * @return
-     */
+    
+	@ApiOperation(value = "改班次", produces = "application/json")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "id", value = "班次id", required = true, paramType = "body", dataType = "int"),
+			@ApiImplicitParam(name = "dutyName", value = "班次名", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "dutyCode", value = "班次code", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "userCount", value = "班次人数", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "classColor", value = "班次颜色", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "startTime", value = "班次几点上班(从零点开始算，第多少分钟开始上班)", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "endTime", value = "班次几点下班(从零点开始算，第多少分钟下班)", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "startTimeStr", value = "班次几点上班-小时", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "endTimeStr", value = "班次几点下班-小时", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "workingLength", value = "班次时长（分钟）", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "restMinutes", value = "两班间隔（分钟）", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "relevantClassId", value = "关联班次", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "restMinutes", value = "两班间隔（分钟）", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "backupPosition", value = "是否有备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer"), })
     @ResponseBody
-    @RequestMapping(value = "/classupdate", method = {RequestMethod.PUT})
+    @PutMapping("/classupdate")
     public ResponseBundle classupdate(@RequestBody DutyClass dutyClass) {
         try {
             Integer suiteId = dutyClass.getSuiteId();
@@ -214,26 +237,35 @@ public class DutyController {
      *
      * @return
      */
+	@ApiOperation(value = "删班次", produces = "application/json")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "id", value = "班次id", required = true, paramType = "path", dataType = "integer"),
+			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "qyery", dataType = "integer"), })
     @ResponseBody
-    @RequestMapping(value = "/classdelete", method = {RequestMethod.DELETE})
-    public ResponseBundle classdelete(@RequestBody DutyClass dutyClass) {
+    @DeleteMapping("/classdelete/{id}")
+    public ResponseBundle classdelete(@PathVariable("id") Integer id,@RequestParam("suiteId") Integer suiteId) {
         try {
-            Integer suiteId = dutyClass.getSuiteId();
-            Repositories.dutyClassRepository.delete(dutyClass.getId());
+            Repositories.dutyClassRepository.delete(id);
             Repositories.dutyClassRepository.flush();
             return new ResponseBundle().success(selectSuiteInfo(suiteId));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
-
-    /**
-     * 检查条件增改
-     *
-     * @return
-     */
+	
+	@ApiOperation(value = "增一个检查条件", produces = "application/json")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "startTime", value = "班次几点上班(从零点开始算，第多少分钟开始上班)", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "endTime", value = "班次几点下班(从零点开始算，第多少分钟下班)", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "startTimeStr", value = "班次几点上班-小时", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "endTimeStr", value = "班次几点下班-小时", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "userCount", value = "班次人数", required = true, paramType = "body", dataType = "integer"), })
     @ResponseBody
-    @RequestMapping(value = "/periodadd", method = {RequestMethod.POST})
+    @PostMapping("/periodadd")
     public ResponseBundle periodadd(@RequestBody DutyPeriodChecking dutyPeriodChecking) {
         try {
             Integer suiteId = dutyPeriodChecking.getSuiteId();
@@ -249,8 +281,20 @@ public class DutyController {
      *
      * @return
      */
+	@ApiOperation(value = "更新一个检查条件", produces = "application/json")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "id", value = "检查条件id", required = true, paramType = "body", dataType = "int"),
+			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "startTime", value = "班次几点上班(从零点开始算，第多少分钟开始上班)", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "endTime", value = "班次几点下班(从零点开始算，第多少分钟下班)", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "startTimeStr", value = "班次几点上班-小时", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "endTimeStr", value = "班次几点下班-小时", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "userCount", value = "班次人数", required = true, paramType = "body", dataType = "integer"), })
     @ResponseBody
-    @RequestMapping(value = "/periodupdate", method = {RequestMethod.PUT})
+    @PutMapping("/periodupdate")
     public ResponseBundle periodupdate(@RequestBody DutyPeriodChecking dutyPeriodChecking) {
         try {
             Integer suiteId = dutyPeriodChecking.getSuiteId();
@@ -261,51 +305,43 @@ public class DutyController {
         }
     }
 
-    /**
-     * 检查条件删
-     *
-     * @return
-     */
+
+	@ApiOperation(value = "删一个检查条件", produces = "application/json")
+	@ApiImplicitParam(name = "id", value = "检查条件id", required = true, paramType = "path", dataType = "integer")
     @ResponseBody
-    @RequestMapping(value = "/perioddelete", method = {RequestMethod.DELETE})
-    public ResponseBundle perioddelete(@RequestBody DutyPeriodChecking dutyPeriodChecking) {
+    @DeleteMapping("/perioddelete/{id}")
+    public ResponseBundle perioddelete(@PathVariable("id") Integer id) {
         try {
-            Integer suiteId = dutyPeriodChecking.getSuiteId();
-            Repositories.dutyPeriodCheckingRepository.delete(dutyPeriodChecking.getId());
+            Repositories.dutyPeriodCheckingRepository.delete(id);
             Repositories.dutyPeriodCheckingRepository.flush();
-            return new ResponseBundle().success(selectSuiteInfo(suiteId));
+            return new ResponseBundle().success(id);
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
 
-
-    /**
-     * 删除班制，返回班制列表
-     *
-     * @return
-     */
+	@ApiOperation(value = "删一个班制", produces = "application/json")
+	@ApiImplicitParam(name = "id", value = "班制id", required = true, paramType = "path", dataType = "integer")
     @ResponseBody
-    @RequestMapping(value = "/suitedelete", method = {RequestMethod.DELETE})
-    public ResponseBundle suitdelete(@RequestBody DutySuite dutySuite) {
+    @DeleteMapping("/suitedelete/{id}")
+    public ResponseBundle suitdelete(@PathVariable("id") Integer id) {
         try {
-            Integer suiteId = dutySuite.getId();
-            DutySuite dutySuite1 = Repositories.dutySuiteRepository.findOne(suiteId);
+            DutySuite dutySuite1 = Repositories.dutySuiteRepository.findOne(id);
             if (dutySuite1 == null || dutySuite1.getActive() == 1) {
                 return new ResponseBundle().failure(ResponseMeta.SUITE_ISACTIVE);
             }
-            List<DutyClass> dutyClasslist = Repositories.dutyClassRepository.findBySuiteId(suiteId);
+            List<DutyClass> dutyClasslist = Repositories.dutyClassRepository.findBySuiteId(id);
             for (DutyClass dutyClass : dutyClasslist) {
                 Repositories.dutyClassRepository.delete(dutyClass.getId());
             }
             Repositories.dutyClassRepository.flush();
             List<DutyPeriodChecking> periodCheckinglist = Repositories.dutyPeriodCheckingRepository
-                    .findBySuiteId(suiteId);
+                    .findBySuiteId(id);
             for (DutyPeriodChecking dutyPeriodChecking : periodCheckinglist) {
                 Repositories.dutyPeriodCheckingRepository.delete(dutyPeriodChecking.getId());
             }
             Repositories.dutyPeriodCheckingRepository.flush();
-            Repositories.dutySuiteRepository.delete(suiteId);
+            Repositories.dutySuiteRepository.delete(id);
             Repositories.dutySuiteRepository.flush();
             if (dutySuite1.getBackup() != null && dutySuite1.getBackup() == 1) {
                 return new ResponseBundle().success(Repositories.dutySuiteRepository

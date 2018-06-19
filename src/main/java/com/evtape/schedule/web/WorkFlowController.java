@@ -3,9 +3,14 @@ package com.evtape.schedule.web;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.swagger.annotations.Api;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.DutyClass;
@@ -16,18 +21,21 @@ import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.domain.vo.ScheduleWorkflowVo;
 import com.evtape.schedule.persistent.Repositories;
 
-/**
- * @author ripper 站列表接口,增刪改查
- */
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @Api(value = "工作流程接口")
-@Controller
+@RestController
 @RequestMapping("workflow")
 public class WorkFlowController {
-
+	
+	@ApiOperation(value = "根据班制id查询工作流程", produces = "application/json")
+	@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "path", dataType = "integer")
     @ResponseBody
-    @GetMapping
-    @RequestMapping(value = "/getallworkflowcontent", method = {RequestMethod.GET})
-    public ResponseBundle getallworkflowcontent(@RequestParam("suiteId") Integer suiteId) {
+    @GetMapping("/getallworkflowcontent/{suiteId}")
+    public ResponseBundle getallworkflowcontent(@PathVariable("suiteId") Integer suiteId) {
         try {
 
             List<DutyClassVo> dutyClassVolist = new ArrayList<DutyClassVo>();
@@ -81,8 +89,18 @@ public class WorkFlowController {
         }
     }
 
+	@ApiOperation(value = "更新工作流程", produces = "application/json")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "id", value = "工作流程id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "classId", value = "班次id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "code", value = "流程code", required = true, paramType = "body", dataType = "string"),
+	})
     @ResponseBody
-    @RequestMapping(value = "/updateworkflow", method = {RequestMethod.PUT})
+    @PutMapping("/updateworkflow")
     public ResponseBundle updateworkflow(@RequestBody ScheduleWorkflow scheduleWorkflow) {
         try {
             Repositories.workflowRepository.saveAndFlush(scheduleWorkflow);
@@ -92,8 +110,25 @@ public class WorkFlowController {
         }
     }
 
+	
+	@ApiOperation(value = "更新工作流程描述", produces = "application/json")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "id", value = "工作流程id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "classId", value = "班次id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "workFlowId", value = "流程id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "content", value = "描述", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "color", value = "颜色", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "lineNumber", value = "第几行", required = true, paramType = "body", dataType = "integer"),
+	})
+
     @ResponseBody
-    @RequestMapping(value = "/updatecontent", method = {RequestMethod.PUT})
+    @PutMapping("/updatecontent")
     public ResponseBundle updatecontent(@RequestBody ScheduleWorkflowContent scheduleWorkflowContent) {
         try {
             Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
@@ -103,12 +138,14 @@ public class WorkFlowController {
         }
     }
 
+	@ApiOperation(value = "删除工作流程描述", produces = "application/json")
+	@ApiImplicitParam(name = "contentId", value = "contentId", required = true, paramType = "path", dataType = "integer")
     @ResponseBody
-    @RequestMapping(value = "/deletecontent", method = {RequestMethod.DELETE})
-    public ResponseBundle deletecontent(@RequestBody ScheduleWorkflowContent scheduleWorkflowContent) {
+    @DeleteMapping("/deletecontent/{contentId}")
+    public ResponseBundle deletecontent(@PathVariable("contentId") Integer contentId) {
         try {
-            Repositories.contentRepository.delete(scheduleWorkflowContent);
-            return new ResponseBundle().success(scheduleWorkflowContent);
+            Repositories.contentRepository.delete(contentId);
+            return new ResponseBundle().success(contentId);
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
