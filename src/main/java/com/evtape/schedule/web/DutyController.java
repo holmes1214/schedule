@@ -110,6 +110,34 @@ public class DutyController {
         }
     }
 
+    @ApiOperation(value = "修改班制", produces = "application/json")
+    @ApiImplicitParams({
+    		@ApiImplicitParam(name = "id", value = "班制id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "dutyName", value = "班制名", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "active", value = "是否启用(启动1, 没启用:0)", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "stationId", value = "站id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "stationName", value = "站点名", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "positionName", value = "岗位名，身份：管理员、普通职工", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "maxWorkingHour", value = "每周最大工时", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "minWorkingHour", value = "每周最小工时", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "maxWeeklyRestDays", value = "每周最多休几天", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "minWeeklyRestDays", value = "每周最少休几天", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "monthlyWorkingHourLimit", value = "每月最大工时数", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "yearlyWorkingHourLimit", value = "每年最大工时数", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "backup", value = "是否是备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer") })
+    @ResponseBody
+    @PutMapping("/suitupdate")
+    public ResponseBundle suitupdate(@RequestBody DutySuite dutySuite) {
+        try {
+            Repositories.dutySuiteRepository.saveAndFlush(dutySuite);
+            return new ResponseBundle().success(selectSuiteInfo(dutySuite.getId()));
+        } catch (Exception e) {
+            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+        }
+    }
 
 	@ApiOperation(value = "启用某班制", produces = "application/json")
 	@ApiImplicitParams({
