@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,31 +84,21 @@ public class DutyController {
 
     @ApiOperation(value = "新增班制", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "dutyName", value = "班制名", required = true, paramType = "body",
-                    dataType = "string"),
-            @ApiImplicitParam(name = "active", value = "是否启用(启动1, 没启用:0)", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "stationId", value = "站id", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "maxWorkingHour", value = "每周最大工时", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "minWorkingHour", value = "每周最小工时", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "maxWeeklyRestDays", value = "每周最多休几天", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "minWeeklyRestDays", value = "每周最少休几天", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "monthlyWorkingHourLimit", value = "每月最大工时数", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "yearlyWorkingHourLimit", value = "每年最大工时数", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "backup", value = "是否有备班(1备班，0正常)", required = true, paramType = "body",
-                    dataType = "integer")
-    })
+			@ApiImplicitParam(name = "dutyName", value = "班制名", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "active", value = "是否启用(启动1, 没启用:0)", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "stationId", value = "站id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "stationName", value = "站点名", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "positionName", value = "岗位名，身份：管理员、普通职工", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "maxWorkingHour", value = "每周最大工时", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "minWorkingHour", value = "每周最小工时", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "maxWeeklyRestDays", value = "每周最多休几天", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "minWeeklyRestDays", value = "每周最少休几天", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "monthlyWorkingHourLimit", value = "每月最大工时数", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "yearlyWorkingHourLimit", value = "每年最大工时数", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "backup", value = "是否是备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer") })
     @ResponseBody
     @PostMapping("/suite")
     public ResponseBundle suitadd(@RequestBody DutySuite dutySuite) {
@@ -151,47 +142,36 @@ public class DutyController {
     }
 
     @ApiOperation(value = "新增班次", produces = "application/json")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "dutyName", value = "班次名", required = true, paramType = "body",
-                    dataType = "string"),
-            @ApiImplicitParam(name = "dutyCode", value = "班次code", required = true, paramType = "body",
-                    dataType = "string"),
-            @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "userCount", value = "班次人数", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "classColor", value = "班次颜色", required = true, paramType = "body",
-                    dataType = "string"),
-            @ApiImplicitParam(name = "startTime", value = "班次几点上班(从零点开始算，第多少分钟开始上班)", required = true,
-                    paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "endTime", value = "班次几点下班(从零点开始算，第多少分钟下班)", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "startTimeStr", value = "班次几点上班-小时", required = true, paramType = "body",
-                    dataType = "string"),
-            @ApiImplicitParam(name = "endTimeStr", value = "班次几点下班-小时", required = true, paramType = "body",
-                    dataType = "string"),
-            @ApiImplicitParam(name = "workingLength", value = "班次时长（分钟）", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "restMinutes", value = "两班间隔（分钟）", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "relevantClassId", value = "关联班次", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "restMinutes", value = "两班间隔（分钟）", required = true, paramType = "body",
-                    dataType = "integer"),
-            @ApiImplicitParam(name = "backupPosition", value = "是否有备班(1备班，0正常)", required = true, paramType = "body",
-                    dataType = "integer"),
-    })
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "dutyName", value = "班次名", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "dutyCode", value = "班次code", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "stationName", value = "站点名", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "positionName", value = "岗位名，身份：管理员、普通职工", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "userCount", value = "班次人数", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "classColor", value = "班次颜色", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "startTimeStr", value = "班次几点上班-小时", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "endTimeStr", value = "班次几点下班-小时", required = true, paramType = "body", dataType = "string"),
+			@ApiImplicitParam(name = "workingLength", value = "本班工时，班次时长（分钟）", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "restMinutes", value = "两班间隔（分钟）", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "relevantClassId", value = "关联班次", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "backup", value = "是否有备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer"), })
     @ResponseBody
     @PostMapping("/class")
     public ResponseBundle classadd(@RequestBody DutyClass dutyClass) {
         try {
+        	if(StringUtils.isNotBlank(dutyClass.getStartTimeStr())){
+				dutyClass.setStartTime(new Integer(StringUtils.substring(dutyClass.getStartTimeStr(), 0, 2)) * 60
+						+ (new Integer(StringUtils.substring(dutyClass.getStartTimeStr(), 3, 5))));
+        	}
+        	if(StringUtils.isNotBlank(dutyClass.getEndTimeStr())){
+				dutyClass.setEndTime(new Integer(StringUtils.substring(dutyClass.getEndTimeStr(), 0, 2)) * 60
+						+ (new Integer(StringUtils.substring(dutyClass.getEndTimeStr(), 3, 5))));
+        	}
             Integer suiteId = dutyClass.getSuiteId();
             Repositories.dutyClassRepository.saveAndFlush(dutyClass);
             return new ResponseBundle().success(selectSuiteInfo(suiteId));
@@ -206,25 +186,34 @@ public class DutyController {
 			@ApiImplicitParam(name = "dutyName", value = "班次名", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "dutyCode", value = "班次code", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "stationName", value = "站点名", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "positionName", value = "岗位名，身份：管理员、普通职工", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "userCount", value = "班次人数", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "classColor", value = "班次颜色", required = true, paramType = "body", dataType = "string"),
-			@ApiImplicitParam(name = "startTime", value = "班次几点上班(从零点开始算，第多少分钟开始上班)", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "endTime", value = "班次几点下班(从零点开始算，第多少分钟下班)", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "startTimeStr", value = "班次几点上班-小时", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "endTimeStr", value = "班次几点下班-小时", required = true, paramType = "body", dataType = "string"),
-			@ApiImplicitParam(name = "workingLength", value = "班次时长（分钟）", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "workingLength", value = "本班工时，班次时长（分钟）", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "restMinutes", value = "两班间隔（分钟）", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "relevantClassId", value = "关联班次", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "restMinutes", value = "两班间隔（分钟）", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "backupPosition", value = "是否有备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer"), })
+			@ApiImplicitParam(name = "backup", value = "是否有备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer"), })
     @ResponseBody
     @PutMapping("/classupdate")
     public ResponseBundle classupdate(@RequestBody DutyClass dutyClass) {
         try {
             Integer suiteId = dutyClass.getSuiteId();
+        	if(StringUtils.isNotBlank(dutyClass.getStartTimeStr())){
+				dutyClass.setStartTime(new Integer(StringUtils.substring(dutyClass.getStartTimeStr(), 0, 2)) * 60
+						+ (new Integer(StringUtils.substring(dutyClass.getStartTimeStr(), 3, 5))));
+        	}
+        	if(StringUtils.isNotBlank(dutyClass.getEndTimeStr())){
+				dutyClass.setEndTime(new Integer(StringUtils.substring(dutyClass.getEndTimeStr(), 0, 2)) * 60
+						+ (new Integer(StringUtils.substring(dutyClass.getEndTimeStr(), 3, 5))));
+        	}
+
             Repositories.dutyClassRepository.saveAndFlush(dutyClass);
             return new ResponseBundle().success(selectSuiteInfo(suiteId));
         } catch (Exception e) {
@@ -362,4 +351,5 @@ public class DutyController {
         map.put("dutyperiodchecking", Repositories.dutyPeriodCheckingRepository.findBySuiteId(suiteId));
         return map;
     }
+    
 }

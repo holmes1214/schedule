@@ -34,14 +34,31 @@ public class DutyClass {
 	 * 站区id
 	 */
 	private Integer districtId;
+	
+    /**
+     * 站区名
+     */
+    private String districtName;
+    
 	/**
 	 * 站点id
 	 */
 	private Integer stationId;
+	
+    /**
+     * 站点名
+     */
+    private String stationName;
+    
 	/**
 	 * 岗位id
 	 */
 	private Integer positionId;
+
+    /**
+     * 岗位名，身份：管理员、普通职工
+     */
+    private String positionName;
 
 	/**
 	 * 班制id
@@ -77,7 +94,7 @@ public class DutyClass {
 	 */
     private String endTimeStr;
 	/**
-	 * 班次时长（分钟）
+	 * 本班工时，班次时长（分钟）
 	 */
 	private Integer workingLength;
 	/**

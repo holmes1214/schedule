@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
 
 /**
  * 用户
@@ -82,7 +81,7 @@ public class User {
     /**
      * 生日
      */
-    private Date birthday;
+    private String birthday;
 
     /**
      * 性别 0男1女
@@ -92,7 +91,7 @@ public class User {
     /**
      * 入职时间
      */
-    private Date entryDate;
+    private String entryDate;
 
     /**
      * 未婚已婚 0未婚 1已婚
@@ -112,15 +111,15 @@ public class User {
     /**
      * 学历，高中以下，本科，专科，研究生，博士
      */
-    private Integer eduBackGround;
+    private String eduBackGround;
     /**
      * 群众共产党员，共青团员
      */
-    private Integer partyMember;
+    private String partyMember;
     /**
      * 入党入团时间
      */
-    private Date joinDate;
+    private String joinDate;
 
     /**
      * 家庭住址
