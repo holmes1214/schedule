@@ -54,14 +54,14 @@ public class DutyController {
     @ResponseBody
     @GetMapping
     public ResponseBundle suitlist(@RequestParam("districtId") Integer districtId,
-                                   @RequestParam("stationId") Integer stationId,
-                                   @RequestParam("positionId") Integer positionId,
-                                   @RequestParam("backup") Integer backup) {
+                                   @RequestParam(value="stationId",required=false) Integer stationId,
+                                   @RequestParam(value="positionId",required=false) Integer positionId,
+                                   @RequestParam(value="backup",required=false) Integer backup) {
         // 备班班制，backup传1
         try {
         	   List<DutySuite> list = null ;
-            if (backup == 1) {
-            	list=	Repositories.dutySuiteRepository.findByDistrictIdAndBackup(districtId, backup);
+			if (backup != null && backup == 1) {
+            	list=Repositories.dutySuiteRepository.findByDistrictIdAndBackup(districtId, backup);
             }else if ((positionId != null) && (stationId != null)) {
 				list = Repositories.dutySuiteRepository.findByDistrictIdAndStationIdAndPositionId(districtId, stationId,
 						positionId);
