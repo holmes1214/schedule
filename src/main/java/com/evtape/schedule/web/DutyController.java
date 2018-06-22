@@ -44,11 +44,11 @@ public class DutyController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "query",
                     dataType = "int"),
-            @ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "query",
+            @ApiImplicitParam(name = "stationId", value = "站点id", required = false, paramType = "query",
                     dataType = "int"),
-            @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "query",
+            @ApiImplicitParam(name = "positionId", value = "岗位id", required = false, paramType = "query",
                     dataType = "int"),
-            @ApiImplicitParam(name = "backup", value = "是否备班(1备班，0正常)", required = true, paramType = "query",
+            @ApiImplicitParam(name = "backup", value = "是否备班(1备班，0正常)", required = false, paramType = "query",
                     dataType = "int"),
     })
     @ResponseBody
@@ -59,18 +59,25 @@ public class DutyController {
                                    @RequestParam("backup") Integer backup) {
         // 备班班制，backup传1
         try {
-            if (backup != null && backup == 1) {
-                return new ResponseBundle()
-                        .success(Repositories.dutySuiteRepository.findByDistrictIdAndBackup(districtId, backup));
-            }
-            return new ResponseBundle().success(Repositories.dutySuiteRepository
-                    .findByDistrictIdAndStationIdAndPositionId(districtId, stationId, positionId));
+        	   List<DutySuite> list = null ;
+            if (backup == 1) {
+            	list=	Repositories.dutySuiteRepository.findByDistrictIdAndBackup(districtId, backup);
+            }else if ((positionId != null) && (stationId != null)) {
+				list = Repositories.dutySuiteRepository.findByDistrictIdAndStationIdAndPositionId(districtId, stationId,
+						positionId);
+			}else if((positionId == null) && (stationId != null)){
+				list = Repositories.dutySuiteRepository.findByDistrictIdAndStationId(districtId, stationId);
+			}
+			else if((positionId == null) && (stationId == null)){
+				list = Repositories.dutySuiteRepository.findByDistrictId(districtId);
+			}
+            return new ResponseBundle().success(list);
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
 
-	@ApiOperation(value = "根据班制id获取班次", produces = "application/json")
+	@ApiOperation(value = "根据班制id获取班次和检查条件", produces = "application/json")
 	@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "int")
 	@ResponseBody
 	@GetMapping("/suite")
@@ -276,8 +283,6 @@ public class DutyController {
 			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "startTime", value = "班次几点上班(从零点开始算，第多少分钟开始上班)", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "endTime", value = "班次几点下班(从零点开始算，第多少分钟下班)", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "startTimeStr", value = "班次几点上班-小时", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "endTimeStr", value = "班次几点下班-小时", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "userCount", value = "班次人数", required = true, paramType = "body", dataType = "integer"), })
@@ -286,6 +291,15 @@ public class DutyController {
     public ResponseBundle periodadd(@RequestBody DutyPeriodChecking dutyPeriodChecking) {
         try {
             Integer suiteId = dutyPeriodChecking.getSuiteId();
+            
+        	if(StringUtils.isNotBlank(dutyPeriodChecking.getStartTimeStr())){
+        		dutyPeriodChecking.setStartTime(new Integer(StringUtils.substring(dutyPeriodChecking.getStartTimeStr(), 0, 2)) * 60
+						+ (new Integer(StringUtils.substring(dutyPeriodChecking.getStartTimeStr(), 3, 5))));
+        	}
+        	if(StringUtils.isNotBlank(dutyPeriodChecking.getEndTimeStr())){
+        		dutyPeriodChecking.setEndTime(new Integer(StringUtils.substring(dutyPeriodChecking.getEndTimeStr(), 0, 2)) * 60
+						+ (new Integer(StringUtils.substring(dutyPeriodChecking.getEndTimeStr(), 3, 5))));
+        	}
             Repositories.dutyPeriodCheckingRepository.saveAndFlush(dutyPeriodChecking);
             return new ResponseBundle().success(selectSuiteInfo(suiteId));
         } catch (Exception e) {
@@ -305,8 +319,6 @@ public class DutyController {
 			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "startTime", value = "班次几点上班(从零点开始算，第多少分钟开始上班)", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "endTime", value = "班次几点下班(从零点开始算，第多少分钟下班)", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "startTimeStr", value = "班次几点上班-小时", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "endTimeStr", value = "班次几点下班-小时", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "userCount", value = "班次人数", required = true, paramType = "body", dataType = "integer"), })
@@ -315,6 +327,14 @@ public class DutyController {
     public ResponseBundle periodupdate(@RequestBody DutyPeriodChecking dutyPeriodChecking) {
         try {
             Integer suiteId = dutyPeriodChecking.getSuiteId();
+        	if(StringUtils.isNotBlank(dutyPeriodChecking.getStartTimeStr())){
+        		dutyPeriodChecking.setStartTime(new Integer(StringUtils.substring(dutyPeriodChecking.getStartTimeStr(), 0, 2)) * 60
+						+ (new Integer(StringUtils.substring(dutyPeriodChecking.getStartTimeStr(), 3, 5))));
+        	}
+        	if(StringUtils.isNotBlank(dutyPeriodChecking.getEndTimeStr())){
+        		dutyPeriodChecking.setEndTime(new Integer(StringUtils.substring(dutyPeriodChecking.getEndTimeStr(), 0, 2)) * 60
+						+ (new Integer(StringUtils.substring(dutyPeriodChecking.getEndTimeStr(), 3, 5))));
+        	}
             Repositories.dutyPeriodCheckingRepository.saveAndFlush(dutyPeriodChecking);
             return new ResponseBundle().success(selectSuiteInfo(suiteId));
         } catch (Exception e) {

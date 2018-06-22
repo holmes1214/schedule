@@ -14,5 +14,9 @@ public interface DutySuiteRepository extends JpaRepository<DutySuite, Integer> {
                                                               Integer positionId);
 
     List<DutySuite> findByDistrictIdAndBackup(Integer districtId, Integer backup);
+    
+    List<DutySuite> findByDistrictId(Integer districtId);
+    
+    List<DutySuite> findByDistrictIdAndStationId(Integer districtId, Integer stationId);
 
 }
