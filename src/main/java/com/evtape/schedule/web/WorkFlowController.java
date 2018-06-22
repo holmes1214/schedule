@@ -134,7 +134,6 @@ public class WorkFlowController {
 	
 	@ApiOperation(value = "新增工作流程描述", produces = "application/json")
 	@ApiImplicitParams({
-			@ApiImplicitParam(name = "id", value = "工作流程id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
