@@ -42,4 +42,6 @@ public class LeaveDaySet {
 
 	private Integer districtId;
 
+	private String description;
+
 }

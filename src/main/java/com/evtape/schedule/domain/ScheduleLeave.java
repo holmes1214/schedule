@@ -27,4 +27,11 @@ public class ScheduleLeave {
 	private String comment;
 
 	private String leaveDesc;
+
+	private Integer userId;
+
+	//是否替班
+	private Integer instead;
+	//是否计算原工时
+	private Integer countOriginal;
 }

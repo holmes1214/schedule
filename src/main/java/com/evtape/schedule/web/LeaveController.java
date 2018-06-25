@@ -27,11 +27,11 @@ public class LeaveController {
     private Map<String, LeaveHandler> handlerMap;
 
     public @ResponseBody Object leave(@RequestParam("scheduleInfoId") Integer scheduleInfoId,@RequestParam("leaveType") Integer leaveType,@RequestParam("insteadUser") Integer insteadUser,
-                                      @RequestParam("subType") Integer subType,@RequestParam("leaveHours") Integer leaveHours,@RequestParam("content") String content){
+                                      @RequestParam("subType") Integer subType,@RequestParam("leaveHours") Integer leaveHours,@RequestParam("leaveDays") Integer leaveDays,@RequestParam("content") String content){
         String handlerName="handler_leave"+leaveType+"_sub"+subType;
         try {
 
-            List<ScheduleLeave> scheduleLeaves = handlerMap.get(handlerName).processLeaveHours(scheduleInfoId, leaveHours,insteadUser,content);
+            List<ScheduleLeave> scheduleLeaves = handlerMap.get(handlerName).processLeaveHours(scheduleInfoId, leaveHours,insteadUser,leaveDays,content);
             return new ResponseBundle().success(scheduleLeaves);
         }catch (Exception e){
             logger.error("error: ",e);

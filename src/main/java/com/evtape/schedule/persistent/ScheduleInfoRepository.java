@@ -2,6 +2,7 @@ package com.evtape.schedule.persistent;
 
 import java.util.List;
 
+import com.evtape.schedule.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -16,4 +17,6 @@ public interface ScheduleInfoRepository extends JpaRepository<ScheduleInfo, Inte
     void deleteBySuiteIdAndDateStr(Integer suiteId, String dateStr);
     
     List<ScheduleInfo> findBySuiteId(Integer suiteId);
+
+    ScheduleInfo findByUserIdAndDateStr(User leaveUser, String dateStr);
 }
