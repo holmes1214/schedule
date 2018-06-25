@@ -47,6 +47,7 @@ public class AnnualLeaveHandler extends AbstractLeaveHandler implements LeaveHan
 
         Date start=getLeaveDate(startDate);
         List<ScheduleLeave> result=new ArrayList<>();
+        List<ScheduleInfo> modifiedSchedule=new ArrayList<>();
         for(int i=0;i<leaveDays;i++){
             Date date= DateUtils.addDays(start,i);
             String dateStr=getLeaveDateStr(date);
@@ -74,9 +75,16 @@ public class AnnualLeaveHandler extends AbstractLeaveHandler implements LeaveHan
             leave2.setCountOriginal(0);
             result.add(leave1);
             result.add(leave2);
+
+            //将排班信息设置为修改，方便查询是否有请假数据
+            info.setModified(1);
+            info2.setModified(1);
+            modifiedSchedule.add(info);
+            modifiedSchedule.add(info2);
         }
 
         Repositories.scheduleLeaveRepository.save(result);
+        Repositories.scheduleInfoRepository.save(modifiedSchedule);
         return result;
     }
 }

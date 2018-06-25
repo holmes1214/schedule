@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 根据模板生成排班
@@ -49,6 +50,10 @@ public class ScheduleInfo {
 
 	private Date modifyDate;
 
+	//是否包含请假数据
 	private Integer modified;
+
+	@Transient
+	private List<ScheduleLeave> leaveList;
 
 }
