@@ -25,6 +25,7 @@ import com.evtape.schedule.support.domain.PersonalDuty;
 import com.evtape.schedule.support.domain.Task;
 
 public class ScheduleCalculator {
+
     public static final int WEEK_DAYS = 7;
     public static final int DAY_MINUTES = 24 * 60;
     private static final int THRESHOLD = 6 * 60;
@@ -49,6 +50,7 @@ public class ScheduleCalculator {
 			taskCountPerDay += shift.getUserCount();
 			totalHours += (shift.getWorkingLength() * shift.getUserCount());
 		}
+
 		// 至少需要多少人：每天需要的人数*7，除以每个人每周工作多少天（有余数则商数加一）
 		int workerCount = taskCountPerDay * WEEK_DAYS / (WEEK_DAYS - model.getMinWeeklyRestDays()) + 1;
 		// 每天总工时数*7，除以每人一周的最大工时，得到至少需要多少人
