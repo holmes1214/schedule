@@ -1,13 +1,13 @@
 package com.evtape.schedule.exception;
 
 
-import com.evtape.schedule.util.ErrorCode;
+import com.evtape.schedule.consts.ResponseMeta;
 
 public class BaseException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	private ErrorCode errorCode;
+	private ResponseMeta errorCode;
 	
 	public BaseException(String msg) {
 		super(msg);
@@ -17,16 +17,16 @@ public class BaseException extends RuntimeException {
 		super(msg, e);
 	}
 	
-	public BaseException(ErrorCode errorCode) {
-		super(errorCode.memo);
+	public BaseException(ResponseMeta errorCode) {
+		super(errorCode.name());
 		this.errorCode = errorCode;
 	}
 	
-	public ErrorCode getErrorCode() {
+	public ResponseMeta getErrorCode() {
 		return errorCode;
 	}
 
-	public void setErrorCode(ErrorCode errorCode) {
+	public void setErrorCode(ResponseMeta errorCode) {
 		this.errorCode = errorCode;
 	}
 

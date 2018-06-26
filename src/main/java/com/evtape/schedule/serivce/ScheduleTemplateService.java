@@ -6,9 +6,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.*;
 
 import javax.transaction.Transactional;
 
+import com.evtape.schedule.consts.ResponseMeta;
+import com.evtape.schedule.exception.BaseException;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 
@@ -34,12 +37,23 @@ public class ScheduleTemplateService {
 	public List<ScheduleTemplate> removeAndSaveTemplates(Integer suiteId) {
 		DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
 		List<DutyClass> classlist = Repositories.dutyClassRepository.findBySuiteId(suiteId);
-		List<ScheduleTemplate> templates = ScheduleCalculator.calculate(classlist, dutySuite);
-		List<ScheduleTemplate> list = Repositories.scheduleTemplateRepository.findBySuiteId(suiteId);
-		Repositories.scheduleTemplateRepository.delete(list);
-		Repositories.scheduleTemplateRepository.save(templates);
-		Repositories.scheduleTemplateRepository.flush();
-		return templates;
+        Callable<List<ScheduleTemplate>> onlineShopping = () ->
+                ScheduleCalculator.calculate(classlist, dutySuite);
+        FutureTask<List<ScheduleTemplate>> task = new FutureTask<>(onlineShopping);
+        Thread t=new Thread(task);
+        t.start();
+        try {
+            List<ScheduleTemplate> templates=task.get(5l, TimeUnit.SECONDS);
+            List<ScheduleTemplate> list = Repositories.scheduleTemplateRepository.findBySuiteId(suiteId);
+            Repositories.scheduleTemplateRepository.delete(list);
+            Repositories.scheduleTemplateRepository.save(templates);
+            Repositories.scheduleTemplateRepository.flush();
+            return templates;
+        } catch (Exception e) {
+            //TODO STOP calculate
+            ScheduleCalculator.stopCalculate(t.getId());
+            throw new BaseException(ResponseMeta.DUTY_PLANNING_ERROR);
+        }
 	}
 	/**
 	 * 

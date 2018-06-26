@@ -29,7 +29,7 @@ public class ScheduleCalculator {
     public static final int DAY_MINUTES = 24 * 60;
     private static final int THRESHOLD = 6 * 60;
     private static Logger logger = LoggerFactory.getLogger(ScheduleCalculator.class);
-
+    static Set<Long> THREAD_SET=new HashSet<>();
 
     /**
      * 排班，先根据班次和班制算出需要的人数，再排班
@@ -38,6 +38,8 @@ public class ScheduleCalculator {
      * @return
      */
     public static List<ScheduleTemplate> calculate(List<DutyClass> shifts, DutySuite model) {
+        Long tid=Thread.currentThread().getId();
+        THREAD_SET.add(tid);
 		// 每天需要多少个人上班
 		int taskCountPerDay = 0;
 		// 每天一个站一个岗位所有人的总工时（小时）
@@ -53,13 +55,14 @@ public class ScheduleCalculator {
 		int count = totalHours * WEEK_DAYS / model.getMaxWorkingHour() + 1;
 		// TODO int count = totalHours * WEEK_DAYS / model.getMaxWeeklyRestDays() + 1;
 		workerCount = Math.max(workerCount, count);
-		while (true) {
+		while (THREAD_SET.contains(tid)) {
 			try {
 				return calculate(shifts, workerCount, model);
 			} catch (Exception e) {
 				workerCount++;
 			}
 		}
+		return null;
 	}
 
     /**
@@ -1071,4 +1074,7 @@ public class ScheduleCalculator {
 
     }
 
+    public static void stopCalculate(long id) {
+        THREAD_SET.remove(id);
+    }
 }

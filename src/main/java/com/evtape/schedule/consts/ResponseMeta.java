@@ -45,7 +45,8 @@ public enum ResponseMeta {
     DISTRICT_HASSTATION(60101, "当前站区下仍包含有站，不能删除此站区"),
 
     /* 系统错误 */
-    SYSTEM_INNER_ERROR(50001, "系统繁忙，请稍后重试");
+    SYSTEM_INNER_ERROR(50001, "系统繁忙，请稍后重试"),
+    DUTY_PLANNING_ERROR(50002,"排班错误，请检查班次设置" );
     /* 无权观看视频 */
 
     private Integer code;

@@ -1,8 +1,8 @@
 package com.evtape.schedule.web.auth;
 
+import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.*;
 import com.evtape.schedule.persistent.*;
-import com.evtape.schedule.util.ErrorCode;
 import com.evtape.schedule.util.JWTUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -71,14 +71,14 @@ public class ShiroRealm extends AuthorizingRealm {
         String token = (String) authenticationToken.getCredentials();
         String phoneNumber = JWTUtil.getPhoneNumber(token);
         if (phoneNumber == null) {
-            throw new AuthenticationException(ErrorCode.INVALID_TOKEN.memo);
+            throw new AuthenticationException(ResponseMeta.USER_NOT_EXIST.message());
         }
         User user = userRepository.findByPhoneNumber(phoneNumber);
         if (user == null) {
-            throw new AuthenticationException(ErrorCode.INVALID_USERNAME.memo);
+            throw new AuthenticationException(ResponseMeta.USER_NOT_EXIST.message());
         }
         if (!JWTUtil.verify(token, phoneNumber, user.getPassword())) {
-            throw new AuthenticationException(ErrorCode.INVALID_LOGIN.memo);
+            throw new AuthenticationException(ResponseMeta.UNAUTHORIZED.message());
         }
         return new SimpleAuthenticationInfo(token, token, REAM_NAME);
     }
