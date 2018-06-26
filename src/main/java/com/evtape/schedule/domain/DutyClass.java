@@ -112,6 +112,9 @@ public class DutyClass {
 	 * 备班标识
 	 */
 	private Integer backup;
-
-
+	/**
+	 * 注意事项
+	 */
+	private String comment;
+	
 }

@@ -42,11 +42,11 @@ public class WorkFlowController {
         try {
 
             List<DutyClassVo> dutyClassVolist = new ArrayList<>();
-            DutyClassVo dutyClassVo = new DutyClassVo();
-            ScheduleWorkflowVo scheduleWorkflowVo = new ScheduleWorkflowVo();
             //循环班次，拿到scheduleWorkflowlist
             List<DutyClass> classlist = Repositories.dutyClassRepository.findBySuiteId(suiteId);
             for (DutyClass dutyClass : classlist) {
+            	
+            	DutyClassVo dutyClassVo = new DutyClassVo();
 //                dutyClassVo = (DutyClassVo) dutyClass;
 
                 try {
@@ -76,7 +76,7 @@ public class WorkFlowController {
                 }
                 List<ScheduleWorkflowVo> scheduleWorkflowVolist = new ArrayList<ScheduleWorkflowVo>();
                 for (int i = 0; i < scheduleWorkflowlist.size(); i++) {
-
+                	ScheduleWorkflowVo scheduleWorkflowVo = new ScheduleWorkflowVo();
 //                    scheduleWorkflowVo = (ScheduleWorkflowVo) scheduleWorkflowlist.get(i);
 
                     try {
