@@ -15,12 +15,14 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name="sys_permission")
+@Table(name = "sys_permission")
 public class Permission {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
-	private String code;
-	private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
+    private String code;
+    private String name;
+    private String category;
+    private String level;
 }

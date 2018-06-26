@@ -14,6 +14,8 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +29,8 @@ import java.util.Set;
 public class ShiroRealm extends AuthorizingRealm {
 
     private static final String REAM_NAME = "shiroRealm";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShiroRealm.class);
 
     private UserRepository userRepository;
     private RoleRepository roleRepository;
@@ -50,6 +54,7 @@ public class ShiroRealm extends AuthorizingRealm {
 
         roleUsers.forEach(roleUser -> {
             Role role = roleRepository.findOne(roleUser.getRoleId());
+            LOGGER.debug("add role:{}", role.getCode());
             roles.add(role.getCode());  // 添加角色编码
             List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(role.getId());
             rolePermissions.forEach(rolePermission -> {

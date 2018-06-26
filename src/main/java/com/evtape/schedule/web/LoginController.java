@@ -2,12 +2,14 @@ package com.evtape.schedule.web;
 
 import com.alibaba.fastjson.JSONObject;
 import com.evtape.schedule.consts.ResponseMeta;
-import com.evtape.schedule.domain.User;
+import com.evtape.schedule.domain.*;
 import com.evtape.schedule.domain.form.LoginForm;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.domain.vo.UserVo;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.util.JWTUtil;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -23,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -55,8 +58,26 @@ public class LoginController {
             if (ObjectUtils.notEqual(form.getPassword(), u.getPassword())) {
                 return new ResponseBundle().failure(ResponseMeta.ADMIN_PASSWD_NOT_ERROR);
             }
+
+            List<RoleUser> roleUsers = Repositories.roleUserRepository.findByUserId(u.getId());
+
+            List<String> roles = Lists.newArrayListWithCapacity(roleUsers.size());
+            Set<String> permissions = Sets.newHashSet();
+
+            roleUsers.forEach(roleUser -> {
+                Role role = Repositories.roleRepository.findOne(roleUser.getRoleId());
+                roles.add(role.getCode());  // 添加角色编码
+                List<RolePermission> rolePermissions = Repositories.rolePermissionRepository.findByRoleId(role.getId());
+                rolePermissions.forEach(rolePermission -> {
+                    Permission permission = Repositories.permissionRepository.findOne(rolePermission.getPermissionId());
+                    permissions.add(permission.getCode());  // 添加权限列表编码
+                });
+            });
+
             String token = JWTUtil.sign(u.getPhoneNumber(), u.getPassword());
             UserVo vo = new UserVo();
+            vo.setRoles(roles);
+            vo.setPermissions(permissions);
             try {
                 BeanUtils.copyProperties(vo, u);
             } catch (IllegalAccessException | InvocationTargetException e) {
