@@ -194,7 +194,8 @@ public class DutyController {
 			@ApiImplicitParam(name = "workingLength", value = "本班工时，班次时长（分钟）", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "restMinutes", value = "两班间隔（分钟）", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "relevantClassId", value = "关联班次", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "backup", value = "是否有备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer"), })
+			@ApiImplicitParam(name = "backup", value = "是否有备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer"), 
+			@ApiImplicitParam(name = "comment", value = "注意事项", required = true, paramType = "body", dataType = "string"), })
     @ResponseBody
     @PostMapping("/class")
     public ResponseBundle classadd(@RequestBody DutyClass dutyClass) {
@@ -234,7 +235,8 @@ public class DutyController {
 			@ApiImplicitParam(name = "workingLength", value = "本班工时，班次时长（分钟）", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "restMinutes", value = "两班间隔（分钟）", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "relevantClassId", value = "关联班次", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "backup", value = "是否有备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer"), })
+			@ApiImplicitParam(name = "backup", value = "是否有备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer"),
+			@ApiImplicitParam(name = "comment", value = "注意事项", required = true, paramType = "body", dataType = "string"), })
     @ResponseBody
     @PutMapping("/classupdate")
     public ResponseBundle classupdate(@RequestBody DutyClass dutyClass) {
