@@ -50,11 +50,11 @@ public class ShiroRealm extends AuthorizingRealm {
 
         roleUsers.forEach(roleUser -> {
             Role role = roleRepository.findOne(roleUser.getRoleId());
-            roles.add(role.getName());
+            roles.add(role.getCode());  // 添加角色编码
             List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(role.getId());
             rolePermissions.forEach(rolePermission -> {
                 Permission permission = permissionRepository.findOne(rolePermission.getPermissionId());
-                permissions.add(permission.getName());
+                permissions.add(permission.getCode());  // 添加权限列表编码
             });
         });
 

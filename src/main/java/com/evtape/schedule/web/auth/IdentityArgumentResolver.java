@@ -31,7 +31,7 @@ public class IdentityArgumentResolver implements HandlerMethodArgumentResolver {
         String identification;
         if (phoneNumber != null) {
             identification = phoneNumber;
-            LOGGER.info("phoneNumber:{}", phoneNumber);
+            LOGGER.info("parse phoneNumber from token:{}", phoneNumber);
             return identification;
         }
         throw new AuthenticationException();

@@ -6,7 +6,7 @@ import lombok.Setter;
 import javax.persistence.*;
 
 /**
- * 角色字典表 
+ * 角色字典表
  */
 @Entity
 @Getter
@@ -14,9 +14,9 @@ import javax.persistence.*;
 @Table(name = "sys_role")
 public class Role {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
-	private String code;
-	private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
+    private String code;
+    private String name;
 }

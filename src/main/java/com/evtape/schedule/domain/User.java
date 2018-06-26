@@ -29,6 +29,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
+    @Transient
+    private Integer roleId;
+
     /**
      * 站区表id
      */
@@ -107,6 +110,11 @@ public class User {
      * 员工卡号
      */
     private String employeeCard;
+
+    /**
+     * 人员编码
+     */
+    private String employeeCode;
 
     /**
      * 学历，高中以下，本科，专科，研究生，博士
