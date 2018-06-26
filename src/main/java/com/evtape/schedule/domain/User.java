@@ -1,5 +1,7 @@
 package com.evtape.schedule.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,6 +32,7 @@ public class User {
     private Integer id;
 
     @Transient
+    @JsonIgnore
     private Integer roleId;
 
     /**

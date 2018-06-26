@@ -23,7 +23,14 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 	List<User> findByDistrictIdAndStationId(Integer districtId, Integer stationId);
 
-	List<User> findByDistrictIdAndStationIdAndPositionId(Integer districtId, Integer stationId, Integer positionId);
+	List<User> findByPhoneNumberNot(String phoneNumber);
+
+	List<User> findByPhoneNumberNotAndEmployeeCardStartingWith(String phoneNumber, String employeeCard);
+
+	List<User> findByPhoneNumberNotAndDistrictId(String phoneNumber, Integer districtId);
+
+	List<User> findByPhoneNumberNotAndDistrictIdAndEmployeeCardStartingWith(String phoneNumber, Integer districtId, String employeeCard);
+
 
 	List<User> findByDistrictIdAndBackup(Integer districtId,Integer backup);
 

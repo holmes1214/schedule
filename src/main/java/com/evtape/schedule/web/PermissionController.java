@@ -1,7 +1,5 @@
 package com.evtape.schedule.web;
 
-import com.beust.jcommander.internal.Lists;
-import com.beust.jcommander.internal.Maps;
 import com.evtape.schedule.domain.Permission;
 import com.evtape.schedule.domain.RolePermission;
 import com.evtape.schedule.domain.RoleUser;
@@ -9,6 +7,8 @@ import com.evtape.schedule.domain.User;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.web.auth.Identity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.slf4j.Logger;
@@ -26,9 +26,9 @@ public class PermissionController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PermissionController.class);
 
-    private Map<String, Map<String, List<String>>> group(List<Permission> permissions) {
+    private Map<String, Map<String, List<P>>> group(List<Permission> permissions) {
 
-        Map<String, Map<String, List<String>>> levelMap = new HashMap<>();
+        Map<String, Map<String, List<P>>> levelMap = new HashMap<>();
 
         permissions.forEach(permission -> {
 
@@ -37,19 +37,19 @@ public class PermissionController {
 
             if (levelMap.containsKey(levelKey)) {
                 // category为key
-                Map<String, List<String>> categoryMap = levelMap.get(levelKey);
+                Map<String, List<P>> categoryMap = levelMap.get(levelKey);
                 if (categoryMap.containsKey(categoryKey)) {
                     // 若categoryMap中存在category的key, 则对应的value一定存在, 直接put
-                    categoryMap.get(categoryKey).add(permission.getName());
+                    categoryMap.get(categoryKey).add(new P(permission.getId(), permission.getName()));
                 } else {
-                    List<String> nameList = new ArrayList<>();
-                    nameList.add(permission.getName());
+                    List<P> nameList = new ArrayList<>();
+                    nameList.add(new P(permission.getId(), permission.getName()));
                     categoryMap.put(categoryKey, nameList);
                 }
             } else {
-                Map<String, List<String>> categoryMap = new HashMap<>();
-                List<String> nameList = new ArrayList<>();
-                nameList.add(permission.getName());
+                Map<String, List<P>> categoryMap = new HashMap<>();
+                List<P> nameList = new ArrayList<>();
+                nameList.add(new P(permission.getId(), permission.getName()));
                 categoryMap.put(categoryKey, nameList);
                 levelMap.put(levelKey, categoryMap);
             }
@@ -63,7 +63,6 @@ public class PermissionController {
         Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
             List<Permission> permissions = Repositories.permissionRepository.findAll();
-            LOGGER.debug("permission size:{}", permissions.size());
             return new ResponseBundle().success(group(permissions));
         }).orElseThrow(UnauthenticatedException::new);
     }
@@ -79,6 +78,13 @@ public class PermissionController {
             }
             return new ResponseBundle().success(rolePermission);
         }).orElseThrow(UnauthenticatedException::new);
+    }
+
+    @AllArgsConstructor
+    @Getter
+    private class P {
+        int id;
+        String name;
     }
 
 //    @PostMapping
