@@ -119,8 +119,10 @@ public class WorkFlowController {
     @PutMapping
     public ResponseBundle updateWorkflow(@RequestBody ScheduleWorkflow scheduleWorkflow) {
         try {
-            Repositories.workflowRepository.saveAndFlush(scheduleWorkflow);
-            return new ResponseBundle().success(scheduleWorkflow);
+        	ScheduleWorkflow oldbean = Repositories.workflowRepository.findOne(scheduleWorkflow.getId());
+        	oldbean.setCode(scheduleWorkflow.getCode());
+            Repositories.workflowRepository.saveAndFlush(oldbean);
+            return new ResponseBundle().success(oldbean);
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
