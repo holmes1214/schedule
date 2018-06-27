@@ -6,7 +6,9 @@ import com.evtape.schedule.domain.RoleUser;
 import com.evtape.schedule.web.auth.Identity;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.UnauthenticatedException;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,15 +48,10 @@ public class UserController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
-    @ApiOperation(value = "用户列表", produces = "application/json")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "employeeCard", value = "员工卡号", paramType = "query", dataType
-                    = "string")})
-    @ResponseBody
-    @GetMapping
-    @RequiresAuthentication
-    public ResponseBundle userList(@RequestParam(required = false) String employeeCard, @Identity String phoneNumber) {
-        Subject currentUser = SecurityUtils.getSubject();
+    /**
+     * 根据不同权限获取用户列表
+     */
+    private List<User> getUserList(Subject currentUser, String employeeCard, String phoneNumber) {
         List<User> users = Lists.newArrayList();
         // 若用户是超级管理员角色则返回除自己以外所有用户
         if (currentUser.hasRole("role:admin")) {
@@ -76,7 +73,19 @@ public class UserController {
                         (phoneNumber, user.getDistrictId(), employeeCard);
             }
         }
-        return new ResponseBundle().success(users);
+        return users;
+    }
+
+    @ApiOperation(value = "用户列表", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "employeeCard", value = "员工卡号", paramType = "query", dataType
+                    = "string")})
+    @ResponseBody
+    @GetMapping
+    @RequiresAuthentication
+    public ResponseBundle userList(@RequestParam(required = false) String employeeCard, @Identity String phoneNumber) {
+        Subject currentUser = SecurityUtils.getSubject();
+        return new ResponseBundle().success(getUserList(currentUser, employeeCard, phoneNumber));
     }
 
     @ApiOperation(value = "新增用户", produces = "application/json")
@@ -138,6 +147,7 @@ public class UserController {
                     dataType = "integer"),})
     @ResponseBody
     @PostMapping
+    @RequiresRoles(value = {"role:admin", "role:district"}, logical = Logical.OR)
     public ResponseBundle addUser(@RequestBody @Validated User form, BindingResult bindingResult, @Identity String
             phoneNumber) {
         if (bindingResult.hasErrors()) {
@@ -156,8 +166,8 @@ public class UserController {
             roleUser.setUserId(newUser.getId());
             roleUser.setRoleId(newUser.getRoleId());
             Repositories.roleUserRepository.save(roleUser);
-
-            return new ResponseBundle().success();
+            Subject currentUser = SecurityUtils.getSubject();
+            return new ResponseBundle().success(getUserList(currentUser, null, phoneNumber));
         }).orElseThrow(UnauthenticatedException::new);
 
     }
@@ -218,11 +228,13 @@ public class UserController {
                     dataType = "integer"),})
     @ResponseBody
     @PutMapping
-    public ResponseBundle updateuser(@RequestBody User user) {
+    @RequiresRoles(value = {"role:admin", "role:district"}, logical = Logical.OR)
+    public ResponseBundle updateuser(@RequestBody User user, @Identity String phoneNumber) {
 
         try {
             Repositories.userRepository.saveAndFlush(user);
-            return new ResponseBundle().success(user);
+            Subject currentUser = SecurityUtils.getSubject();
+            return new ResponseBundle().success(getUserList(currentUser, null, phoneNumber));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
@@ -232,10 +244,12 @@ public class UserController {
     @ApiImplicitParam(name = "userId", value = "userId", required = true, paramType = "path", dataType = "integer")
     @ResponseBody
     @DeleteMapping("/{userId}")
-    public ResponseBundle deleteuser(@PathVariable("userId") Integer userId) {
+    @RequiresRoles(value = {"role:admin", "role:district"}, logical = Logical.OR)
+    public ResponseBundle deleteuser(@PathVariable("userId") Integer userId, @Identity String phoneNumber) {
         try {
             Repositories.userRepository.delete(userId);
-            return new ResponseBundle().success(null);
+            Subject currentUser = SecurityUtils.getSubject();
+            return new ResponseBundle().success(getUserList(currentUser, null, phoneNumber));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }

@@ -6,8 +6,13 @@ import java.util.Optional;
 import com.evtape.schedule.domain.*;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.web.auth.Identity;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.UnauthenticatedException;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import com.evtape.schedule.persistent.Repositories;
@@ -19,14 +24,21 @@ import com.evtape.schedule.persistent.Repositories;
 @RequestMapping("/role")
 public class RoleController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoleController.class);
+
     @GetMapping
-    @RequiresRoles("role:admin")
-    public ResponseBundle getRoles(@Identity String phoneNumber) {
-        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
-        return user.map(u -> {
+    @RequiresRoles(value = {"role:admin", "role:district"}, logical = Logical.OR)
+    public ResponseBundle getRoles() {
+        Subject currentUser = SecurityUtils.getSubject();
+        if (currentUser.hasRole("role:admin")) {
             List<Role> roles = Repositories.roleRepository.findAll();
             return new ResponseBundle().success(roles);
-        }).orElseThrow(UnauthenticatedException::new);
+        }
+        if (currentUser.hasRole("role:district")) {
+            List<Role> roles = Repositories.roleRepository.findByCodeNot("role:admin");
+            return new ResponseBundle().success(roles);
+        }
+        throw new UnauthenticatedException();
     }
 
     @PostMapping

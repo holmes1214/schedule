@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Created by lianhai on 2018/5/27.
  */
@@ -57,10 +59,10 @@ public class ShiroRealm extends AuthorizingRealm {
             LOGGER.debug("add role:{}", role.getCode());
             roles.add(role.getCode());  // 添加角色编码
             List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(role.getId());
-            rolePermissions.forEach(rolePermission -> {
-                Permission permission = permissionRepository.findOne(rolePermission.getPermissionId());
-                permissions.add(permission.getCode());  // 添加权限列表编码
-            });
+
+            List<Integer> ids = rolePermissions.stream().map(rp -> rp.getId()).collect(toList());
+            List<Permission> permissionsList = permissionRepository.queryByIds(ids.toArray(new Integer[ids.size()]));
+            permissionsList.forEach(permission -> permissions.add(permission.getCode()));
         });
 
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();

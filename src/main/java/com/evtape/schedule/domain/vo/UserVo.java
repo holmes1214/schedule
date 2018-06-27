@@ -20,6 +20,11 @@ public class UserVo {
     private Integer districtId;
 
     /**
+     * 站区名
+     */
+    private String districtName;
+
+    /**
      * 站点表id
      */
     private Integer stationId;
