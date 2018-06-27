@@ -112,13 +112,13 @@ public class UserController {
                     "string"),
             @ApiImplicitParam(name = "birthday", value = "生日", required = true, paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "gender", value = "性别", required = true, paramType = "body", dataType = "integer"),
+            @ApiImplicitParam(name = "gender", value = "性别", required = true, paramType = "body", dataType = "String"),
             @ApiImplicitParam(name = "entryDate", value = "入职时间", required = true, paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚", required = true, paramType = "body",
-                    dataType = "integer"),
+                    dataType = "String"),
             @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育", required = true, paramType = "body",
-                    dataType = "integer"),
+                    dataType = "String"),
             @ApiImplicitParam(name = "employeeCard", value = "员工卡号", required = true, paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "employeeCode", value = "人员编码", required = true, paramType = "body", dataType =
@@ -197,13 +197,13 @@ public class UserController {
                     "string"),
             @ApiImplicitParam(name = "birthday", value = "生日", required = true, paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "gender", value = "性别", required = true, paramType = "body", dataType = "integer"),
+            @ApiImplicitParam(name = "gender", value = "性别", required = true, paramType = "body", dataType = "string"),
             @ApiImplicitParam(name = "entryDate", value = "入职时间", required = true, paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚", required = true, paramType = "body",
-                    dataType = "integer"),
+                    dataType = "string"),
             @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育", required = true, paramType = "body",
-                    dataType = "integer"),
+                    dataType = "string"),
             @ApiImplicitParam(name = "employeeCard", value = "员工卡号", required = true, paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "eduBackGround", value = "学历，高中以下，本科，专科，研究生，博士", required = true, paramType =

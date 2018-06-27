@@ -109,45 +109,9 @@ public class WorkFlowController {
         }
     }
 
-    @ApiOperation(value = "新增工作流程", produces = "application/json")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "classId", value = "班次id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "code", value = "流程code", required = true, paramType = "body", dataType =
-                    "string"),
-    })
-    @ResponseBody
-    @PostMapping
-    public ResponseBundle addWorkflow(@RequestBody ScheduleWorkflow scheduleWorkflow) {
-        try {
-            Repositories.workflowRepository.saveAndFlush(scheduleWorkflow);
-            return new ResponseBundle().success(scheduleWorkflow);
-        } catch (Exception e) {
-            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-        }
-    }
-
     @ApiOperation(value = "更新工作流程", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "工作流程id", required = true, paramType = "body", dataType = "integer"),
-            @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "classId", value = "班次id", required = true, paramType = "body", dataType =
-                    "integer"),
             @ApiImplicitParam(name = "code", value = "流程code", required = true, paramType = "body", dataType =
                     "string"),
     })
@@ -162,19 +126,8 @@ public class WorkFlowController {
         }
     }
 
-
     @ApiOperation(value = "新增工作流程描述", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "classId", value = "班次id", required = true, paramType = "body", dataType =
-                    "integer"),
             @ApiImplicitParam(name = "workFlowId", value = "流程id", required = true, paramType = "body", dataType =
                     "integer"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "body", dataType =
@@ -191,7 +144,13 @@ public class WorkFlowController {
     @PostMapping("/content")
     public ResponseBundle addContent(@RequestBody ScheduleWorkflowContent scheduleWorkflowContent) {
         try {
-            Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
+        	ScheduleWorkflow scheduleWorkflow =	Repositories.workflowRepository.findOne(scheduleWorkflowContent.getWorkFlowId());
+        	scheduleWorkflowContent.setClassId(scheduleWorkflow.getClassId());
+        	scheduleWorkflowContent.setDistrictId(scheduleWorkflow.getDistrictId());
+        	scheduleWorkflowContent.setPositionId(scheduleWorkflow.getPositionId());
+        	scheduleWorkflowContent.setStationId(scheduleWorkflow.getStationId());	
+        	scheduleWorkflowContent.setSuiteId(scheduleWorkflow.getSuiteId());	
+        	Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
             return new ResponseBundle().success(scheduleWorkflowContent);
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
@@ -201,16 +160,6 @@ public class WorkFlowController {
     @ApiOperation(value = "更新工作流程描述", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "工作流程id", required = true, paramType = "body", dataType = "integer"),
-            @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "classId", value = "班次id", required = true, paramType = "body", dataType =
-                    "integer"),
             @ApiImplicitParam(name = "workFlowId", value = "流程id", required = true, paramType = "body", dataType =
                     "integer"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "body", dataType =
