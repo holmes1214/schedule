@@ -31,13 +31,13 @@ import io.swagger.annotations.ApiOperation;
 
 @Api(value = "工作流程接口")
 @RestController
-@RequestMapping("workflow")
+@RequestMapping("/workflow")
 public class WorkFlowController {
 
     @ApiOperation(value = "根据班制id查询工作流程", produces = "application/json")
     @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "path", dataType = "integer")
     @ResponseBody
-    @GetMapping("/getallworkflowcontent/{suiteId}")
+    @GetMapping("/{suiteId}")
     public ResponseBundle getallworkflowcontent(@PathVariable("suiteId") Integer suiteId) {
         try {
 
@@ -125,7 +125,7 @@ public class WorkFlowController {
                     "string"),
     })
     @ResponseBody
-    @PostMapping("/addworkflow")
+    @PostMapping
     public ResponseBundle addWorkflow(@RequestBody ScheduleWorkflow scheduleWorkflow) {
         try {
             Repositories.workflowRepository.saveAndFlush(scheduleWorkflow);
@@ -152,7 +152,7 @@ public class WorkFlowController {
                     "string"),
     })
     @ResponseBody
-    @PutMapping("/updateworkflow")
+    @PutMapping
     public ResponseBundle updateWorkflow(@RequestBody ScheduleWorkflow scheduleWorkflow) {
         try {
             Repositories.workflowRepository.saveAndFlush(scheduleWorkflow);
@@ -188,7 +188,7 @@ public class WorkFlowController {
     })
 
     @ResponseBody
-    @PostMapping("/addcontent")
+    @PostMapping("/content")
     public ResponseBundle addContent(@RequestBody ScheduleWorkflowContent scheduleWorkflowContent) {
         try {
             Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
@@ -224,7 +224,7 @@ public class WorkFlowController {
     })
 
     @ResponseBody
-    @PutMapping("/updatecontent")
+    @PutMapping("/content")
     public ResponseBundle updateContent(@RequestBody ScheduleWorkflowContent scheduleWorkflowContent) {
         try {
             Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
@@ -238,7 +238,7 @@ public class WorkFlowController {
     @ApiImplicitParam(name = "contentId", value = "contentId", required = true, paramType = "path", dataType =
             "integer")
     @ResponseBody
-    @DeleteMapping("/deletecontent/{contentId}")
+    @DeleteMapping("/content/{contentId}")
     public ResponseBundle deletecontent(@PathVariable("contentId") Integer contentId) {
         try {
             Repositories.contentRepository.delete(contentId);
