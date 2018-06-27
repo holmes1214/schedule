@@ -90,9 +90,9 @@ public class User {
     private String birthday;
 
     /**
-     * 性别 0男1女
+     * 性别 男，女
      */
-    private Integer gender;
+    private String gender;
 
     /**
      * 入职时间
@@ -100,14 +100,14 @@ public class User {
     private String entryDate;
 
     /**
-     * 未婚已婚 0未婚 1已婚
+     * 婚否 ：已婚，未婚
      */
-    private Integer isMarried;
+    private String isMarried;
 
     /**
-     * 已育未育 0未育 1已育
+     * 生育 ： 已育，未育
      */
-    private Integer hasChild;
+    private String hasChild;
 
     /**
      * 员工卡号
