@@ -35,7 +35,6 @@ public class ExceptionController {
         return new ResponseBundle().failure(ResponseMeta.UNAUTHORIZED, e.getMessage());
     }
 
-    // 捕捉UnauthorizedException
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseBundle handle401() {

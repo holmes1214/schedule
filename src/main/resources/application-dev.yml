@@ -6,6 +6,22 @@ logging:
   level:
     com.sagacn: DEBUG
   config: classpath:logback-dev.xml
+
+management:
+  context-path: /monitor
+  port: 54000
+  security:
+    enabled: false
+  endpoint:
+    jolokia:
+      enabled: true
+      config:
+        debug: true
+
+endpoints:
+  shutdown:
+    enabled: true
+    sensitive: false
   
 # 数据源设定
 druid:

@@ -4,16 +4,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.evtape.schedule.exception.ForbiddenException;
+import lombok.Data;
 import org.apache.commons.beanutils.BeanUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.UnauthenticatedException;
+import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.subject.Subject;
+import org.springframework.web.bind.annotation.*;
 
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.DutyClass;
@@ -164,28 +162,25 @@ public class WorkFlowController {
 
     @ApiOperation(value = "更新工作流程描述", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "工作流程id", required = true, paramType = "body", dataType = "integer"),
-            @ApiImplicitParam(name = "workFlowId", value = "流程id", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "id", value = "id", required = true, paramType = "path", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "body", dataType =
-                    "integer"),
-            @ApiImplicitParam(name = "content", value = "描述", required = true, paramType = "body", dataType = "string"),
-            @ApiImplicitParam(name = "color", value = "颜色", required = true, paramType = "body", dataType = "string"),
-            @ApiImplicitParam(name = "lineNumber", value = "第几行", required = true, paramType = "body", dataType =
-                    "integer"),
+            @ApiImplicitParam(name = "content", value = "内容", required = true, paramType = "query", dataType =
+                    "string"),
+            @ApiImplicitParam(name = "color", value = "颜色值", required = true, paramType = "query", dataType =
+                    "string")
     })
-
     @ResponseBody
-    @PutMapping("/content")
-    public ResponseBundle updateContent(@RequestBody ScheduleWorkflowContent scheduleWorkflowContent) {
-        try {
+    @PutMapping("/content/{id}")
+    public ResponseBundle updateContent(@PathVariable Integer id, @RequestBody Content form) {
+        Subject currentUser = SecurityUtils.getSubject();
+        if (currentUser.hasRole("role:district")) {
+            ScheduleWorkflowContent scheduleWorkflowContent = Repositories.contentRepository.findOne(id);
+            scheduleWorkflowContent.setContent(form.getContent());
+            scheduleWorkflowContent.setColor(form.getColor());
             Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
-            return new ResponseBundle().success(scheduleWorkflowContent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+            return new ResponseBundle().success();
+        } else {
+            throw new ForbiddenException();
         }
     }
 
@@ -197,10 +192,16 @@ public class WorkFlowController {
     public ResponseBundle deletecontent(@PathVariable("contentId") Integer contentId) {
         try {
             Repositories.contentRepository.delete(contentId);
-            return new ResponseBundle().success(contentId);
+            return new ResponseBundle().success();
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
+    }
+
+    @Data
+    private static class Content {
+        private String content;
+        private String color;
     }
 }

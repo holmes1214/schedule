@@ -16,8 +16,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -37,8 +35,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value = "/login", produces = "application/json;charset=UTF-8")
 public class LoginController {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
 
     @ApiOperation(value = "用户登录", produces = "application/json")
     @ApiImplicitParams({
@@ -65,16 +61,16 @@ public class LoginController {
 
             List<RoleUser> roleUsers = Repositories.roleUserRepository.findByUserId(u.getId());
 
-            List<String> roles = Lists.newArrayListWithCapacity(roleUsers.size());
-            Set<String> permissions = Sets.newHashSet();
+            List<Role> roles = Lists.newArrayListWithCapacity(roleUsers.size());
+            Set<Permission> permissions = Sets.newHashSet();
 
             roleUsers.forEach(roleUser -> {
                 Role role = Repositories.roleRepository.findOne(roleUser.getRoleId());
-                roles.add(role.getCode());  // 添加角色编码
+                roles.add(role);  // 添加角色编码
                 List<RolePermission> rolePermissions = Repositories.rolePermissionRepository.findByRoleId(role.getId());
                 rolePermissions.forEach(rolePermission -> {
                     Permission permission = Repositories.permissionRepository.findOne(rolePermission.getPermissionId());
-                    permissions.add(permission.getCode());  // 添加权限列表编码
+                    permissions.add(permission);  // 添加权限列表编码
                 });
             });
 

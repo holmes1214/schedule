@@ -7,6 +7,8 @@ import com.evtape.schedule.domain.User;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.web.auth.Identity;
+import com.evtape.schedule.web.base.RolePermissionController;
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.shiro.authz.UnauthenticatedException;
@@ -22,40 +24,40 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/permissions")
-public class PermissionController {
+public class PermissionController extends RolePermissionController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PermissionController.class);
 
-    private Map<String, Map<String, List<P>>> group(List<Permission> permissions) {
-
-        Map<String, Map<String, List<P>>> levelMap = new HashMap<>();
-
-        permissions.forEach(permission -> {
-
-            String levelKey = permission.getLevel();
-            String categoryKey = permission.getCategory();
-
-            if (levelMap.containsKey(levelKey)) {
-                // category为key
-                Map<String, List<P>> categoryMap = levelMap.get(levelKey);
-                if (categoryMap.containsKey(categoryKey)) {
-                    // 若categoryMap中存在category的key, 则对应的value一定存在, 直接put
-                    categoryMap.get(categoryKey).add(new P(permission.getId(), permission.getName()));
-                } else {
-                    List<P> nameList = new ArrayList<>();
-                    nameList.add(new P(permission.getId(), permission.getName()));
-                    categoryMap.put(categoryKey, nameList);
-                }
-            } else {
-                Map<String, List<P>> categoryMap = new HashMap<>();
-                List<P> nameList = new ArrayList<>();
-                nameList.add(new P(permission.getId(), permission.getName()));
-                categoryMap.put(categoryKey, nameList);
-                levelMap.put(levelKey, categoryMap);
-            }
-        });
-        return levelMap;
-    }
+//    private Map<String, Map<String, List<P>>> group(List<Permission> permissions) {
+//
+//        Map<String, Map<String, List<P>>> levelMap = new HashMap<>();
+//
+//        permissions.forEach(permission -> {
+//
+//            String levelKey = permission.getLevel();
+//            String categoryKey = permission.getCategory();
+//
+//            if (levelMap.containsKey(levelKey)) {
+//                // category为key
+//                Map<String, List<P>> categoryMap = levelMap.get(levelKey);
+//                if (categoryMap.containsKey(categoryKey)) {
+//                    // 若categoryMap中存在category的key, 则对应的value一定存在, 直接put
+//                    categoryMap.get(categoryKey).add(new P(permission.getId(), permission.getName()));
+//                } else {
+//                    List<P> nameList = new ArrayList<>();
+//                    nameList.add(new P(permission.getId(), permission.getName()));
+//                    categoryMap.put(categoryKey, nameList);
+//                }
+//            } else {
+//                Map<String, List<P>> categoryMap = new HashMap<>();
+//                List<P> nameList = new ArrayList<>();
+//                nameList.add(new P(permission.getId(), permission.getName()));
+//                categoryMap.put(categoryKey, nameList);
+//                levelMap.put(levelKey, categoryMap);
+//            }
+//        });
+//        return levelMap;
+//    }
 
     @GetMapping
     @RequiresRoles("role:admin")
@@ -63,7 +65,7 @@ public class PermissionController {
         Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
             List<Permission> permissions = Repositories.permissionRepository.findAll();
-            return new ResponseBundle().success(group(permissions));
+            return new ResponseBundle().success(group(permissions, Lists.newArrayListWithCapacity(0)));
         }).orElseThrow(UnauthenticatedException::new);
     }
 

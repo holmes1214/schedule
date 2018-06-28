@@ -1,5 +1,7 @@
 package com.evtape.schedule.domain.vo;
 
+import com.evtape.schedule.domain.Permission;
+import com.evtape.schedule.domain.Role;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -40,7 +42,7 @@ public class UserVo {
     private String userName;
 
 
-    private List<String> roles;
+    private List<Role> roles;
 
-    private Set<String> permissions;
+    private Set<Permission> permissions;
 }

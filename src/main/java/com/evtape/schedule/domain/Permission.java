@@ -6,6 +6,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +24,8 @@ public class Permission {
     private Integer id;
     private String code;
     private String name;
+    @JsonIgnore
     private String category;
+    @JsonIgnore
     private String level;
 }

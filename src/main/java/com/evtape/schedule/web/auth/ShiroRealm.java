@@ -59,10 +59,12 @@ public class ShiroRealm extends AuthorizingRealm {
             LOGGER.debug("add role:{}", role.getCode());
             roles.add(role.getCode());  // 添加角色编码
             List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(role.getId());
-
-            List<Integer> ids = rolePermissions.stream().map(rp -> rp.getId()).collect(toList());
-            List<Permission> permissionsList = permissionRepository.queryByIds(ids.toArray(new Integer[ids.size()]));
-            permissionsList.forEach(permission -> permissions.add(permission.getCode()));
+            if (rolePermissions.size() > 0) {
+                List<Integer> ids = rolePermissions.stream().map(rp -> rp.getId()).collect(toList());
+                List<Permission> permissionsList = permissionRepository.queryByIds(ids.toArray(
+                        new Integer[ids.size()]));
+                permissionsList.forEach(permission -> permissions.add(permission.getCode()));
+            }
         });
 
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
