@@ -45,8 +45,8 @@ public class WorkFlowController {
             //循环班次，拿到scheduleWorkflowlist
             List<DutyClass> classlist = Repositories.dutyClassRepository.findBySuiteId(suiteId);
             for (DutyClass dutyClass : classlist) {
-            	
-            	DutyClassVo dutyClassVo = new DutyClassVo();
+
+                DutyClassVo dutyClassVo = new DutyClassVo();
 //                dutyClassVo = (DutyClassVo) dutyClass;
 
                 try {
@@ -76,7 +76,7 @@ public class WorkFlowController {
                 }
                 List<ScheduleWorkflowVo> scheduleWorkflowVolist = new ArrayList<ScheduleWorkflowVo>();
                 for (int i = 0; i < scheduleWorkflowlist.size(); i++) {
-                	ScheduleWorkflowVo scheduleWorkflowVo = new ScheduleWorkflowVo();
+                    ScheduleWorkflowVo scheduleWorkflowVo = new ScheduleWorkflowVo();
 //                    scheduleWorkflowVo = (ScheduleWorkflowVo) scheduleWorkflowlist.get(i);
 
                     try {
@@ -119,11 +119,12 @@ public class WorkFlowController {
     @PutMapping
     public ResponseBundle updateWorkflow(@RequestBody ScheduleWorkflow scheduleWorkflow) {
         try {
-        	ScheduleWorkflow oldbean = Repositories.workflowRepository.findOne(scheduleWorkflow.getId());
-        	oldbean.setCode(scheduleWorkflow.getCode());
-            Repositories.workflowRepository.saveAndFlush(oldbean);
+            ScheduleWorkflow oldbean = Repositories.workflowRepository.findOne(scheduleWorkflow.getId());
+            oldbean.setCode(scheduleWorkflow.getCode());
+            oldbean = Repositories.workflowRepository.saveAndFlush(oldbean);
             return new ResponseBundle().success(oldbean);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
@@ -146,15 +147,17 @@ public class WorkFlowController {
     @PostMapping("/content")
     public ResponseBundle addContent(@RequestBody ScheduleWorkflowContent scheduleWorkflowContent) {
         try {
-        	ScheduleWorkflow scheduleWorkflow =	Repositories.workflowRepository.findOne(scheduleWorkflowContent.getWorkFlowId());
-        	scheduleWorkflowContent.setClassId(scheduleWorkflow.getClassId());
-        	scheduleWorkflowContent.setDistrictId(scheduleWorkflow.getDistrictId());
-        	scheduleWorkflowContent.setPositionId(scheduleWorkflow.getPositionId());
-        	scheduleWorkflowContent.setStationId(scheduleWorkflow.getStationId());	
-        	scheduleWorkflowContent.setSuiteId(scheduleWorkflow.getSuiteId());	
-        	Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
+            ScheduleWorkflow scheduleWorkflow = Repositories.workflowRepository.findOne(scheduleWorkflowContent
+                    .getWorkFlowId());
+            scheduleWorkflowContent.setClassId(scheduleWorkflow.getClassId());
+            scheduleWorkflowContent.setDistrictId(scheduleWorkflow.getDistrictId());
+            scheduleWorkflowContent.setPositionId(scheduleWorkflow.getPositionId());
+            scheduleWorkflowContent.setStationId(scheduleWorkflow.getStationId());
+            scheduleWorkflowContent.setSuiteId(scheduleWorkflow.getSuiteId());
+            Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
             return new ResponseBundle().success(scheduleWorkflowContent);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
@@ -181,6 +184,7 @@ public class WorkFlowController {
             Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
             return new ResponseBundle().success(scheduleWorkflowContent);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
@@ -195,6 +199,7 @@ public class WorkFlowController {
             Repositories.contentRepository.delete(contentId);
             return new ResponseBundle().success(contentId);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }

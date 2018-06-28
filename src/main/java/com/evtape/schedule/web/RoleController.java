@@ -1,11 +1,17 @@
 package com.evtape.schedule.web;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.beust.jcommander.internal.Lists;
 import com.evtape.schedule.domain.*;
+import com.evtape.schedule.domain.form.RoleForm;
 import com.evtape.schedule.domain.vo.ResponseBundle;
-import com.evtape.schedule.web.auth.Identity;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.annotation.Logical;
@@ -41,14 +47,99 @@ public class RoleController {
         throw new UnauthenticatedException();
     }
 
+    @ApiOperation(value = "添加角色 ", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "角色名称", required = true, paramType = "body", dataType = "string"),
+            @ApiImplicitParam(name = "description", value = "角色描述", required = true, paramType = "body", dataType =
+                    "string"),
+            @ApiImplicitParam(name = "permissionIds", value = "权限ids", required = true, paramType = "body", dataType =
+                    "integer[]")
+    })
     @PostMapping
     @RequiresRoles("role:admin")
-    public ResponseBundle addRole(@RequestBody Role role, @Identity String phoneNumber) {
-        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
-        return user.map(u -> {
-            Repositories.roleRepository.saveAndFlush(role);
-            return new ResponseBundle().success();
-        }).orElseThrow(UnauthenticatedException::new);
+    public ResponseBundle addRole(@RequestBody RoleForm form) {
+        Role role = new Role();
+        role.setName(form.getName());
+        role.setDescription(form.getDescription());
+        role = Repositories.roleRepository.saveAndFlush(role);
+        List<RolePermission> rolePermissions = Lists.newArrayList();
+        for (int i = 0; i < form.getPermissionIds().length; i++) {
+            RolePermission rolePermission = new RolePermission();
+            rolePermission.setPermissionId(form.getPermissionIds()[i]);
+            rolePermission.setRoleId(role.getId());
+            rolePermissions.add(rolePermission);
+        }
+        Repositories.rolePermissionRepository.save(rolePermissions);
+        return new ResponseBundle().success();
+    }
+
+    @PutMapping("/{roleId}")
+    @RequiresRoles("role:admin")
+    public ResponseBundle updateRole(@PathVariable Integer roleId) {
+        Role role = Repositories.roleRepository.findOne(roleId);
+        List<RolePermission> rolePermissions = Repositories.rolePermissionRepository.findByRoleId(roleId);
+        List<Integer> selectedIds = rolePermissions.stream().map(rolePermission -> rolePermission.getId()).collect
+                (Collectors.toList());
+        List<Permission> permissions = Repositories.permissionRepository.findAll();
+        Map<String, Map<String, List<RoleController.P>>> map = group(permissions, selectedIds);
+        return new ResponseBundle().success(map);
+    }
+
+    private Map<String, Map<String, List<RoleController.P>>> group(List<Permission> permissions, List<Integer> selectedIds) {
+
+        Map<String, Map<String, List<RoleController.P>>> levelMap = new HashMap<>();
+
+        permissions.forEach(permission -> {
+
+            String levelKey = permission.getLevel();
+            String categoryKey = permission.getCategory();
+
+            if (levelMap.containsKey(levelKey)) {
+                // category为key
+                Map<String, List<RoleController.P>> categoryMap = levelMap.get(levelKey);
+                if (categoryMap.containsKey(categoryKey)) {
+                    // 若categoryMap中存在category的key, 则对应的value一定存在, 直接put
+                    RoleController.P rp = new RoleController.P();
+                    rp.setId(permission.getId());
+                    rp.setName(permission.getName());
+                    if(selectedIds.contains(permission.getId())){
+                        rp.setSelected(true);
+                    }
+                    categoryMap.get(categoryKey).add(rp);
+                } else {
+                    List<RoleController.P> nameList = new ArrayList<>();
+                    RoleController.P rp = new RoleController.P();
+                    rp.setId(permission.getId());
+                    rp.setName(permission.getName());
+                    if(selectedIds.contains(permission.getId())){
+                        rp.setSelected(true);
+                    }
+                    nameList.add(rp);
+                    categoryMap.put(categoryKey, nameList);
+                }
+            } else {
+                Map<String, List<RoleController.P>> categoryMap = new HashMap<>();
+                List<RoleController.P> nameList = new ArrayList<>();
+                RoleController.P rp = new RoleController.P();
+                rp.setId(permission.getId());
+                rp.setName(permission.getName());
+                if(selectedIds.contains(permission.getId())){
+                    rp.setSelected(true);
+                }
+                nameList.add(rp);
+                categoryMap.put(categoryKey, nameList);
+                levelMap.put(levelKey, categoryMap);
+            }
+        });
+        return levelMap;
+    }
+
+    @Getter
+    @Setter
+    private class P {
+        int id;
+        boolean selected = false;
+        String name;
     }
 
 

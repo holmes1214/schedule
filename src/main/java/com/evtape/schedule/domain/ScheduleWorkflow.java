@@ -2,6 +2,7 @@ package com.evtape.schedule.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
+@ToString
 @Table(name="biz_schedule_work_flow",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,stationId"),
 		@Index(name="IDX_SUITE_ID", columnList="suiteId,classId"),
