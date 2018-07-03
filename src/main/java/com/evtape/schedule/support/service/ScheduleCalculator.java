@@ -57,10 +57,11 @@ public class ScheduleCalculator {
 		// 至少需要多少人：每天需要的人数*7，除以每个人每周工作多少天（有余数则商数加一）
 		int workerCount = taskCountPerDay * WEEK_DAYS / (WEEK_DAYS - model.getMinWeeklyRestDays()) + 1;
 		// 每天总工时数*7，除以每人一周的最大工时，得到至少需要多少人
-		int count = totalHours * WEEK_DAYS / model.getMaxWorkingHour() + 1;
+		int count = totalHours * WEEK_DAYS /60/ model.getMaxWorkingHour() + 1;
 		// TODO int count = totalHours * WEEK_DAYS / model.getMaxWeeklyRestDays() + 1;
-		workerCount = Math.max(workerCount, count);
-		logger.info("min worker count {}",workerCount);
+
+        logger.info("min worker count {},{}",count,workerCount);
+        workerCount = Math.max(workerCount, count);
 		while (THREAD_SET.contains(tid)) {
 			try {
 				return calculate(shifts, workerCount, model);
@@ -1082,8 +1083,8 @@ public class ScheduleCalculator {
         DutySuite position = new DutySuite();
         position.setMinWeeklyRestDays(2);
         position.setMaxWeeklyRestDays(3);
-        position.setMinWorkingHour(24 * 60);
-        position.setMaxWorkingHour(45 * 60);
+        position.setMinWorkingHour(24 );
+        position.setMaxWorkingHour(45 );
 
         ScheduleCalculator.calculate(shifts,  position);
 
