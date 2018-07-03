@@ -101,6 +101,13 @@ public class ScheduleController {
 		List<ScheduleUser> scheduleUserlist = Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
 		result.put("templatelist", templatelist);
 		result.put("scheduleUserlist", scheduleUserlist);
+        List<DutyClass> list = Repositories.dutyClassRepository.findBySuiteId(suiteId);
+        list.forEach(l->{
+            if (l.getRelevantClassId()!=null){
+                l.setRelevant(Repositories.dutyClassRepository.findOne(l.getRelevantClassId()));
+            }
+        });
+        result.put("dutyclass", list);
 		return new ResponseBundle().success(result);
 	}
 
@@ -169,11 +176,11 @@ public class ScheduleController {
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "integer"),
 			@ApiImplicitParam(name = "weekNum", value = "被取消设置的周数", required = true, paramType = "query", dataType = "integer"),
-			@ApiImplicitParam(name = "userId", value = "被取消设置人的id", required = true, paramType = "query", dataType = "integer"),})
+			})
 	@ResponseBody
 	@PutMapping(value = "/removescheduleuser")
 	public ResponseBundle removescheduleuser(@RequestParam("suiteId") Integer suiteId,
-			@RequestParam("weekNum") Integer weekNum, @RequestParam("userId") Integer userId) {
+			@RequestParam("weekNum") Integer weekNum) {
 		try {
 			ScheduleUser user = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(suiteId, weekNum);
 			Repositories.scheduleUserRepository.delete(user);
