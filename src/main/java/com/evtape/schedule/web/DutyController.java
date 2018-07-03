@@ -53,7 +53,7 @@ public class DutyController {
     })
     @ResponseBody
     @GetMapping
-    public ResponseBundle suitlist(@RequestParam("districtId") Integer districtId,
+    public ResponseBundle suitList(@RequestParam("districtId") Integer districtId,
                                    @RequestParam(value="stationId",required=false) Integer stationId,
                                    @RequestParam(value="positionId",required=false) Integer positionId,
                                    @RequestParam(value="backup",required=false) Integer backup) {
@@ -81,7 +81,7 @@ public class DutyController {
 	@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "int")
 	@ResponseBody
 	@GetMapping("/suite")
-	public ResponseBundle getsuite(@RequestParam("suiteId") Integer suiteId) {
+	public ResponseBundle getSuite(@RequestParam("suiteId") Integer suiteId) {
 		try {
 			return new ResponseBundle().success(selectSuiteInfo(suiteId));
 		} catch (Exception e) {
@@ -108,7 +108,7 @@ public class DutyController {
 			@ApiImplicitParam(name = "backup", value = "是否是备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer") })
     @ResponseBody
     @PostMapping("/suite")
-    public ResponseBundle suitadd(@RequestBody DutySuite dutySuite) {
+    public ResponseBundle addSuite(@RequestBody DutySuite dutySuite) {
         try {
             Repositories.dutySuiteRepository.saveAndFlush(dutySuite);
             return new ResponseBundle().success(selectSuiteInfo(dutySuite.getId()));
@@ -137,7 +137,7 @@ public class DutyController {
 			@ApiImplicitParam(name = "backup", value = "是否是备班(1备班，0正常)", required = true, paramType = "body", dataType = "integer") })
     @ResponseBody
     @PutMapping("/suitupdate")
-    public ResponseBundle suitupdate(@RequestBody DutySuite dutySuite) {
+    public ResponseBundle updateSuite(@RequestBody DutySuite dutySuite) {
         try {
             Repositories.dutySuiteRepository.saveAndFlush(dutySuite);
             return new ResponseBundle().success(selectSuiteInfo(dutySuite.getId()));
@@ -154,7 +154,7 @@ public class DutyController {
 			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "int"), })
     @ResponseBody
     @PutMapping("/suiteactive")
-    public ResponseBundle suitactive(@RequestParam("districtId") Integer districtId,
+    public ResponseBundle activeSuite(@RequestParam("districtId") Integer districtId,
                                      @RequestParam("stationId") Integer stationId,
                                      @RequestParam("positionId") Integer positionId,
                                      @RequestParam("suiteId") Integer suiteId) {
@@ -198,7 +198,7 @@ public class DutyController {
 			@ApiImplicitParam(name = "comment", value = "注意事项", required = true, paramType = "body", dataType = "string"), })
     @ResponseBody
     @PostMapping("/class")
-    public ResponseBundle classadd(@RequestBody DutyClass dutyClass) {
+    public ResponseBundle addDutyClass(@RequestBody DutyClass dutyClass) {
         try {
         	if(StringUtils.isNotBlank(dutyClass.getStartTimeStr())){
 				dutyClass.setStartTime(new Integer(StringUtils.substring(dutyClass.getStartTimeStr(), 0, 2)) * 60
@@ -239,7 +239,7 @@ public class DutyController {
 			@ApiImplicitParam(name = "comment", value = "注意事项", required = true, paramType = "body", dataType = "string"), })
     @ResponseBody
     @PutMapping("/classupdate")
-    public ResponseBundle classupdate(@RequestBody DutyClass dutyClass) {
+    public ResponseBundle updateClass(@RequestBody DutyClass dutyClass) {
         try {
             Integer suiteId = dutyClass.getSuiteId();
         	if(StringUtils.isNotBlank(dutyClass.getStartTimeStr())){
@@ -269,7 +269,7 @@ public class DutyController {
 			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "qyery", dataType = "integer"), })
     @ResponseBody
     @DeleteMapping("/classdelete/{id}")
-    public ResponseBundle classdelete(@PathVariable("id") Integer id,@RequestParam("suiteId") Integer suiteId) {
+    public ResponseBundle deleteClass(@PathVariable("id") Integer id,@RequestParam("suiteId") Integer suiteId) {
         try {
             Repositories.dutyClassRepository.delete(id);
             Repositories.dutyClassRepository.flush();
@@ -279,91 +279,11 @@ public class DutyController {
         }
     }
 	
-	@ApiOperation(value = "增一个检查条件", produces = "application/json")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "startTimeStr", value = "班次几点上班-小时", required = true, paramType = "body", dataType = "string"),
-			@ApiImplicitParam(name = "endTimeStr", value = "班次几点下班-小时", required = true, paramType = "body", dataType = "string"),
-			@ApiImplicitParam(name = "userCount", value = "班次人数", required = true, paramType = "body", dataType = "integer"), })
-    @ResponseBody
-    @PostMapping("/periodadd")
-    public ResponseBundle periodadd(@RequestBody DutyPeriodChecking dutyPeriodChecking) {
-        try {
-            Integer suiteId = dutyPeriodChecking.getSuiteId();
-            
-        	if(StringUtils.isNotBlank(dutyPeriodChecking.getStartTimeStr())){
-        		dutyPeriodChecking.setStartTime(new Integer(StringUtils.substring(dutyPeriodChecking.getStartTimeStr(), 0, 2)) * 60
-						+ (new Integer(StringUtils.substring(dutyPeriodChecking.getStartTimeStr(), 3, 5))));
-        	}
-        	if(StringUtils.isNotBlank(dutyPeriodChecking.getEndTimeStr())){
-        		dutyPeriodChecking.setEndTime(new Integer(StringUtils.substring(dutyPeriodChecking.getEndTimeStr(), 0, 2)) * 60
-						+ (new Integer(StringUtils.substring(dutyPeriodChecking.getEndTimeStr(), 3, 5))));
-        	}
-            Repositories.dutyPeriodCheckingRepository.saveAndFlush(dutyPeriodChecking);
-            return new ResponseBundle().success(selectSuiteInfo(suiteId));
-        } catch (Exception e) {
-            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-        }
-    }
-
-    /**
-     * 检查条件增改
-     *
-     * @return
-     */
-	@ApiOperation(value = "更新一个检查条件", produces = "application/json")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "id", value = "检查条件id", required = true, paramType = "body", dataType = "int"),
-			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
-			@ApiImplicitParam(name = "startTimeStr", value = "班次几点上班-小时", required = true, paramType = "body", dataType = "string"),
-			@ApiImplicitParam(name = "endTimeStr", value = "班次几点下班-小时", required = true, paramType = "body", dataType = "string"),
-			@ApiImplicitParam(name = "userCount", value = "班次人数", required = true, paramType = "body", dataType = "integer"), })
-    @ResponseBody
-    @PutMapping("/periodupdate")
-    public ResponseBundle periodupdate(@RequestBody DutyPeriodChecking dutyPeriodChecking) {
-        try {
-            Integer suiteId = dutyPeriodChecking.getSuiteId();
-        	if(StringUtils.isNotBlank(dutyPeriodChecking.getStartTimeStr())){
-        		dutyPeriodChecking.setStartTime(new Integer(StringUtils.substring(dutyPeriodChecking.getStartTimeStr(), 0, 2)) * 60
-						+ (new Integer(StringUtils.substring(dutyPeriodChecking.getStartTimeStr(), 3, 5))));
-        	}
-        	if(StringUtils.isNotBlank(dutyPeriodChecking.getEndTimeStr())){
-        		dutyPeriodChecking.setEndTime(new Integer(StringUtils.substring(dutyPeriodChecking.getEndTimeStr(), 0, 2)) * 60
-						+ (new Integer(StringUtils.substring(dutyPeriodChecking.getEndTimeStr(), 3, 5))));
-        	}
-            Repositories.dutyPeriodCheckingRepository.saveAndFlush(dutyPeriodChecking);
-            return new ResponseBundle().success(selectSuiteInfo(suiteId));
-        } catch (Exception e) {
-            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-        }
-    }
-
-
-	@ApiOperation(value = "删一个检查条件", produces = "application/json")
-	@ApiImplicitParam(name = "id", value = "检查条件id", required = true, paramType = "path", dataType = "integer")
-    @ResponseBody
-    @DeleteMapping("/perioddelete/{id}")
-    public ResponseBundle perioddelete(@PathVariable("id") Integer id) {
-        try {
-            Repositories.dutyPeriodCheckingRepository.delete(id);
-            Repositories.dutyPeriodCheckingRepository.flush();
-            return new ResponseBundle().success(id);
-        } catch (Exception e) {
-            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-        }
-    }
-
 	@ApiOperation(value = "删一个班制", produces = "application/json")
 	@ApiImplicitParam(name = "id", value = "班制id", required = true, paramType = "path", dataType = "integer")
     @ResponseBody
     @DeleteMapping("/suitedelete/{id}")
-    public ResponseBundle suitdelete(@PathVariable("id") Integer id) {
+    public ResponseBundle deleteSuite(@PathVariable("id") Integer id) {
         try {
             DutySuite dutySuite1 = Repositories.dutySuiteRepository.findOne(id);
             if (dutySuite1 == null || dutySuite1.getActive() == 1) {
@@ -397,7 +317,13 @@ public class DutyController {
     private Map<String, Object> selectSuiteInfo(Integer suiteId) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("dutysuite", Repositories.dutySuiteRepository.findOne(suiteId));
-        map.put("dutyclass", Repositories.dutyClassRepository.findBySuiteId(suiteId));
+        List<DutyClass> list = Repositories.dutyClassRepository.findBySuiteId(suiteId);
+        list.forEach(l->{
+            if (l.getRelevantClassId()!=null){
+                l.setRelevant(Repositories.dutyClassRepository.findOne(l.getRelevantClassId()));
+            }
+        });
+        map.put("dutyclass", list);
         map.put("dutyperiodchecking", Repositories.dutyPeriodCheckingRepository.findBySuiteId(suiteId));
         return map;
     }
