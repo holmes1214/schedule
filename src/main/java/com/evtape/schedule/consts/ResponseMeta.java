@@ -46,7 +46,8 @@ public enum ResponseMeta {
 
     /* 系统错误 */
     SYSTEM_INNER_ERROR(50001, "系统繁忙，请稍后重试"),
-    DUTY_PLANNING_ERROR(50002,"排班错误，请检查班次设置" );
+    DUTY_PLANNING_ERROR(50002,"排班错误，请检查班次设置" ),
+    NOT_ENOUGH_WORKER(50003, "排班错误，人数设置不够");
     /* 无权观看视频 */
 
     private Integer code;

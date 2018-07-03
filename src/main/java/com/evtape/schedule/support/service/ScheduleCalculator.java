@@ -12,7 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
+import com.evtape.schedule.consts.ResponseMeta;
+import com.evtape.schedule.exception.BaseException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +60,12 @@ public class ScheduleCalculator {
 		int count = totalHours * WEEK_DAYS / model.getMaxWorkingHour() + 1;
 		// TODO int count = totalHours * WEEK_DAYS / model.getMaxWeeklyRestDays() + 1;
 		workerCount = Math.max(workerCount, count);
+		logger.info("min worker count {}",workerCount);
 		while (THREAD_SET.contains(tid)) {
 			try {
 				return calculate(shifts, workerCount, model);
 			} catch (Exception e) {
+			    logger.error("error: ",e);
 				workerCount++;
 			}
 		}
@@ -80,12 +85,7 @@ public class ScheduleCalculator {
         //根据人数初始化prMap，PersonalDuty这个bean里存放的是某一人的全部工作
         initPriorityQueue(count, prMap);
         // DutyClass relevant relevantClassId
-        List<Integer> relShiftIds = new ArrayList<>();
-		for (DutyClass s : shifts) {
-			if (s.getRelevantClassId() != null) {
-				relShiftIds.add(s.getRelevantClassId());
-			}
-		}
+        List<Integer> relShiftIds = shifts.stream().filter(s->s.getRelevantClassId()!=null).map(DutyClass::getRelevantClassId).collect(Collectors.toList());
 		// 处理班次关系，生成task列表，中间产物，task列表是描述一周内，一共需要多少人次的上班，夜班会被拆开。
 		// 一周有多少班
 		List<Task> taskList = initShifts(shifts);
@@ -101,6 +101,9 @@ public class ScheduleCalculator {
             if (forward) {
                 ++index;
             } else {
+                if (task.day==0){
+                    throw new BaseException(ResponseMeta.NOT_ENOUGH_WORKER);
+                }
                 --index;
             }
         }
@@ -1018,41 +1021,51 @@ public class ScheduleCalculator {
         List<DutyClass> shifts = new ArrayList<>();
         DutyClass s = new DutyClass();
         s.setStartTime(0);
-        s.setEndTime(540);
-        s.setWorkingLength(540);
-        s.setRestMinutes(12 * 60);
+        s.setEndTime(420);
+        s.setWorkingLength(420);
+        s.setRestMinutes(48 * 60);
         s.setDutyName("下");
         s.setId(1);
-        s.setUserCount(2);
+        s.setUserCount(5);
         shifts.add(s);
 
         s = new DutyClass();
         s.setStartTime(420);
         s.setEndTime(1020);
         s.setWorkingLength(600);
-        s.setRestMinutes(12 * 60);
+        s.setRestMinutes(14 * 60);
         s.setDutyName("白");
         s.setId(2);
-        s.setUserCount(2);
+        s.setUserCount(6);
         shifts.add(s);
 
         s = new DutyClass();
         s.setStartTime(420);
-        s.setEndTime(960);
-        s.setWorkingLength(540);
-        s.setRestMinutes(12 * 60);
-        s.setDutyName("中");
+        s.setEndTime(780);
+        s.setWorkingLength(360);
+        s.setRestMinutes(14 * 60);
+        s.setDutyName("早");
         s.setId(3);
-        s.setUserCount(1);
+        s.setUserCount(3);
         shifts.add(s);
 
         s = new DutyClass();
-        s.setStartTime(960);
-        s.setEndTime(1260);
-        s.setWorkingLength(300);
-        s.setRestMinutes(12 * 60);
-        s.setDutyName("小");
+        s.setStartTime(780);
+        s.setEndTime(1140);
+        s.setWorkingLength(360);
+        s.setRestMinutes(14 * 60);
+        s.setDutyName("中");
         s.setId(4);
+        s.setUserCount(3);
+        shifts.add(s);
+
+        s = new DutyClass();
+        s.setStartTime(900);
+        s.setEndTime(1260);
+        s.setWorkingLength(360);
+        s.setRestMinutes(14 * 60);
+        s.setDutyName("晚");
+        s.setId(5);
         s.setUserCount(2);
         shifts.add(s);
 
@@ -1062,17 +1075,17 @@ public class ScheduleCalculator {
         s.setWorkingLength(420);
         s.setRestMinutes(0);
         s.setRelevantClassId(1);
-        s.setId(5);
+        s.setId(6);
         s.setDutyName("夜");
-        s.setUserCount(2);
+        s.setUserCount(5);
         shifts.add(s);
         DutySuite position = new DutySuite();
         position.setMinWeeklyRestDays(2);
         position.setMaxWeeklyRestDays(3);
-        position.setMinWorkingHour(35 * 60);
-        position.setMaxWorkingHour(41 * 60);
+        position.setMinWorkingHour(24 * 60);
+        position.setMaxWorkingHour(45 * 60);
 
-        ScheduleCalculator.calculate(shifts, 13, position);
+        ScheduleCalculator.calculate(shifts,  position);
 
     }
 
