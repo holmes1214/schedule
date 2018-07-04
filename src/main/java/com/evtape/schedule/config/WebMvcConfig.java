@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by lianhai on 2018/4/9.
  */
-@Configuration
+//@Configuration
 public class WebMvcConfig extends WebMvcConfigurationSupport {
 
     @Override

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,6 +30,7 @@ import com.evtape.schedule.domain.ScheduleUser;
 import com.evtape.schedule.domain.ScheduleWorkflow;
 import com.evtape.schedule.domain.ScheduleWorkflowContent;
 import com.evtape.schedule.domain.User;
+import com.evtape.schedule.domain.form.ScheduleForm;
 import com.evtape.schedule.domain.vo.DutyClassVo;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.domain.vo.ScheduleWorkflowVo;
@@ -90,13 +92,12 @@ public class ScheduleController {
 			@ApiImplicitParam(name = "dayNum2", value = "任务2的天数", required = true, paramType = "query", dataType = "integer"),})
 	@ResponseBody
 	@PutMapping("/exchangeTemplate")
-	public ResponseBundle exchangeTemplate(@RequestParam("suiteId") Integer suiteId,
-			@RequestParam("weekNum1") Integer weekNum1, @RequestParam("dayNum1") Integer dayNum1,
-			@RequestParam("weekNum2") Integer weekNum2, @RequestParam("dayNum2") Integer dayNum2) {
+	public ResponseBundle exchangeTemplate(@RequestBody ScheduleForm form) {
 		try {
-			scheduleTemplateService.exchangeTemplate(suiteId, weekNum1, dayNum1, weekNum2, dayNum2);
-			return returntemplete(suiteId);
+			scheduleTemplateService.exchangeTemplate(form.getSuiteId(), form.getWeekNum1(), form.getDayNum1(), form.getWeekNum2(), form.getDayNum2());
+			return returntemplete(form.getSuiteId());
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}

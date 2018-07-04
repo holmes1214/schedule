@@ -12,7 +12,10 @@ import javax.transaction.Transactional;
 
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.exception.BaseException;
+
 import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.evtape.schedule.domain.DutyClass;
@@ -29,6 +32,8 @@ import com.evtape.schedule.support.service.ScheduleCalculator;
  */
 @Service
 public class ScheduleTemplateService {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTemplateService.class);
 	
 	/**
 	 * 生成模板，先清库再入库
@@ -106,6 +111,7 @@ public class ScheduleTemplateService {
 		if (template1 != null) {
 			template1.setWeekNum(weekNum2);
 			template1.setDayNum(dayNum2);
+			//////////
 			template2.setOrderIndex(weekNum2 * 7 + dayNum2);
 			Repositories.scheduleTemplateRepository.save(template1);
 		}
