@@ -35,6 +35,7 @@ import com.evtape.schedule.domain.vo.DutyClassVo;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.domain.vo.ScheduleWorkflowVo;
 import com.evtape.schedule.persistent.Repositories;
+import com.evtape.schedule.persistent.UserRepository;
 import com.evtape.schedule.serivce.ScheduleTemplateService;
 
 import io.swagger.annotations.Api;
@@ -105,11 +106,21 @@ public class ScheduleController {
 	private ResponseBundle returntemplete(Integer suiteId) {
 		// TODO 页面刷新需不需要重查一遍数据库？
 		Map<String, Object> result = new HashMap<String, Object>();
+		DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
 		List<ScheduleTemplate> templatelist = Repositories.scheduleTemplateRepository
 				.findBySuiteIdOrderByOrderIndex(suiteId);
-		List<ScheduleUser> scheduleUserlist = Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
+		List<User> userlist;
+		if (dutySuite.getBackup() == 1) {
+			userlist = Repositories.userRepository.findByDistrictIdAndBackup(dutySuite.getDistrictId(), 1);
+		} else {
+			userlist = Repositories.userRepository.findByDistrictIdAndStationId(dutySuite.getDistrictId(),
+					dutySuite.getStationId());
+		}
+		// List<ScheduleUser> scheduleUserlist =
+		// Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
+		// result.put("scheduleUserlist", scheduleUserlist);
 		result.put("templatelist", templatelist);
-		result.put("scheduleUserlist", scheduleUserlist);
+		result.put("userlist", userlist);
         List<DutyClass> list = Repositories.dutyClassRepository.findBySuiteId(suiteId);
         list.forEach(l->{
             if (l.getRelevantClassId()!=null){

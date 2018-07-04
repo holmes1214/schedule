@@ -25,11 +25,6 @@ public class DutySuite {
 	private String dutyName;
 	
 	/**
-	 * 当前启用的suite为1,没启用为0
-	 */
-	private Integer active;
-
-	/**
 	 * 站区id
 	 */
 	private Integer districtId;

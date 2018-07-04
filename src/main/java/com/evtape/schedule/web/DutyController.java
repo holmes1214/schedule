@@ -92,7 +92,6 @@ public class DutyController {
     @ApiOperation(value = "新增班制", produces = "application/json")
     @ApiImplicitParams({
 			@ApiImplicitParam(name = "dutyName", value = "班制名", required = true, paramType = "body", dataType = "string"),
-			@ApiImplicitParam(name = "active", value = "是否启用(启动1, 没启用:0)", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "stationId", value = "站id", required = true, paramType = "body", dataType = "integer"),
@@ -121,7 +120,6 @@ public class DutyController {
     @ApiImplicitParams({
     		@ApiImplicitParam(name = "id", value = "班制id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "dutyName", value = "班制名", required = true, paramType = "body", dataType = "string"),
-			@ApiImplicitParam(name = "active", value = "是否启用(启动1, 没启用:0)", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType = "integer"),
 			@ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body", dataType = "string"),
 			@ApiImplicitParam(name = "stationId", value = "站id", required = true, paramType = "body", dataType = "integer"),
@@ -141,36 +139,6 @@ public class DutyController {
         try {
             Repositories.dutySuiteRepository.saveAndFlush(dutySuite);
             return new ResponseBundle().success(selectSuiteInfo(dutySuite.getId()));
-        } catch (Exception e) {
-            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-        }
-    }
-
-	@ApiOperation(value = "启用某班制", produces = "application/json")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "query", dataType = "int"),
-			@ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "query", dataType = "int"),
-			@ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "query", dataType = "int"),
-			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "int"), })
-    @ResponseBody
-    @PutMapping("/suiteactive")
-    public ResponseBundle activeSuite(@RequestParam("districtId") Integer districtId,
-                                     @RequestParam("stationId") Integer stationId,
-                                     @RequestParam("positionId") Integer positionId,
-                                     @RequestParam("suiteId") Integer suiteId) {
-        try {
-            List<DutySuite> suitlist = Repositories.dutySuiteRepository
-                    .findByDistrictIdAndStationIdAndPositionId(districtId, stationId, positionId);
-            for (DutySuite dutySuite : suitlist) {
-                if (dutySuite.getId().equals(suiteId)) {
-                    dutySuite.setActive(1);
-                } else {
-                    dutySuite.setActive(0);
-                }
-            }
-            Repositories.dutySuiteRepository.save(suitlist);
-            Repositories.dutySuiteRepository.flush();
-            return new ResponseBundle().success(suitlist);
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
@@ -286,9 +254,6 @@ public class DutyController {
     public ResponseBundle deleteSuite(@PathVariable("id") Integer id) {
         try {
             DutySuite dutySuite1 = Repositories.dutySuiteRepository.findOne(id);
-            if (dutySuite1 == null || dutySuite1.getActive() == 1) {
-                return new ResponseBundle().failure(ResponseMeta.SUITE_ISACTIVE);
-            }
             List<DutyClass> dutyClasslist = Repositories.dutyClassRepository.findBySuiteId(id);
             for (DutyClass dutyClass : dutyClasslist) {
                 Repositories.dutyClassRepository.delete(dutyClass.getId());

@@ -102,18 +102,25 @@ public class ScheduleTemplateService {
 		if (template1 == null && template2 == null) {
 			return;
 		} 
+		if (template1 != null) {
+			template1.setWeekNum(-1);
+			template1.setDayNum(-1);
+			//////////
+			template2.setOrderIndex(-1);
+			Repositories.scheduleTemplateRepository.saveAndFlush(template1);
+		}
 		if (template2 != null) {
 			template2.setWeekNum(weekNum1);
 			template2.setDayNum(dayNum1);
 			template2.setOrderIndex(weekNum1 * 7 + dayNum1);
-			Repositories.scheduleTemplateRepository.save(template2);
-		} 
+			Repositories.scheduleTemplateRepository.saveAndFlush(template2);
+		}
 		if (template1 != null) {
 			template1.setWeekNum(weekNum2);
 			template1.setDayNum(dayNum2);
 			//////////
 			template2.setOrderIndex(weekNum2 * 7 + dayNum2);
-			Repositories.scheduleTemplateRepository.save(template1);
+			Repositories.scheduleTemplateRepository.saveAndFlush(template1);
 		}
 	}
 	/**
