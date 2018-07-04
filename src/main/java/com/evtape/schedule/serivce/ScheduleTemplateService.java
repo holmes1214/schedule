@@ -105,8 +105,7 @@ public class ScheduleTemplateService {
 		if (template1 != null) {
 			template1.setWeekNum(-1);
 			template1.setDayNum(-1);
-			//////////
-			template2.setOrderIndex(-1);
+			template1.setOrderIndex(-1);
 			Repositories.scheduleTemplateRepository.saveAndFlush(template1);
 		}
 		if (template2 != null) {
@@ -119,7 +118,7 @@ public class ScheduleTemplateService {
 			template1.setWeekNum(weekNum2);
 			template1.setDayNum(dayNum2);
 			//////////
-			template2.setOrderIndex(weekNum2 * 7 + dayNum2);
+			template1.setOrderIndex(weekNum2 * 7 + dayNum2);
 			Repositories.scheduleTemplateRepository.saveAndFlush(template1);
 		}
 	}
