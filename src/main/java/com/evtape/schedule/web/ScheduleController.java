@@ -181,6 +181,8 @@ public class ScheduleController {
 	public ResponseBundle setscheduleuser(@RequestBody ScheduleUserForm form) {
 		try {
 			DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
+			User u = Repositories.userRepository.findOne(form.getUserId());
+			
 			//先查待设置的周有没有user
 			ScheduleUser user1 = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(form.getSuiteId(),
 					form.getWeekNum());
@@ -201,6 +203,7 @@ public class ScheduleController {
 			user2.setSuiteId(form.getSuiteId());
 			user2.setWeekNum(form.getWeekNum());
 			user2.setUserId(form.getUserId());
+			user2.setUserName(u.getUserName());
 			Repositories.scheduleUserRepository.saveAndFlush(user2);
 			return new ResponseBundle()
 					.success(Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(form.getSuiteId()));

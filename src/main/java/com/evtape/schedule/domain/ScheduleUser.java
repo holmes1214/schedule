@@ -33,4 +33,7 @@ public class ScheduleUser {
 	private Integer weekNum;
 
 	private Integer userId;
+
+	private String userName;
+	
 }
