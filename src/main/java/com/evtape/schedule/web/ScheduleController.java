@@ -6,10 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-
-import com.evtape.schedule.exception.BaseException;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,8 +33,8 @@ import com.evtape.schedule.domain.form.ScheduleUserForm;
 import com.evtape.schedule.domain.vo.DutyClassVo;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.domain.vo.ScheduleWorkflowVo;
+import com.evtape.schedule.exception.BaseException;
 import com.evtape.schedule.persistent.Repositories;
-import com.evtape.schedule.persistent.UserRepository;
 import com.evtape.schedule.serivce.ScheduleTemplateService;
 
 import io.swagger.annotations.Api;
@@ -107,12 +103,12 @@ public class ScheduleController {
 	}
 
 	private ResponseBundle returntemplete(Integer suiteId) {
-		// TODO 页面刷新需不需要重查一遍数据库？
 		Map<String, Object> result = new HashMap<String, Object>();
 		DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
 		List<ScheduleTemplate> templatelist = Repositories.scheduleTemplateRepository
 				.findBySuiteIdOrderByOrderIndex(suiteId);
 		List<User> userlist;
+		List<ScheduleUser> users = Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
 		if (dutySuite.getBackup() == 1) {
 			userlist = Repositories.userRepository.findByDistrictIdAndBackup(dutySuite.getDistrictId(), 1);
 		} else {
@@ -124,17 +120,17 @@ public class ScheduleController {
 		// result.put("scheduleUserlist", scheduleUserlist);
 		result.put("templatelist", templatelist);
 		result.put("userlist", userlist);
-        List<DutyClass> list = Repositories.dutyClassRepository.findBySuiteId(suiteId);
-        list.forEach(l->{
-            if (l.getRelevantClassId()!=null){
-                l.setRelevant(Repositories.dutyClassRepository.findOne(l.getRelevantClassId()));
-            }
-        });
-        result.put("dutyclass", list);
-        result.put("weeks", templatelist.get(templatelist.size()-1).getWeekNum());
-        List<DutyClassVo> dutyClassVolist = allworkflowContent(suiteId);
-        result.put("dutyClassVolist", dutyClassVolist);
-        
+		List<DutyClass> list = Repositories.dutyClassRepository.findBySuiteId(suiteId);
+		list.forEach(l -> {
+			if (l.getRelevantClassId() != null) {
+				l.setRelevant(Repositories.dutyClassRepository.findOne(l.getRelevantClassId()));
+			}
+		});
+		result.put("dutyclass", list);
+		result.put("weeks", templatelist.get(templatelist.size() - 1).getWeekNum());
+		List<DutyClassVo> dutyClassVolist = allworkflowContent(suiteId);
+		result.put("dutyClassVolist", dutyClassVolist);
+		result.put("scheduleUsers", users);
 		return new ResponseBundle().success(result);
 	}
 
@@ -185,23 +181,30 @@ public class ScheduleController {
 	public ResponseBundle setscheduleuser(@RequestBody ScheduleUserForm form) {
 		try {
 			DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
-			ScheduleUser user = Repositories.scheduleUserRepository.findOne(form.getUserId());
-			
-			System.out.println("UUUUID:"+form.getUserId());
-			
-			
-			if(user == null){
-				user = new ScheduleUser();
+			//先查待设置的周有没有user
+			ScheduleUser user1 = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(form.getSuiteId(),
+					form.getWeekNum());
+			if (user1 != null) {
+				Repositories.scheduleUserRepository.delete(user1);
+				Repositories.scheduleUserRepository.flush();
 			}
-			user.setDistrictId(dutySuite.getDistrictId());
-			user.setPositionId(dutySuite.getPositionId());
-			user.setStationId(dutySuite.getStationId());
-			user.setSuiteId(form.getSuiteId());
-			user.setWeekNum(form.getWeekNum());
-			user.setUserId(form.getUserId());
-			Repositories.scheduleUserRepository.saveAndFlush(user);
+			
+			// 再查这个人有没有之前被设置过
+			ScheduleUser user2 = Repositories.scheduleUserRepository.findBySuiteIdAndUserId(form.getSuiteId(),
+					form.getUserId());
+			if (user2 == null) {
+				user2 = new ScheduleUser();
+			}
+			user2.setDistrictId(dutySuite.getDistrictId());
+			user2.setPositionId(dutySuite.getPositionId());
+			user2.setStationId(dutySuite.getStationId());
+			user2.setSuiteId(form.getSuiteId());
+			user2.setWeekNum(form.getWeekNum());
+			user2.setUserId(form.getUserId());
+			Repositories.scheduleUserRepository.saveAndFlush(user2);
+			return new ResponseBundle()
+					.success(Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(form.getSuiteId()));
 
-			return new ResponseBundle().success(user);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
