@@ -128,7 +128,7 @@ public class ScheduleController {
             }
         });
         result.put("dutyclass", list);
-        result.put("weeks", templatelist.size());
+        result.put("weeks", templatelist.get(templatelist.size()-1).getWeekNum());
         List<DutyClassVo> dutyClassVolist = allworkflowContent(suiteId);
         result.put("dutyClassVolist", dutyClassVolist);
         
