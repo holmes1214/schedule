@@ -143,8 +143,10 @@ public class ScheduleController {
 	public ResponseBundle deleteoneweek(@RequestParam("suiteId") Integer suiteId, @RequestParam("weekNum") Integer weekNum) {
 		try {
 			ScheduleUser user = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(suiteId, weekNum);
-			Repositories.scheduleUserRepository.delete(user);
-			Repositories.scheduleUserRepository.flush();
+			if (user != null) {
+				Repositories.scheduleUserRepository.delete(user);
+				Repositories.scheduleUserRepository.flush();
+			}
 			List<ScheduleTemplate> todolist = Repositories.scheduleTemplateRepository
 					.findBySuiteIdOrderByOrderIndex(suiteId);
 			List<ScheduleTemplate> updatelist = new ArrayList<ScheduleTemplate>();
@@ -155,6 +157,7 @@ public class ScheduleController {
 					Repositories.scheduleTemplateRepository.delete(scheduleTemplate);
 				} else {
 					scheduleTemplate.setWeekNum(scheduleTemplate.getWeekNum() - 1);
+					scheduleTemplate.setOrderIndex(scheduleTemplate.getWeekNum() * 7 + scheduleTemplate.getDayNum());
 					updatelist.add(scheduleTemplate);
 				}
 			}
