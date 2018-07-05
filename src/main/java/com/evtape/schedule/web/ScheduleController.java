@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+
 import com.evtape.schedule.exception.BaseException;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -31,6 +33,7 @@ import com.evtape.schedule.domain.ScheduleWorkflow;
 import com.evtape.schedule.domain.ScheduleWorkflowContent;
 import com.evtape.schedule.domain.User;
 import com.evtape.schedule.domain.form.ScheduleForm;
+import com.evtape.schedule.domain.form.ScheduleUserForm;
 import com.evtape.schedule.domain.vo.DutyClassVo;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.domain.vo.ScheduleWorkflowVo;
@@ -166,7 +169,12 @@ public class ScheduleController {
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
-
+	
+	/**
+	 * setscheduleuser方法接收参数类
+	 * @author jsychen
+	 *
+	 */
 	@ApiOperation(value = "排班模板设置人员", produces = "application/json")
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "integer"),
@@ -174,17 +182,16 @@ public class ScheduleController {
 			@ApiImplicitParam(name = "userId", value = "被设置人的id", required = true, paramType = "query", dataType = "integer"),})
 	@ResponseBody
 	@PutMapping("/setscheduleuser")
-	public ResponseBundle setscheduleuser(@RequestParam("suiteId") Integer suiteId,
-			@RequestParam("weekNum") Integer weekNum, @RequestParam("userId") Integer userId) {
+	public ResponseBundle setscheduleuser(@RequestBody ScheduleUserForm form) {
 		try {
-			DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
+			DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
 			ScheduleUser user = new ScheduleUser();
 			user.setDistrictId(dutySuite.getDistrictId());
 			user.setPositionId(dutySuite.getPositionId());
 			user.setStationId(dutySuite.getStationId());
-			user.setSuiteId(suiteId);
-			user.setWeekNum(weekNum);
-			user.setUserId(userId);
+			user.setSuiteId(form.getSuiteId());
+			user.setWeekNum(form.getWeekNum());
+			user.setUserId(form.getUserId());
 			Repositories.scheduleUserRepository.saveAndFlush(user);
 
 			return new ResponseBundle().success(user);
