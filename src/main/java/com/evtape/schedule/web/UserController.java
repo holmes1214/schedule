@@ -1,8 +1,11 @@
 package com.evtape.schedule.web;
 
 import com.beust.jcommander.internal.Lists;
+import com.evtape.schedule.domain.District;
+import com.evtape.schedule.domain.Position;
 import com.evtape.schedule.domain.Role;
 import com.evtape.schedule.domain.RoleUser;
+import com.evtape.schedule.domain.Station;
 import com.evtape.schedule.web.auth.Identity;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.UnauthenticatedException;
@@ -92,16 +95,10 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body", dataType =
-                    "string"),
             @ApiImplicitParam(name = "stationId", value = "站点id", required = false, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "stationName", value = "站点名", required = false, paramType = "body", dataType =
-                    "string"),
             @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "positionName", value = "岗位名", required = true, paramType = "body", dataType =
-                    "string"),
             @ApiImplicitParam(name = "userName", value = "用户名", required = true, paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "phoneNumber", value = "用户电话号", required = true, paramType = "body", dataType =
@@ -161,6 +158,14 @@ public class UserController {
 
         Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
+        	
+			District district = Repositories.districtRepository.findOne(form.getDistrictId());
+			Station station = Repositories.stationRepository.findOne(form.getStationId());
+			Position position = Repositories.positionRepository.findOne(form.getPositionId());
+        	form.setDistrictName(district.getDistrictName());
+        	form.setStationName(station.getStationName());
+        	form.setPositionName(position.getPositionName());
+        	
             User newUser = Repositories.userRepository.saveAndFlush(form);
             RoleUser roleUser = new RoleUser();
             roleUser.setUserId(newUser.getId());
@@ -177,16 +182,10 @@ public class UserController {
             @ApiImplicitParam(name = "id", value = "主键id", required = true, paramType = "body", dataType = "integer"),
             @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body", dataType =
-                    "string"),
             @ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "stationName", value = "站点名", required = true, paramType = "body", dataType =
-                    "string"),
             @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "positionName", value = "岗位名", required = true, paramType = "body", dataType =
-                    "string"),
             @ApiImplicitParam(name = "userName", value = "用户名", required = true, paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "phoneNumber", value = "用户电话号", required = true, paramType = "body", dataType =
@@ -232,7 +231,13 @@ public class UserController {
     public ResponseBundle updateuser(@RequestBody User user, @Identity String phoneNumber) {
 
         try {
-            Repositories.userRepository.saveAndFlush(user);
+			District district = Repositories.districtRepository.findOne(user.getDistrictId());
+			Station station = Repositories.stationRepository.findOne(user.getStationId());
+			Position position = Repositories.positionRepository.findOne(user.getPositionId());
+			user.setDistrictName(district.getDistrictName());
+			user.setStationName(station.getStationName());
+			user.setPositionName(position.getPositionName());
+        	Repositories.userRepository.saveAndFlush(user);
             Subject currentUser = SecurityUtils.getSubject();
             return new ResponseBundle().success(getUserList(currentUser, null, phoneNumber));
         } catch (Exception e) {
