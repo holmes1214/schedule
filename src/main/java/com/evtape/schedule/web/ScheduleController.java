@@ -185,7 +185,14 @@ public class ScheduleController {
 	public ResponseBundle setscheduleuser(@RequestBody ScheduleUserForm form) {
 		try {
 			DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
-			ScheduleUser user = new ScheduleUser();
+			ScheduleUser user = Repositories.scheduleUserRepository.findOne(form.getUserId());
+			
+			System.out.println("UUUUID:"+form.getUserId());
+			
+			
+			if(user == null){
+				user = new ScheduleUser();
+			}
 			user.setDistrictId(dutySuite.getDistrictId());
 			user.setPositionId(dutySuite.getPositionId());
 			user.setStationId(dutySuite.getStationId());
@@ -196,6 +203,7 @@ public class ScheduleController {
 
 			return new ResponseBundle().success(user);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
@@ -210,13 +218,13 @@ public class ScheduleController {
 			})
 	@ResponseBody
 	@PutMapping(value = "/removescheduleuser")
-	public ResponseBundle removescheduleuser(@RequestParam("suiteId") Integer suiteId,
-			@RequestParam("weekNum") Integer weekNum) {
+	public ResponseBundle removescheduleuser(@RequestBody ScheduleUserForm form) {
 		try {
-			ScheduleUser user = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(suiteId, weekNum);
+			ScheduleUser user = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(form.getSuiteId(), form.getWeekNum());
 			Repositories.scheduleUserRepository.delete(user);
-			return returntemplete(suiteId);
+			return returntemplete(form.getSuiteId());
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
 		}
 	}
