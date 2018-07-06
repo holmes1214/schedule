@@ -41,9 +41,9 @@ public class ScheduleTemplateService {
 	@Transactional
 	public List<ScheduleTemplate> removeAndSaveTemplates(Integer suiteId) {
 		DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
-		List<DutyClass> classlist = Repositories.dutyClassRepository.findBySuiteId(suiteId);
+		List<DutyClass> classList = Repositories.dutyClassRepository.findBySuiteId(suiteId);
         Callable<List<ScheduleTemplate>> onlineShopping = () ->
-                ScheduleCalculator.calculate(classlist, dutySuite);
+                ScheduleCalculator.calculate(classList, dutySuite);
         FutureTask<List<ScheduleTemplate>> task = new FutureTask<>(onlineShopping);
         Thread t=new Thread(task);
         t.start();
@@ -51,8 +51,8 @@ public class ScheduleTemplateService {
             List<ScheduleTemplate> templates=task.get(5l, TimeUnit.SECONDS);
             List<ScheduleTemplate> list = Repositories.scheduleTemplateRepository.findBySuiteId(suiteId);
             Repositories.scheduleTemplateRepository.delete(list);
-            Repositories.scheduleTemplateRepository.save(templates);
             Repositories.scheduleTemplateRepository.flush();
+            Repositories.scheduleTemplateRepository.save(templates);
             return templates;
         } catch (Exception e) {
             //TODO STOP calculate
