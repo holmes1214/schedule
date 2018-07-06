@@ -153,7 +153,7 @@ public class ScheduleTemplateService {
         Date now=new Date();
         List<ScheduleUser> users=Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
         List<ScheduleTemplate> templates=Repositories.scheduleTemplateRepository.findBySuiteIdOrderByOrderIndex(suiteId);
-        Repositories.scheduleInfoRepository.deleteBySuiteIdAndDateStr(suiteId,dateStr);
+        Repositories.scheduleInfoRepository.deleteBySuiteId(suiteId);
         List<ScheduleInfo> result=new ArrayList<>();
         users.forEach(u-> templates.forEach(t->{
             String dayStr=getDayStr(df ,from,u.getWeekNum(),t.getWeekNum(),t.getDayNum(),users.size());
@@ -174,6 +174,7 @@ public class ScheduleTemplateService {
             info.setDutySuiteId(suiteId);
             info.setModified(0);
             info.setUserId(u.getUserId());
+            result.add(info);
         }));
         Repositories.scheduleInfoRepository.save(result);
         return result;

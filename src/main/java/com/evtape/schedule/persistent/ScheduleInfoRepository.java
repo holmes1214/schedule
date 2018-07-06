@@ -16,6 +16,8 @@ public interface ScheduleInfoRepository extends JpaRepository<ScheduleInfo, Inte
     @Query("delete from ScheduleInfo where suiteId=?1 and dateStr>?2")
     void deleteBySuiteIdAndDateStr(Integer suiteId, String dateStr);
     
+    void deleteBySuiteId(Integer suiteId);
+    
     List<ScheduleInfo> findBySuiteId(Integer suiteId);
 
     ScheduleInfo findByUserIdAndDateStr(User leaveUser, String dateStr);

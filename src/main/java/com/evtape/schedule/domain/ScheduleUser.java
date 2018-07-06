@@ -14,7 +14,9 @@ import javax.persistence.*;
 @Table(name="biz_schedule_user",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,stationId"),
 		@Index(name="IDX_SUITE_ID", columnList="districtId,suiteId"),
-		@Index(name="IDX_POSITION_ID", columnList="districtId,positionId")
+		@Index(name="IDX_POSITION_ID", columnList="districtId,positionId"),
+		@Index(name="IDX_WEEKNUM_ID", columnList="suiteId,weekNum", unique = true),
+		@Index(name="IDX_USER_ID", columnList="suiteId,userId", unique = true)
 })
 public class ScheduleUser {
 
