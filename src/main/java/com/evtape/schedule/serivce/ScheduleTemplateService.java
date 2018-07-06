@@ -49,8 +49,8 @@ public class ScheduleTemplateService {
         t.start();
         try {
             List<ScheduleTemplate> templates=task.get(5l, TimeUnit.SECONDS);
-            List<ScheduleTemplate> list = Repositories.scheduleTemplateRepository.findBySuiteId(suiteId);
-            Repositories.scheduleTemplateRepository.delete(list);
+            Repositories.scheduleUserRepository.deleteInBatch(Repositories.scheduleUserRepository.findBySuiteId(suiteId));
+            Repositories.scheduleTemplateRepository.deleteInBatch(Repositories.scheduleTemplateRepository.findBySuiteId(suiteId));
             Repositories.scheduleTemplateRepository.flush();
             Repositories.scheduleTemplateRepository.save(templates);
             return templates;
