@@ -1,116 +1,49 @@
 package com.evtape.schedule.web;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.evtape.schedule.exception.ForbiddenException;
-import lombok.Data;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.UnauthenticatedException;
-import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.apache.shiro.subject.Subject;
-import org.springframework.web.bind.annotation.*;
-
 import com.evtape.schedule.consts.ResponseMeta;
-import com.evtape.schedule.domain.DutyClass;
 import com.evtape.schedule.domain.ScheduleWorkflow;
 import com.evtape.schedule.domain.ScheduleWorkflowContent;
 import com.evtape.schedule.domain.vo.DutyClassVo;
 import com.evtape.schedule.domain.vo.ResponseBundle;
-import com.evtape.schedule.domain.vo.ScheduleWorkflowVo;
+import com.evtape.schedule.exception.ForbiddenException;
 import com.evtape.schedule.persistent.Repositories;
-
+import com.evtape.schedule.serivce.WorkflowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.Data;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Api(value = "工作流程接口")
 @RestController
 @RequestMapping("/workflow")
-public class WorkFlowController {
+public class WorkflowController {
+
+    private static Logger logger = LoggerFactory.getLogger(WorkflowController.class);
+    @Autowired
+    private WorkflowService workflowService;
 
     @ApiOperation(value = "根据班制id查询工作流程", produces = "application/json")
     @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "path", dataType = "integer")
     @ResponseBody
     @GetMapping("/{suiteId}")
-    public ResponseBundle getallworkflowcontent(@PathVariable("suiteId") Integer suiteId) {
+    public ResponseBundle getAllWorkflowContent(@PathVariable("suiteId") Integer suiteId) {
         try {
-
-            List<DutyClassVo> dutyClassVolist = allworkflowContent(suiteId);
+            List<DutyClassVo> dutyClassVolist = workflowService.allWorkflowContent(suiteId);
             return new ResponseBundle().success(dutyClassVolist);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("error:",e );
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
-
-	private List<DutyClassVo> allworkflowContent(Integer suiteId) {
-		List<DutyClassVo> dutyClassVolist = new ArrayList<>();
-		//循环班次，拿到scheduleWorkflowlist
-		List<DutyClass> classlist = Repositories.dutyClassRepository.findBySuiteId(suiteId);
-		for (DutyClass dutyClass : classlist) {
-
-		    DutyClassVo dutyClassVo = new DutyClassVo();
-//                dutyClassVo = (DutyClassVo) dutyClass;
-
-		    try {
-		        BeanUtils.copyProperties(dutyClassVo, dutyClass);
-		    } catch (IllegalAccessException | InvocationTargetException e) {
-		        e.printStackTrace();
-		    }
-
-		    List<ScheduleWorkflow> scheduleWorkflowlist = Repositories.workflowRepository
-		            .findBySuiteIdAndClassId(suiteId, dutyClass.getId());
-		    // 第一次进来，先把班次对应的flow补全入库
-		    if (scheduleWorkflowlist == null || scheduleWorkflowlist.size() == 0) {
-		        scheduleWorkflowlist = new ArrayList<>();
-		        for (int i = 0; i < dutyClass.getUserCount(); i++) {
-		            ScheduleWorkflow scheduleWorkflow = new ScheduleWorkflow();
-		            scheduleWorkflow.setClassId(dutyClass.getId());
-		            scheduleWorkflow.setDistrictId(dutyClass.getDistrictId());
-		            scheduleWorkflow.setPositionId(dutyClass.getPositionId());
-		            scheduleWorkflow.setStationId(dutyClass.getStationId());
-		            scheduleWorkflow.setSuiteId(suiteId);
-		            scheduleWorkflowlist.add(scheduleWorkflow);
-		        }
-		        Repositories.workflowRepository.save(scheduleWorkflowlist);
-		        Repositories.workflowRepository.flush();
-		        scheduleWorkflowlist = Repositories.workflowRepository
-		                .findBySuiteIdAndClassId(suiteId, dutyClass.getId());
-		    }
-		    List<ScheduleWorkflowVo> scheduleWorkflowVolist = new ArrayList<ScheduleWorkflowVo>();
-		    for (int i = 0; i < scheduleWorkflowlist.size(); i++) {
-		        ScheduleWorkflowVo scheduleWorkflowVo = new ScheduleWorkflowVo();
-//                    scheduleWorkflowVo = (ScheduleWorkflowVo) scheduleWorkflowlist.get(i);
-
-		        try {
-		            BeanUtils.copyProperties(scheduleWorkflowVo, scheduleWorkflowlist.get(i));
-		        } catch (IllegalAccessException | InvocationTargetException e) {
-		            e.printStackTrace();
-		        }
-
-
-		        List<ScheduleWorkflowContent> contentlist = Repositories.contentRepository
-		                .findByWorkFlowId(scheduleWorkflowVo.getId());
-		        if (!(i < dutyClass.getUserCount())) {
-		            // 此种情况，只发生在用户改小了这个班次的人数，删掉多余的content和flow
-		            Repositories.contentRepository.delete(contentlist);
-		            Repositories.contentRepository.flush();
-		            Repositories.workflowRepository.delete(scheduleWorkflowVo.getId());
-		            Repositories.workflowRepository.flush();
-		            continue;
-		        }
-		        scheduleWorkflowVo.setContentlist(contentlist);
-		        scheduleWorkflowVolist.add(scheduleWorkflowVo);
-		    }
-		    dutyClassVo.setScheduleWorkflowVolist(scheduleWorkflowVolist);
-		    dutyClassVolist.add(dutyClassVo);
-		}
-		return dutyClassVolist;
-	}
 
     @ApiOperation(value = "更新工作流程", produces = "application/json")
     @ApiImplicitParams({
@@ -127,7 +60,7 @@ public class WorkFlowController {
             oldbean = Repositories.workflowRepository.saveAndFlush(oldbean);
             return new ResponseBundle().success(oldbean);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("error:",e );
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
@@ -160,7 +93,7 @@ public class WorkFlowController {
             Repositories.contentRepository.saveAndFlush(scheduleWorkflowContent);
             return new ResponseBundle().success(scheduleWorkflowContent);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("error:",e );
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
@@ -194,12 +127,12 @@ public class WorkFlowController {
             "integer")
     @ResponseBody
     @DeleteMapping("/content/{contentId}")
-    public ResponseBundle deletecontent(@PathVariable("contentId") Integer contentId) {
+    public ResponseBundle deleteContent(@PathVariable("contentId") Integer contentId) {
         try {
             Repositories.contentRepository.delete(contentId);
             return new ResponseBundle().success();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("error:",e );
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
