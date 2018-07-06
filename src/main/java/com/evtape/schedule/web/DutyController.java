@@ -234,7 +234,7 @@ public class DutyController {
 	@ApiOperation(value = "删班次", produces = "application/json")
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "id", value = "班次id", required = true, paramType = "path", dataType = "integer"),
-			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "qyery", dataType = "integer"), })
+			@ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "integer"), })
     @ResponseBody
     @DeleteMapping("/classdelete/{id}")
     public ResponseBundle deleteClass(@PathVariable("id") Integer id,@RequestParam("suiteId") Integer suiteId) {

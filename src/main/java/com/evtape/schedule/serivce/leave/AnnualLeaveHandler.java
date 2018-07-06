@@ -23,56 +23,34 @@ import java.util.List;
 @Service("handler_leave1_sub1")
 public class AnnualLeaveHandler extends AbstractLeaveHandler implements LeaveHandler {
 
-    @Autowired
-    private UserRepository userRepository;
 
     /**
      * 年假实现，将时间段内每天生成两条请假数据，一条是请假人，另一条是替班人，请假人工时计负数，替班人工时计正数
      * @param scheduleInfoId
-     * @param leaveHours
+     * @param leaveCount
      * @param instead
-     * @param leaveDays
      * @param content
      * @return
      */
     @Override
-    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Integer leaveHours, Integer instead, Integer leaveDays, String content) {
+    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Integer leaveCount, Integer instead,  String content,Integer type,Integer subType) {
         ScheduleInfo schedule = Repositories.scheduleInfoRepository.findOne(scheduleInfoId);
         Integer userId = schedule.getUserId();
-        User leaveUser = userRepository.findOne(userId);
-        User insteadUser = userRepository.findOne(instead);
         String startDate = schedule.getDateStr();
-        LeaveDaySet conf = Repositories.leaveDaySetRepository.findByLeaveTypeAndSubType(1, 1);
+        LeaveDaySet conf = Repositories.leaveDaySetRepository.findByLeaveTypeAndSubType(type, subType);
 
 
         Date start=getLeaveDate(startDate);
         List<ScheduleLeave> result=new ArrayList<>();
         List<ScheduleInfo> modifiedSchedule=new ArrayList<>();
-        for(int i=0;i<leaveDays;i++){
+        for(int i=0;i<leaveCount;i++){
             Date date= DateUtils.addDays(start,i);
             String dateStr=getLeaveDateStr(date);
-            ScheduleInfo info=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(leaveUser,dateStr);
-            ScheduleInfo info2=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(insteadUser,dateStr);
-            ScheduleLeave leave1=new ScheduleLeave();
-            leave1.setComment(content);
-            leave1.setDistrictId(schedule.getDistrictId());
-            leave1.setScheduleInfoId(info.getId());
-            leave1.setLeaveDesc(conf.getDescription());
-            leave1.setUserId(userId);
-            leave1.setInstead(0);
-            //年假计算8小时，所以设置不计算原工时，工时计为8
+            ScheduleInfo info=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId,dateStr);
+            ScheduleInfo info2=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(instead,dateStr);
+            ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), content);
             leave1.setLeaveHours(8);
-            leave1.setCountOriginal(0);
-            ScheduleLeave leave2=new ScheduleLeave();
-            leave2.setComment(content);
-            leave2.setDistrictId(schedule.getDistrictId());
-            leave2.setScheduleInfoId(info2.getId());
-            leave2.setLeaveDesc(conf.getDescription());
-            leave2.setUserId(instead);
-            leave2.setInstead(1);
-            //年假替班公司计算为被替人当天的原工时，不计算自己原工时
-            leave2.setLeaveHours(schedule.getWorkingHours());
-            leave2.setCountOriginal(0);
+            ScheduleLeave leave2=getInsteadInfo(schedule.getDistrictId(),instead,info2.getId(),schedule.getWorkingHours(),conf.getDescription(),content);
             result.add(leave1);
             result.add(leave2);
 

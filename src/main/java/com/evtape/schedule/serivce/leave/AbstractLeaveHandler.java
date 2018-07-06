@@ -1,5 +1,6 @@
 package com.evtape.schedule.serivce.leave;
 
+import com.evtape.schedule.domain.LeaveDaySet;
 import com.evtape.schedule.domain.ScheduleInfo;
 import com.evtape.schedule.domain.ScheduleLeave;
 import com.evtape.schedule.domain.User;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -19,14 +21,65 @@ import java.util.List;
  */
 public abstract class AbstractLeaveHandler implements LeaveHandler {
 
-
-    @Override
-    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Integer leaveHours, Integer instead, Integer leaveDays, String content) {
-        return null;
+    protected ScheduleLeave getLeaveInfo(Integer districtId, Integer userId, Integer scheduleInfoId, String desc, String content) {
+        ScheduleLeave leave1 = new ScheduleLeave();
+        leave1.setComment(content);
+        leave1.setDistrictId(districtId);
+        leave1.setScheduleInfoId(scheduleInfoId);
+        leave1.setLeaveDesc(desc);
+        leave1.setUserId(userId);
+        leave1.setInstead(0);
+        leave1.setLeaveHours(0);
+        leave1.setCountOriginal(0);
+        return leave1;
     }
 
-    public static Date getLeaveDate(String dateStr){
-        DateFormat df =new SimpleDateFormat("yyyyMMdd");
+    protected ScheduleLeave getInsteadInfo(Integer districtId, Integer userId, Integer scheduleInfoId, Integer workingHours, String desc, String content) {
+        ScheduleLeave leave1 = new ScheduleLeave();
+        leave1.setComment(content);
+        leave1.setDistrictId(districtId);
+        leave1.setScheduleInfoId(scheduleInfoId);
+        leave1.setLeaveDesc(desc);
+        leave1.setUserId(userId);
+        leave1.setInstead(1);
+        leave1.setLeaveHours(workingHours);
+        leave1.setCountOriginal(0);
+        return leave1;
+    }
+
+    @Override
+    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Integer leaveCount, Integer instead, String content, Integer type, Integer subType) {
+        ScheduleInfo schedule = Repositories.scheduleInfoRepository.findOne(scheduleInfoId);
+        Integer userId = schedule.getUserId();
+        String startDate = schedule.getDateStr();
+        LeaveDaySet conf = Repositories.leaveDaySetRepository.findByLeaveTypeAndSubType(type, subType);
+
+
+        Date start = getLeaveDate(startDate);
+        List<ScheduleLeave> result = new ArrayList<>();
+        List<ScheduleInfo> modifiedSchedule = new ArrayList<>();
+        String dateStr = getLeaveDateStr(start);
+        ScheduleInfo info = Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId, dateStr);
+        ScheduleInfo info2 = Repositories.scheduleInfoRepository.findByUserIdAndDateStr(instead, dateStr);
+        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), content);
+        ScheduleLeave leave2 = getInsteadInfo(schedule.getDistrictId(), instead, info2.getId(), schedule.getWorkingHours(), conf.getDescription(), content);
+
+        result.add(leave1);
+        result.add(leave2);
+
+        //将排班信息设置为修改，方便查询是否有请假数据
+        info.setModified(1);
+        info2.setModified(1);
+        modifiedSchedule.add(info);
+        modifiedSchedule.add(info2);
+
+        Repositories.scheduleLeaveRepository.save(result);
+        Repositories.scheduleInfoRepository.save(modifiedSchedule);
+        return result;
+    }
+
+    public static Date getLeaveDate(String dateStr) {
+        DateFormat df = new SimpleDateFormat("yyyyMMdd");
         try {
             return df.parse(dateStr);
         } catch (ParseException e) {
@@ -34,8 +87,8 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         return new Date(0);
     }
 
-    public static String getLeaveDateStr(Date date){
-        DateFormat df =new SimpleDateFormat("yyyyMMdd");
+    public static String getLeaveDateStr(Date date) {
+        DateFormat df = new SimpleDateFormat("yyyyMMdd");
         return df.format(date);
     }
 }
