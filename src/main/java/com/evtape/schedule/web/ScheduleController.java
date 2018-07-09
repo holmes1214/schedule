@@ -320,4 +320,18 @@ public class ScheduleController {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
+    @ApiOperation(value = "手动排班删除班次", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "templateId", value = "模板id", required = true, paramType = "query", dataType = "integer"),})
+    @ResponseBody
+    @DeleteMapping("/template")
+    public ResponseBundle settemplateclass(@RequestBody Integer templateId) {
+        try {
+            Repositories.scheduleTemplateRepository.delete(templateId);
+            return new ResponseBundle().success();
+        } catch (Exception e) {
+            logger.error("error:", e);
+            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+        }
+    }
 }
