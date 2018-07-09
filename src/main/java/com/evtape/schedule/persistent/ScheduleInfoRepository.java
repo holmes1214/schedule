@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.evtape.schedule.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.evtape.schedule.domain.ScheduleInfo;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface ScheduleInfoRepository extends JpaRepository<ScheduleInfo, Integer> {
 
 
+    @Modifying
     @Query("delete from ScheduleInfo where suiteId=?1 ")
     void deleteBySuiteId(Integer suiteId);
     
