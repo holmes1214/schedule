@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +38,6 @@ public class ShiroRealm extends AuthorizingRealm {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private PermissionRepository permissionRepository;
-    private RoleUserRepository roleUserRepository;
     private RolePermissionRepository rolePermissionRepository;
 
     @Override
@@ -49,23 +49,20 @@ public class ShiroRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         String phoneNumber = JWTUtil.getPhoneNumber(principals.toString());
         User user = userRepository.findByPhoneNumber(phoneNumber);
-        List<RoleUser> roleUsers = roleUserRepository.findByUserId(user.getId());
 
-        List<String> roles = Lists.newArrayListWithCapacity(roleUsers.size());
+        List<String> roles = new ArrayList<>();
         Set<String> permissions = Sets.newHashSet();
 
-        roleUsers.forEach(roleUser -> {
-            Role role = roleRepository.findOne(roleUser.getRoleId());
-            LOGGER.debug("add role:{}", role.getCode());
-            roles.add(role.getCode());  // 添加角色编码
-            List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(role.getId());
-            if (rolePermissions.size() > 0) {
-                List<Integer> ids = rolePermissions.stream().map(rp -> rp.getId()).collect(toList());
-                List<Permission> permissionsList = permissionRepository.queryByIds(ids.toArray(
-                        new Integer[ids.size()]));
-                permissionsList.forEach(permission -> permissions.add(permission.getCode()));
-            }
-        });
+        Role role = roleRepository.findOne(user.getRoleId());
+        LOGGER.debug("add role:{}", role.getCode());
+        roles.add(role.getCode());  // 添加角色编码
+        List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleId(role.getId());
+        if (rolePermissions.size() > 0) {
+            List<Integer> ids = rolePermissions.stream().map(rp -> rp.getId()).collect(toList());
+            List<Permission> permissionsList = permissionRepository.queryByIds(ids.toArray(
+                    new Integer[ids.size()]));
+            permissionsList.forEach(permission -> permissions.add(permission.getCode()));
+        }
 
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
         simpleAuthorizationInfo.addRoles(roles);
@@ -105,11 +102,6 @@ public class ShiroRealm extends AuthorizingRealm {
     @Autowired
     public void setPermissionRepository(PermissionRepository permissionRepository) {
         this.permissionRepository = permissionRepository;
-    }
-
-    @Autowired
-    public void setRoleUserRepository(RoleUserRepository roleUserRepository) {
-        this.roleUserRepository = roleUserRepository;
     }
 
     @Autowired

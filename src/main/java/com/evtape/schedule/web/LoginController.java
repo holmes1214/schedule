@@ -22,10 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -59,19 +56,15 @@ public class LoginController {
                 return new ResponseBundle().failure(ResponseMeta.ADMIN_PASSWD_NOT_ERROR);
             }
 
-            List<RoleUser> roleUsers = Repositories.roleUserRepository.findByUserId(u.getId());
-
-            List<Role> roles = Lists.newArrayListWithCapacity(roleUsers.size());
+            List<Role> roles = new ArrayList<>();
             Set<Permission> permissions = Sets.newHashSet();
 
-            roleUsers.forEach(roleUser -> {
-                Role role = Repositories.roleRepository.findOne(roleUser.getRoleId());
-                roles.add(role);  // 添加角色编码
-                List<RolePermission> rolePermissions = Repositories.rolePermissionRepository.findByRoleId(role.getId());
-                rolePermissions.forEach(rolePermission -> {
-                    Permission permission = Repositories.permissionRepository.findOne(rolePermission.getPermissionId());
-                    permissions.add(permission);  // 添加权限列表编码
-                });
+            Role role = Repositories.roleRepository.findOne(u.getRoleId());
+            roles.add(role);  // 添加角色编码
+            List<RolePermission> rolePermissions = Repositories.rolePermissionRepository.findByRoleId(role.getId());
+            rolePermissions.forEach(rolePermission -> {
+                Permission permission = Repositories.permissionRepository.findOne(rolePermission.getPermissionId());
+                permissions.add(permission);  // 添加权限列表编码
             });
 
             String token = JWTUtil.sign(u.getPhoneNumber(), u.getPassword());

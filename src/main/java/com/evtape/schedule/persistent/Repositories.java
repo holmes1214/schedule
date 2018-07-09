@@ -15,7 +15,6 @@ public class Repositories {
 	public static PositionRepository positionRepository;
 	public static RolePermissionRepository rolePermissionRepository;
 	public static RoleRepository roleRepository;
-	public static RoleUserRepository roleUserRepository;
 	public static ScheduleInfoRepository scheduleInfoRepository;
 	public static ScheduleLeaveRepository scheduleLeaveRepository;
 	public static ScheduleTemplateRepository scheduleTemplateRepository;
@@ -77,11 +76,6 @@ public class Repositories {
 	@Autowired
 	public void setRoleRepository(RoleRepository roleRepository) {
 		Repositories.roleRepository = roleRepository;
-	}
-
-	@Autowired
-	public void setRoleUserRepository(RoleUserRepository roleUserRepository) {
-		Repositories.roleUserRepository = roleUserRepository;
 	}
 
 	@Autowired

@@ -1,12 +1,18 @@
 package com.evtape.schedule.web;
 
 import com.beust.jcommander.internal.Lists;
+import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.District;
 import com.evtape.schedule.domain.Position;
-import com.evtape.schedule.domain.Role;
-import com.evtape.schedule.domain.RoleUser;
 import com.evtape.schedule.domain.Station;
+import com.evtape.schedule.domain.User;
+import com.evtape.schedule.domain.vo.ResponseBundle;
+import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.web.auth.Identity;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.annotation.Logical;
@@ -18,26 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.evtape.schedule.consts.ResponseMeta;
-import com.evtape.schedule.domain.User;
-import com.evtape.schedule.domain.vo.ResponseBundle;
-import com.evtape.schedule.persistent.Repositories;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Comparator;
 import java.util.List;
@@ -158,7 +145,6 @@ public class UserController {
 
         Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
-        	
 			District district = Repositories.districtRepository.findOne(form.getDistrictId());
 			Station station = Repositories.stationRepository.findOne(form.getStationId());
 			Position position = Repositories.positionRepository.findOne(form.getPositionId());
@@ -166,11 +152,7 @@ public class UserController {
         	form.setStationName(station.getStationName());
         	form.setPositionName(position.getPositionName());
         	
-            User newUser = Repositories.userRepository.saveAndFlush(form);
-            RoleUser roleUser = new RoleUser();
-            roleUser.setUserId(newUser.getId());
-            roleUser.setRoleId(newUser.getRoleId());
-            Repositories.roleUserRepository.save(roleUser);
+            Repositories.userRepository.saveAndFlush(form);
             Subject currentUser = SecurityUtils.getSubject();
             return new ResponseBundle().success(getUserList(currentUser, null, phoneNumber));
         }).orElseThrow(UnauthenticatedException::new);
