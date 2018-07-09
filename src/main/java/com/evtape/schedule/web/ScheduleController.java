@@ -182,7 +182,6 @@ public class ScheduleController {
             //先查待设置的周有没有user
             ScheduleUser user1 = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(form.getSuiteId(),
                     form.getWeekNum());
-            user1.setUserId(u.getId());
             if (user1 == null) {
                 user1=new ScheduleUser();
                 user1.setDistrictId(dutySuite.getDistrictId());
@@ -191,6 +190,7 @@ public class ScheduleController {
                 user1.setSuiteId(form.getSuiteId());
                 user1.setWeekNum(form.getWeekNum());
             }
+            user1.setUserId(u.getId());
             user1.setUserName(u.getUserName());
             Repositories.scheduleUserRepository.save(user1);
 
