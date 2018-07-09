@@ -1,5 +1,6 @@
 package com.evtape.schedule.persistent;
 
+import java.util.Date;
 import java.util.List;
 
 import com.evtape.schedule.domain.User;
@@ -24,4 +25,10 @@ public interface ScheduleInfoRepository extends JpaRepository<ScheduleInfo, Inte
 
     @Query("from ScheduleInfo where userId=?1 and dateStr>=?2")
     List<ScheduleInfo> findByUserWorkLeft(Integer userId, String dateStr);
+
+    @Query("from ScheduleInfo where scheduleDate>=?1 and scheduleDate<?2 and userId in (?3)")
+    List<ScheduleInfo> findByUserIds(Date startDate, Date endDate, List<Integer> collect);
+
+    @Query("from ScheduleInfo where scheduleDate>=?1 and scheduleDate<?2 and districtId=?3")
+    List<ScheduleInfo> findByCondition(Date parse, Date parse1, Integer districtId);
 }

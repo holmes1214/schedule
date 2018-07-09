@@ -24,6 +24,10 @@ public class ScheduleInfo {
 	
 	private Integer districtId;
 
+	private Integer stationId;
+
+	private Integer positionId;
+
 	private Integer dutySuiteId;
 
 	private Integer dutyClassId;
@@ -41,6 +45,8 @@ public class ScheduleInfo {
 	private Integer suiteId;
 
 	private String dateStr;
+
+	private Date scheduleDate;
 
 	private String scheduleWeek;
 

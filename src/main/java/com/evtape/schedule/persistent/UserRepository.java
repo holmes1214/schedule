@@ -34,4 +34,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
 	List<User> findByDistrictIdAndBackup(Integer districtId,Integer backup);
 
+	List<User> findByUserNameOrEmployeeCard(String userName, String employeeCard);
 }

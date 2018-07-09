@@ -11,19 +11,15 @@ import javax.swing.*;
 import javax.transaction.Transactional;
 
 import com.evtape.schedule.consts.ResponseMeta;
+import com.evtape.schedule.domain.*;
 import com.evtape.schedule.exception.BaseException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.evtape.schedule.domain.DutyClass;
-import com.evtape.schedule.domain.DutySuite;
-import com.evtape.schedule.domain.ScheduleInfo;
-import com.evtape.schedule.domain.ScheduleTemplate;
-import com.evtape.schedule.domain.ScheduleUser;
-import com.evtape.schedule.domain.ScheduleWorkflow;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.support.service.ScheduleCalculator;
 
@@ -32,41 +28,41 @@ import com.evtape.schedule.support.service.ScheduleCalculator;
  */
 @Service
 public class ScheduleTemplateService {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTemplateService.class);
-	
-	/**
-	 * 生成模板，先清库再入库
-	 */
-	@Transactional
-	public List<ScheduleTemplate> removeAndSaveTemplates(Integer suiteId) {
-		DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
-		List<DutyClass> classList = Repositories.dutyClassRepository.findBySuiteId(suiteId);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTemplateService.class);
+
+    /**
+     * 生成模板，先清库再入库
+     */
+    @Transactional
+    public List<ScheduleTemplate> removeAndSaveTemplates(Integer suiteId) {
+        DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
+        List<DutyClass> classList = Repositories.dutyClassRepository.findBySuiteId(suiteId);
         Callable<List<ScheduleTemplate>> onlineShopping = () ->
                 ScheduleCalculator.calculate(classList, dutySuite);
         FutureTask<List<ScheduleTemplate>> task = new FutureTask<>(onlineShopping);
-        Thread t=new Thread(task);
+        Thread t = new Thread(task);
         t.start();
         try {
-            List<ScheduleTemplate> templates=task.get(5l, TimeUnit.SECONDS);
+            List<ScheduleTemplate> templates = task.get(5l, TimeUnit.SECONDS);
             Repositories.scheduleUserRepository.deleteInBatch(Repositories.scheduleUserRepository.findBySuiteId(suiteId));
             Repositories.scheduleTemplateRepository.deleteInBatch(Repositories.scheduleTemplateRepository.findBySuiteId(suiteId));
             Repositories.scheduleTemplateRepository.flush();
             List<ScheduleWorkflow> workflows = Repositories.workflowRepository.findBySuiteId(suiteId);
-            if (workflows!=null&&workflows.size()>0){
+            if (workflows != null && workflows.size() > 0) {
                 Map<Integer, List<ScheduleWorkflow>> workflowMap = workflows.stream().collect(Collectors.groupingBy(ScheduleWorkflow::getClassId));
                 Map<Integer, List<ScheduleTemplate>> map = templates.stream().collect(Collectors.groupingBy(ScheduleTemplate::getDayNum));
-                for (Integer day:map.keySet()) {
+                for (Integer day : map.keySet()) {
                     List<ScheduleTemplate> list = map.get(day);
-                    Map<Integer,Integer> indexMap=new HashMap<>();
+                    Map<Integer, Integer> indexMap = new HashMap<>();
                     for (ScheduleTemplate template :
                             list) {
-                        indexMap.computeIfAbsent(template.getClassId(),k->0);
-                        int index=indexMap.get(template.getClassId());
+                        indexMap.computeIfAbsent(template.getClassId(), k -> 0);
+                        int index = indexMap.get(template.getClassId());
                         ScheduleWorkflow wf = workflowMap.get(template.getClassId()).get(index);
                         template.setWorkflowId(wf.getId());
                         template.setWorkflowCode(wf.getCode());
-                        indexMap.put(template.getClassId(),index+1);
+                        indexMap.put(template.getClassId(), index + 1);
                     }
                 }
             }
@@ -76,10 +72,11 @@ public class ScheduleTemplateService {
             ScheduleCalculator.stopCalculate(t.getId());
             throw new BaseException(ResponseMeta.DUTY_PLANNING_ERROR);
         }
-	}
-	/**
-	 * 
-	 */
+    }
+
+    /**
+     *
+     */
     public ScheduleTemplate saveTemplate(Integer dutySuiteId, Integer weekNum, Integer dayNum) {
         ScheduleTemplate template = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(dutySuiteId, weekNum, dayNum);
         long count = Repositories.scheduleTemplateRepository.countBySuiteIdAndClassId(dutySuiteId, template.getClassId());
@@ -93,7 +90,7 @@ public class ScheduleTemplateService {
             template.setDistrictId(dutyClass.getDistrictId());
             template.setPositionId(dutyClass.getPositionId());
             template.setStationId(dutyClass.getStationId());
-            template.setOrderIndex(weekNum*7+dayNum);
+            template.setOrderIndex(weekNum * 7 + dayNum);
         }
         template.setClassId(template.getClassId());
         template.setCellColor(dutyClass.getClassColor());
@@ -107,36 +104,37 @@ public class ScheduleTemplateService {
         return template;
     }
 
-	/**
-	 * 排班模板交换任务
-	 */
-	public void exchangeTemplate(Integer suiteId, Integer weekNum1, Integer dayNum1, Integer weekNum2,
-			Integer dayNum2) {
-		ScheduleTemplate template1 = Repositories.scheduleTemplateRepository.
-				findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum1, dayNum1);
-		ScheduleTemplate template2 = Repositories.scheduleTemplateRepository.
-				findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum2, dayNum2);
+    /**
+     * 排班模板交换任务
+     */
+    public void exchangeTemplate(Integer suiteId, Integer weekNum1, Integer dayNum1, Integer weekNum2,
+                                 Integer dayNum2) {
+        ScheduleTemplate template1 = Repositories.scheduleTemplateRepository.
+                findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum1, dayNum1);
+        ScheduleTemplate template2 = Repositories.scheduleTemplateRepository.
+                findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum2, dayNum2);
 
-		if (template1 != null) {
-			setDateInfo(template1,weekNum2,dayNum2);
-			Repositories.scheduleTemplateRepository.saveAndFlush(template1);
-		}
-		if (template2 != null) {
-			setDateInfo(template2,weekNum1,dayNum1);
-			Repositories.scheduleTemplateRepository.saveAndFlush(template2);
-		}
-	}
+        if (template1 != null) {
+            setDateInfo(template1, weekNum2, dayNum2);
+            Repositories.scheduleTemplateRepository.saveAndFlush(template1);
+        }
+        if (template2 != null) {
+            setDateInfo(template2, weekNum1, dayNum1);
+            Repositories.scheduleTemplateRepository.saveAndFlush(template2);
+        }
+    }
 
-	public void setDateInfo(ScheduleTemplate template,Integer week,Integer day){
+    public void setDateInfo(ScheduleTemplate template, Integer week, Integer day) {
         template.setWeekNum(week);
         template.setDayNum(day);
         template.setOrderIndex(week * 7 + day);
     }
-	/**
-	 * 排班模板设置人员
-	 */
-    public void setScheduleUser(Integer suiteId,Integer weekNum,Integer userId){
-        ScheduleUser scheduleUser=new ScheduleUser();
+
+    /**
+     * 排班模板设置人员
+     */
+    public void setScheduleUser(Integer suiteId, Integer weekNum, Integer userId) {
+        ScheduleUser scheduleUser = new ScheduleUser();
         scheduleUser.setWeekNum(weekNum);
         scheduleUser.setSuiteId(suiteId);
         scheduleUser.setUserId(userId);
@@ -146,37 +144,41 @@ public class ScheduleTemplateService {
         scheduleUser.setPositionId(suite.getPositionId());
         Repositories.scheduleUserRepository.save(scheduleUser);
     }
-    
-	/**
-	 * 排班模板取消人员设置
-	 */
-    public void removeScheduleUser(Integer suiteId,Integer weekNum){
-        ScheduleUser user=Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(suiteId,weekNum);
+
+    /**
+     * 排班模板取消人员设置
+     */
+    public void removeScheduleUser(Integer suiteId, Integer weekNum) {
+        ScheduleUser user = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(suiteId, weekNum);
         Repositories.scheduleUserRepository.delete(user);
     }
-	/**
-	 * 生成排班计划
-	 */
-	@Transactional
-    public List<ScheduleInfo> createScheduleInfoData(Integer suiteId,String dateStr) throws ParseException {
-        DateFormat df =new SimpleDateFormat("yyyyMMdd");
+
+    /**
+     * 生成排班计划
+     */
+    @Transactional
+    public List<ScheduleInfo> createScheduleInfoData(Integer suiteId, String dateStr) throws ParseException {
+        DateFormat df = new SimpleDateFormat("yyyyMMdd");
         Date from = df.parse(dateStr);
-        Date now=new Date();
-        List<ScheduleUser> users=Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
-        List<ScheduleTemplate> templates=Repositories.scheduleTemplateRepository.findBySuiteIdOrderByOrderIndex(suiteId);
+        Date now = new Date();
+        List<ScheduleUser> users = Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
+        List<ScheduleTemplate> templates = Repositories.scheduleTemplateRepository.findBySuiteIdOrderByOrderIndex(suiteId);
         Repositories.scheduleInfoRepository.deleteBySuiteId(suiteId);
-        List<ScheduleInfo> result=new ArrayList<>();
-        users.forEach(u-> templates.forEach(t->{
-            String dayStr=getDayStr(df ,from,u.getWeekNum(),t.getWeekNum(),t.getDayNum(),users.size());
-            ScheduleInfo info=new ScheduleInfo();
+        List<ScheduleInfo> result = new ArrayList<>();
+        users.forEach(u -> templates.forEach(t -> {
+            Date date = getDayStr(df, from, u.getWeekNum(), t.getWeekNum(), t.getDayNum(), users.size());
+            ScheduleInfo info = new ScheduleInfo();
             info.setDistrictId(t.getDistrictId());
             info.setSuiteId(t.getSuiteId());
+            info.setPositionId(t.getPositionId());
+            info.setStationId(t.getStationId());
             info.setDutyClassId(t.getClassId());
             info.setUserId(u.getUserId());
             info.setCreateDate(now);
-            info.setDateStr(dayStr);
-            DutyClass dutyClass=Repositories.dutyClassRepository.findOne(t.getClassId());
-            if (t.getWorkflowId()!=null){
+            info.setScheduleDate(date);
+            info.setDateStr(df.format(date));
+            DutyClass dutyClass = Repositories.dutyClassRepository.findOne(t.getClassId());
+            if (t.getWorkflowId() != null) {
                 ScheduleWorkflow workflow = Repositories.workflowRepository.findOne(t.getWorkflowId());
                 info.setWorkflowId(t.getWorkflowId());
                 info.setWorkflowCode(workflow.getCode());
@@ -191,10 +193,28 @@ public class ScheduleTemplateService {
         return result;
     }
 
-    private String getDayStr(DateFormat df,Date date,Integer weekNum, Integer weekNum1, Integer dayNum,int totalWeeks) {
-        int days=((weekNum1+totalWeeks-weekNum)%totalWeeks)*7+dayNum;
-        return df.format(DateUtils.addDays(date,days));
+    private Date getDayStr(DateFormat df, Date date, Integer weekNum, Integer weekNum1, Integer dayNum, int totalWeeks) {
+        int days = ((weekNum1 + totalWeeks - weekNum) % totalWeeks) * 7 + dayNum;
+        return DateUtils.addDays(date, days);
     }
 
+    public List<ScheduleInfo> searchScheduleInfo(String startDateStr, String endDateStr, Integer districtId, Integer stationId, Integer positionId, String userName) throws ParseException {
+        List<ScheduleInfo> result;
+        DateFormat df = new SimpleDateFormat("yyyyMMdd");
+        if (StringUtils.isNotBlank(userName)) {
+            List<User> users = Repositories.userRepository.findByUserNameOrEmployeeCard(userName, userName);
+            result = Repositories.scheduleInfoRepository.findByUserIds(df.parse(startDateStr), df.parse(endDateStr), users.stream().map(User::getId).collect(Collectors.toList()));
+        } else {
+            result = Repositories.scheduleInfoRepository.findByCondition(df.parse(startDateStr), df.parse(endDateStr), districtId);
+            if (stationId != null) {
+                result = result.stream().filter(i -> stationId.equals(i.getStationId())).collect(Collectors.toList());
+            }
+            if (positionId != null) {
+                result = result.stream().filter(i -> positionId.equals(i.getPositionId())).collect(Collectors.toList());
+            }
+        }
+        result.stream().filter(i -> i.getModified() > 0).forEach(info -> info.setLeaveList(Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId())));
+        return result;
+    }
 }
 

@@ -242,8 +242,8 @@ public class ScheduleController {
                                           @RequestParam(value = "positionId",required = false) Integer positionId,@RequestParam(value = "userName",required = false) String userName) {
         User user = Repositories.userRepository.findByPhoneNumber(phoneNumber);
         try {
-//            List<ScheduleInfo> scheduleInfo = Repositories.scheduleInfoRepository.findBySuiteId(suiteId);
-            return new ResponseBundle().success();
+            List<ScheduleInfo> list= scheduleTemplateService.searchScheduleInfo(startDateStr,endDateStr,user.getDistrictId(),user.getStationId(),positionId,userName);
+            return new ResponseBundle().success(list);
         } catch (Exception e) {
             logger.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
