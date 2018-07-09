@@ -206,6 +206,7 @@ public class ScheduleTemplateService {
             result = Repositories.scheduleInfoRepository.findByUserIds(df.parse(startDateStr), df.parse(endDateStr), users.stream().map(User::getId).collect(Collectors.toList()));
         } else {
             result = Repositories.scheduleInfoRepository.findByCondition(df.parse(startDateStr), df.parse(endDateStr), districtId);
+            LOGGER.debug("start date {}, end date{}, districtId {}, size {}",startDateStr,endDateStr,districtId,result.size());
             if (stationId != null) {
                 result = result.stream().filter(i -> stationId.equals(i.getStationId())).collect(Collectors.toList());
             }
