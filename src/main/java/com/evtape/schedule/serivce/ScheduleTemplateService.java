@@ -3,10 +3,7 @@ package com.evtape.schedule.serivce;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -61,7 +58,16 @@ public class ScheduleTemplateService {
                 Map<Integer, List<ScheduleTemplate>> map = templates.stream().collect(Collectors.groupingBy(ScheduleTemplate::getDayNum));
                 for (Integer day:map.keySet()) {
                     List<ScheduleTemplate> list = map.get(day);
-
+                    Map<Integer,Integer> indexMap=new HashMap<>();
+                    for (ScheduleTemplate template :
+                            list) {
+                        indexMap.computeIfAbsent(template.getClassId(),k->0);
+                        int index=indexMap.get(template.getClassId());
+                        ScheduleWorkflow wf = workflowMap.get(template.getClassId()).get(index);
+                        template.setWorkflowId(wf.getId());
+                        template.setWorkflowCode(wf.getCode());
+                        indexMap.put(template.getClassId(),index+1);
+                    }
                 }
             }
             Repositories.scheduleTemplateRepository.save(templates);

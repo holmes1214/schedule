@@ -217,6 +217,9 @@ public class ScheduleCalculator {
         for (Task t :
                 taskList) {
             ScheduleTemplate template = new ScheduleTemplate();
+            template.setDistrictId(t.shift.getDistrictId());
+            template.setPositionId(t.shift.getPositionId());
+            template.setStationId(t.shift.getStationId());
             template.setSuiteId(model.getId());
             template.setClassId(t.shift.getId());
             template.setDutyName(t.shift.getDutyName());
