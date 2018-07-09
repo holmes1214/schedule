@@ -38,14 +38,14 @@ public class LeaveController {
             @ApiImplicitParam(name = "subType", value = "请假字典子类别", required = true, paramType = "query",
                     dataType = "int"),
             @ApiImplicitParam(name = "leaveCount", value = "离岗时间，天或小时", required = true, paramType = "query",
-                    dataType = "int"),
+                    dataType = "double"),
             @ApiImplicitParam(name = "content", value = "备注", required = true, paramType = "query",
                     dataType = "String"),
     })
     @ResponseBody
     @PostMapping
     public Object leave(@RequestParam("scheduleInfoId") Integer scheduleInfoId,@RequestParam("leaveType") Integer leaveType,@RequestParam("instead") Integer instead,
-                                      @RequestParam("subType") Integer subType,@RequestParam("leaveCount") Integer leaveCount,@RequestParam("content") String content){
+                                      @RequestParam("subType") Integer subType,@RequestParam("leaveCount") Double leaveCount,@RequestParam("content") String content){
         String handlerName="handler_leave"+leaveType+"_sub"+subType;
         try {
 

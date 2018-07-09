@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface LeaveHandler {
 
-    List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId,Integer leaveCount,Integer instead,String content,Integer type,Integer subType);
+    List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId,Double leaveCount,Integer instead,String content,Integer type,Integer subType);
 }

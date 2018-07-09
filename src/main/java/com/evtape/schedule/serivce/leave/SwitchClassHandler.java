@@ -26,7 +26,7 @@ public class SwitchClassHandler extends AbstractLeaveHandler implements LeaveHan
      * @return
      */
     @Override
-    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Integer leaveCount, Integer instead, String content,Integer type,Integer subType) {
+    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Double leaveCount, Integer instead, String content,Integer type,Integer subType) {
         ScheduleInfo schedule = Repositories.scheduleInfoRepository.findOne(scheduleInfoId);
         Integer userId = schedule.getUserId();
         String startDate = schedule.getDateStr();
@@ -40,7 +40,7 @@ public class SwitchClassHandler extends AbstractLeaveHandler implements LeaveHan
         String dateStr = getLeaveDateStr(start);
         ScheduleInfo info = Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId, dateStr);
         ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), getContent(dutyClass));
-        leave1.setLeaveHours(dutyClass.getWorkingLength()/60);
+        leave1.setLeaveHours((double)dutyClass.getWorkingLength()/60);
         result.add(leave1);
 
         //将排班信息设置为修改，方便查询是否有请假数据

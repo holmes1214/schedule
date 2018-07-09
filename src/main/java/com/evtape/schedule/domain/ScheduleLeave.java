@@ -22,7 +22,7 @@ public class ScheduleLeave {
 
 	private Integer scheduleInfoId;
 
-	private Integer leaveHours;
+	private Double leaveHours;
 
 	private String comment;
 

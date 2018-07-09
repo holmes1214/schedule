@@ -28,7 +28,7 @@ public class AbsentHandler extends AbstractLeaveHandler implements LeaveHandler 
      * @return
      */
     @Override
-    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Integer leaveCount, Integer instead, String content, Integer type, Integer subType) {
+    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Double leaveCount, Integer instead, String content, Integer type, Integer subType) {
         ScheduleInfo schedule = Repositories.scheduleInfoRepository.findOne(scheduleInfoId);
         Integer userId = schedule.getUserId();
         String startDate = schedule.getDateStr();

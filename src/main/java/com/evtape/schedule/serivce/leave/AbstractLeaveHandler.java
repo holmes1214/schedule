@@ -29,12 +29,12 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         leave1.setLeaveDesc(desc);
         leave1.setUserId(userId);
         leave1.setInstead(0);
-        leave1.setLeaveHours(0);
+        leave1.setLeaveHours(0d);
         leave1.setCountOriginal(0);
         return leave1;
     }
 
-    protected ScheduleLeave getInsteadInfo(Integer districtId, Integer userId, Integer scheduleInfoId, Integer workingHours, String desc, String content) {
+    protected ScheduleLeave getInsteadInfo(Integer districtId, Integer userId, Integer scheduleInfoId, double workingHours, String desc, String content) {
         ScheduleLeave leave1 = new ScheduleLeave();
         leave1.setComment(content);
         leave1.setDistrictId(districtId);
@@ -48,7 +48,7 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
     }
 
     @Override
-    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Integer leaveCount, Integer instead, String content, Integer type, Integer subType) {
+    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Double leaveCount, Integer instead, String content, Integer type, Integer subType) {
         ScheduleInfo schedule = Repositories.scheduleInfoRepository.findOne(scheduleInfoId);
         Integer userId = schedule.getUserId();
         String startDate = schedule.getDateStr();

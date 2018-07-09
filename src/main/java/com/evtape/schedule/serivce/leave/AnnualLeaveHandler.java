@@ -33,7 +33,7 @@ public class AnnualLeaveHandler extends AbstractLeaveHandler implements LeaveHan
      * @return
      */
     @Override
-    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Integer leaveCount, Integer instead,  String content,Integer type,Integer subType) {
+    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Double leaveCount, Integer instead,  String content,Integer type,Integer subType) {
         ScheduleInfo schedule = Repositories.scheduleInfoRepository.findOne(scheduleInfoId);
         Integer userId = schedule.getUserId();
         String startDate = schedule.getDateStr();
@@ -49,7 +49,7 @@ public class AnnualLeaveHandler extends AbstractLeaveHandler implements LeaveHan
             ScheduleInfo info=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId,dateStr);
             ScheduleInfo info2=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(instead,dateStr);
             ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), content);
-            leave1.setLeaveHours(8);
+            leave1.setLeaveHours(8d);
             ScheduleLeave leave2=getInsteadInfo(schedule.getDistrictId(),instead,info2.getId(),schedule.getWorkingHours(),conf.getDescription(),content);
             result.add(leave1);
             result.add(leave2);

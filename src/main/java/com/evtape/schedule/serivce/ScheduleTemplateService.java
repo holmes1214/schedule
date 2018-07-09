@@ -170,6 +170,8 @@ public class ScheduleTemplateService {
             String dayStr=getDayStr(df ,from,u.getWeekNum(),t.getWeekNum(),t.getDayNum(),users.size());
             ScheduleInfo info=new ScheduleInfo();
             info.setDistrictId(t.getDistrictId());
+            info.setSuiteId(t.getSuiteId());
+            info.setDutyClassId(t.getClassId());
             info.setUserId(u.getUserId());
             info.setCreateDate(now);
             info.setDateStr(dayStr);

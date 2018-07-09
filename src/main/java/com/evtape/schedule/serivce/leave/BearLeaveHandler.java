@@ -20,7 +20,7 @@ public class BearLeaveHandler extends AbstractLeaveHandler implements LeaveHandl
      * @return
      */
     @Override
-    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Integer leaveCount, Integer instead, String content,Integer type,Integer subType) {
+    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Double leaveCount, Integer instead, String content,Integer type,Integer subType) {
         return super.processLeaveHours(scheduleInfoId,leaveCount,instead,content,type,subType);
     }
 }

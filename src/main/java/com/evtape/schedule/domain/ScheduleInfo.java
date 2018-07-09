@@ -24,6 +24,10 @@ public class ScheduleInfo {
 	
 	private Integer districtId;
 
+	private Integer dutySuiteId;
+
+	private Integer dutyClassId;
+
 	private Integer workflowId;
 
 	private String workflowCode;
