@@ -174,6 +174,7 @@ public class ScheduleTemplateService {
             info.setStationId(t.getStationId());
             info.setDutyClassId(t.getClassId());
             info.setUserId(u.getUserId());
+            info.setUserName(u.getUserName());
             info.setCreateDate(now);
             info.setScheduleDate(date);
             info.setDateStr(df.format(date));

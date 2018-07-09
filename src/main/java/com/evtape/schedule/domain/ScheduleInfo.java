@@ -28,6 +28,8 @@ public class ScheduleInfo {
 
 	private Integer positionId;
 
+	private Integer positionName;
+
 	private Integer dutySuiteId;
 
 	private Integer dutyClassId;
@@ -41,6 +43,8 @@ public class ScheduleInfo {
 	private String dutyCode;
 
 	private Integer userId;
+
+	private String userName;
 	
 	private Integer suiteId;
 
