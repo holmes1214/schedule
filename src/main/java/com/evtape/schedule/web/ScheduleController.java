@@ -271,39 +271,6 @@ public class ScheduleController {
     }
 
     /**
-     * 手动排班创建数据
-     */
-    @ApiOperation(value = "手动排班创建数据", produces = "application/json")
-    @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "path", dataType = "integer")
-    @ResponseBody
-    @PostMapping("/manualtemplate/{suiteId}")
-    public ResponseBundle manualtemplate(@PathVariable("suiteId") Integer suiteId) {
-        try {
-
-            DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
-            List<User> userlist = Repositories.userRepository.findByDistrictIdAndBackup(dutySuite.getDistrictId(), 1);
-            List<ScheduleUser> scheduleUsers = new ArrayList<ScheduleUser>();
-            ScheduleUser scheduleUser;
-            for (int i = 0; i < userlist.size(); i++) {
-                scheduleUser = new ScheduleUser();
-                scheduleUser.setDistrictId(dutySuite.getDistrictId());
-                scheduleUser.setPositionId(dutySuite.getPositionId());
-                scheduleUser.setStationId(dutySuite.getStationId());
-                scheduleUser.setSuiteId(suiteId);
-                scheduleUser.setWeekNum(i + 1);
-                scheduleUser.setUserId(userlist.get(i).getId());
-                scheduleUsers.add(scheduleUser);
-            }
-            Repositories.scheduleUserRepository.save(scheduleUsers);
-            Repositories.scheduleUserRepository.flush();
-            return new ResponseBundle().success(scheduleUsers);
-        } catch (Exception e) {
-            logger.error("error:", e);
-            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-        }
-    }
-
-    /**
      * 手动排班设置班次
      */
     @ApiOperation(value = "手动排班设置班次", produces = "application/json")
@@ -316,18 +283,21 @@ public class ScheduleController {
     @PutMapping("/settemplateclass")
     public ResponseBundle settemplateclass(@RequestBody ScheduleUserForm form) {
         try {
-            ScheduleTemplate scheduleTemplate = new ScheduleTemplate();
-            DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
+            ScheduleTemplate scheduleTemplate = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(form.getSuiteId(),form.getWeekNum(),form.getDayNum());
+            if (scheduleTemplate==null){
+                scheduleTemplate=new ScheduleTemplate();
+                DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
+                scheduleTemplate.setDistrictId(dutySuite.getDistrictId());
+                scheduleTemplate.setSuiteId(form.getSuiteId());
+                scheduleTemplate.setWeekNum(form.getWeekNum());
+                scheduleTemplate.setDayNum(form.getDayNum());
+            }
             DutyClass dutyClass = Repositories.dutyClassRepository.findOne(form.getClassId());
-            scheduleTemplate.setDistrictId(dutySuite.getDistrictId());
-            scheduleTemplate.setSuiteId(form.getSuiteId());
-            scheduleTemplate.setWeekNum(form.getWeekNum());
-            scheduleTemplate.setDayNum(form.getDayNum());
-            scheduleTemplate.setClassId(form.getClassId());
             scheduleTemplate.setCellColor(dutyClass.getClassColor());
             scheduleTemplate.setWorkingLength(dutyClass.getWorkingLength());
             scheduleTemplate.setDutyName(dutyClass.getDutyName());
             scheduleTemplate.setDutyCode(dutyClass.getDutyCode());
+            scheduleTemplate.setClassId(form.getClassId());
             Repositories.scheduleTemplateRepository.saveAndFlush(scheduleTemplate);
             return new ResponseBundle().success(scheduleTemplate);
         } catch (Exception e) {
