@@ -6,8 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
+import javax.swing.*;
 import javax.transaction.Transactional;
 
 import com.evtape.schedule.consts.ResponseMeta;
@@ -52,10 +55,18 @@ public class ScheduleTemplateService {
             Repositories.scheduleUserRepository.deleteInBatch(Repositories.scheduleUserRepository.findBySuiteId(suiteId));
             Repositories.scheduleTemplateRepository.deleteInBatch(Repositories.scheduleTemplateRepository.findBySuiteId(suiteId));
             Repositories.scheduleTemplateRepository.flush();
+            List<ScheduleWorkflow> workflows = Repositories.workflowRepository.findBySuiteId(suiteId);
+            if (workflows!=null&&workflows.size()>0){
+                Map<Integer, List<ScheduleWorkflow>> workflowMap = workflows.stream().collect(Collectors.groupingBy(ScheduleWorkflow::getClassId));
+                Map<Integer, List<ScheduleTemplate>> map = templates.stream().collect(Collectors.groupingBy(ScheduleTemplate::getDayNum));
+                for (Integer day:map.keySet()) {
+                    List<ScheduleTemplate> list = map.get(day);
+
+                }
+            }
             Repositories.scheduleTemplateRepository.save(templates);
             return templates;
         } catch (Exception e) {
-            //TODO STOP calculate
             ScheduleCalculator.stopCalculate(t.getId());
             throw new BaseException(ResponseMeta.DUTY_PLANNING_ERROR);
         }
@@ -99,29 +110,22 @@ public class ScheduleTemplateService {
 				findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum1, dayNum1);
 		ScheduleTemplate template2 = Repositories.scheduleTemplateRepository.
 				findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum2, dayNum2);
-		if (template1 == null && template2 == null) {
-			return;
-		} 
+
 		if (template1 != null) {
-			template1.setWeekNum(-1);
-			template1.setDayNum(-1);
-			template1.setOrderIndex(-1);
+			setDateInfo(template1,weekNum2,dayNum2);
 			Repositories.scheduleTemplateRepository.saveAndFlush(template1);
 		}
 		if (template2 != null) {
-			template2.setWeekNum(weekNum1);
-			template2.setDayNum(dayNum1);
-			template2.setOrderIndex(weekNum1 * 7 + dayNum1);
+			setDateInfo(template2,weekNum1,dayNum1);
 			Repositories.scheduleTemplateRepository.saveAndFlush(template2);
 		}
-		if (template1 != null) {
-			template1.setWeekNum(weekNum2);
-			template1.setDayNum(dayNum2);
-			//////////
-			template1.setOrderIndex(weekNum2 * 7 + dayNum2);
-			Repositories.scheduleTemplateRepository.saveAndFlush(template1);
-		}
 	}
+
+	public void setDateInfo(ScheduleTemplate template,Integer week,Integer day){
+        template.setWeekNum(week);
+        template.setDayNum(day);
+        template.setOrderIndex(week * 7 + day);
+    }
 	/**
 	 * 排班模板设置人员
 	 */

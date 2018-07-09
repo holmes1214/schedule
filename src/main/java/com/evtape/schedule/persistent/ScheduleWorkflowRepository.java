@@ -10,4 +10,6 @@ import java.util.List;
 public interface ScheduleWorkflowRepository extends JpaRepository<ScheduleWorkflow, Integer> {
 
     List<ScheduleWorkflow> findBySuiteIdAndClassId(Integer dutySuiteId, Integer dutyClassId);
+
+    List<ScheduleWorkflow> findBySuiteId(Integer suiteId);
 }
