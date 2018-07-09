@@ -158,7 +158,7 @@ public class ScheduleTemplateService {
      */
     @Transactional
     public List<ScheduleInfo> createScheduleInfoData(Integer suiteId, String dateStr) throws ParseException {
-        DateFormat df = new SimpleDateFormat("yyyyMMdd");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         Date from = df.parse(dateStr);
         Date now = new Date();
         List<ScheduleUser> users = Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
@@ -200,7 +200,7 @@ public class ScheduleTemplateService {
 
     public List<ScheduleInfo> searchScheduleInfo(String startDateStr, String endDateStr, Integer districtId, Integer stationId, Integer positionId, String userName) throws ParseException {
         List<ScheduleInfo> result;
-        DateFormat df = new SimpleDateFormat("yyyyMMdd");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         if (StringUtils.isNotBlank(userName)) {
             List<User> users = Repositories.userRepository.findByUserNameOrEmployeeCard(userName, userName);
             result = Repositories.scheduleInfoRepository.findByUserIds(df.parse(startDateStr), df.parse(endDateStr), users.stream().map(User::getId).collect(Collectors.toList()));
