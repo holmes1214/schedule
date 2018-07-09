@@ -322,10 +322,10 @@ public class ScheduleController {
     }
     @ApiOperation(value = "手动排班删除班次", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "templateId", value = "模板id", required = true, paramType = "query", dataType = "integer"),})
+            @ApiImplicitParam(name = "templateId", value = "模板id", required = true, paramType = "path", dataType = "integer"),})
     @ResponseBody
-    @DeleteMapping("/template")
-    public ResponseBundle settemplateclass(@RequestBody Integer templateId) {
+    @DeleteMapping("/template/{templateId}")
+    public ResponseBundle settemplateclass(@PathVariable Integer templateId) {
         try {
             Repositories.scheduleTemplateRepository.delete(templateId);
             return new ResponseBundle().success();
