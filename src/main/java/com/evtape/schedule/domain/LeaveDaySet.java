@@ -25,22 +25,6 @@ public class LeaveDaySet {
 	private Integer subType;
 
 	private String subName;
-	/**
-	 * 计算工时数
-	 */
-	private Integer workingHourCount;
-
-	/**
-	 * 是否按小时计时
-	 */
-	private Integer isHourly;
-
-	/**
-	 * 是否增加工时
-	 */
-	private Integer isPositive;
-
-	private Integer districtId;
 
 	private String description;
 
