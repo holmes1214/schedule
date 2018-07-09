@@ -147,6 +147,7 @@ public class ScheduleTemplateService {
 	/**
 	 * 生成排班计划
 	 */
+	@Transactional
     public List<ScheduleInfo> createScheduleInfoData(Integer suiteId,String dateStr) throws ParseException {
         DateFormat df =new SimpleDateFormat("yyyyMMdd");
         Date from = df.parse(dateStr);
