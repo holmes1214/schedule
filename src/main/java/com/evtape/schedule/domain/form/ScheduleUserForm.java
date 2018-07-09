@@ -9,6 +9,8 @@ import lombok.ToString;
 @ToString
 public class ScheduleUserForm {
 	private Integer suiteId;
+	private Integer classId;
 	private Integer weekNum;
+	private Integer dayNum;
 	private Integer userId;
 }

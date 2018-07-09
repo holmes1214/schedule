@@ -25,7 +25,7 @@ public class PictureUtil {
     static final int MARGIN = 80;
     static final int SPACE_SIZE_BASE = 40;
     static final int FONT_SIZE_BASE = 24;
-    static final int HOUR_BASE = SPACE_SIZE_BASE * 3;
+    static final int HOUR_BASE = SPACE_SIZE_BASE * 4;
     static final int[] VERTICALS = new int[]{MARGIN, SPACE_SIZE_BASE * 10, SPACE_SIZE_BASE * 3, SPACE_SIZE_BASE * 12, SPACE_SIZE_BASE * 8, SPACE_SIZE_BASE * 8, HOUR_BASE * 24};
     static final String[] TITLES = new String[]{"日期", "星期", "工作时间", "班次", "工作岗位"};
     static final String[] PERIODS = new String[]{"0100", "0200", "0300", "0400", "0500", "0600", "0700", "0800", "0900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700", "1800", "1900", "2000", "2100", "2200", "2300", "0000"};

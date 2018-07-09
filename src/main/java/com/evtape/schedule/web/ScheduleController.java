@@ -293,24 +293,22 @@ public class ScheduleController {
      */
     @ApiOperation(value = "手动排班设置班次", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "integer"),
-            @ApiImplicitParam(name = "classId", value = "班次id", required = true, paramType = "query", dataType = "integer"),
-            @ApiImplicitParam(name = "weekNum", value = "被设置的周数", required = true, paramType = "query", dataType = "integer"),
-            @ApiImplicitParam(name = "dayNum", value = "被设置的周天数", required = true, paramType = "query", dataType = "integer"),})
+            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
+            @ApiImplicitParam(name = "classId", value = "班次id", required = true, paramType = "body", dataType = "integer"),
+            @ApiImplicitParam(name = "weekNum", value = "被设置的周数", required = true, paramType = "body", dataType = "integer"),
+            @ApiImplicitParam(name = "dayNum", value = "被设置的周天数", required = true, paramType = "body", dataType = "integer"),})
     @ResponseBody
     @PutMapping("/settemplateclass")
-    public ResponseBundle settemplateclass(@RequestParam("suiteId") Integer suiteId,
-                                           @RequestParam("classId") Integer classId, @RequestParam("weekNum") Integer weekNum,
-                                           @RequestParam("dayNum") Integer dayNum) {
+    public ResponseBundle settemplateclass(@RequestBody ScheduleUserForm form) {
         try {
             ScheduleTemplate scheduleTemplate = new ScheduleTemplate();
-            DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
-            DutyClass dutyClass = Repositories.dutyClassRepository.findOne(classId);
+            DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
+            DutyClass dutyClass = Repositories.dutyClassRepository.findOne(form.getClassId());
             scheduleTemplate.setDistrictId(dutySuite.getDistrictId());
-            scheduleTemplate.setSuiteId(suiteId);
-            scheduleTemplate.setWeekNum(weekNum);
-            scheduleTemplate.setDayNum(dayNum);
-            scheduleTemplate.setClassId(classId);
+            scheduleTemplate.setSuiteId(form.getSuiteId());
+            scheduleTemplate.setWeekNum(form.getWeekNum());
+            scheduleTemplate.setDayNum(form.getDayNum());
+            scheduleTemplate.setClassId(form.getClassId());
             scheduleTemplate.setCellColor(dutyClass.getClassColor());
             scheduleTemplate.setWorkingLength(dutyClass.getWorkingLength());
             scheduleTemplate.setDutyName(dutyClass.getDutyName());
