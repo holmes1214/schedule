@@ -173,7 +173,6 @@ public class ScheduleTemplateService {
             info.setUserId(u.getUserId());
             info.setCreateDate(now);
             info.setDateStr(dayStr);
-            info.setDutyClassId(t.getClassId());
             DutyClass dutyClass=Repositories.dutyClassRepository.findOne(t.getClassId());
             if (t.getWorkflowId()!=null){
                 ScheduleWorkflow workflow = Repositories.workflowRepository.findOne(t.getWorkflowId());
@@ -182,7 +181,6 @@ public class ScheduleTemplateService {
             }
             info.setDutyName(dutyClass.getDutyName());
             info.setDutyCode(dutyClass.getDutyCode());
-            info.setDutySuiteId(suiteId);
             info.setModified(0);
             info.setUserId(u.getUserId());
             result.add(info);

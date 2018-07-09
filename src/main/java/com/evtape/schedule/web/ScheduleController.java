@@ -10,10 +10,14 @@ import com.evtape.schedule.exception.BaseException;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.serivce.ScheduleTemplateService;
 import com.evtape.schedule.serivce.WorkflowService;
+import com.evtape.schedule.web.auth.Identity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,11 +173,16 @@ public class ScheduleController {
         try {
             DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
             User u = Repositories.userRepository.findOne(form.getUserId());
+            ScheduleUser user2=Repositories.scheduleUserRepository.findBySuiteIdAndUserId(form.getSuiteId(),u.getId());
+            if (user2!=null){
+                Repositories.scheduleUserRepository.delete(user2.getId());
+                Repositories.scheduleUserRepository.flush();
+            }
 
             //先查待设置的周有没有user
             ScheduleUser user1 = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(form.getSuiteId(),
                     form.getWeekNum());
-            ScheduleUser user2=Repositories.scheduleUserRepository.findBySuiteIdAndUserId(form.getSuiteId(),u.getId());
+            user1.setUserId(u.getId());
             if (user1 == null) {
                 user1=new ScheduleUser();
                 user1.setDistrictId(dutySuite.getDistrictId());
@@ -182,13 +191,9 @@ public class ScheduleController {
                 user1.setSuiteId(form.getSuiteId());
                 user1.setWeekNum(form.getWeekNum());
             }
-            user1.setUserId(u.getId());
             user1.setUserName(u.getUserName());
             Repositories.scheduleUserRepository.save(user1);
 
-            if (user2!=null){
-                Repositories.scheduleUserRepository.delete(user2.getId());
-            }
             return new ResponseBundle().success();
         } catch (Exception e) {
             logger.error("error:", e);
@@ -218,19 +223,27 @@ public class ScheduleController {
     }
 
     /**
-     * 生成排班计划
+     * 查询排班计划
      */
-    @ApiOperation(value = "生成排班计划", produces = "application/json")
+
+    @ApiOperation(value = "查询排班计划", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "integer"),
-            @ApiImplicitParam(name = "dateStr", value = "dateStr,问一下昊哥具体含义", required = true, paramType = "query", dataType = "integer"),})
+            @ApiImplicitParam(name = "startDateStr", value = "开始时间", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "endDateStr", value = "结束时间", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "stationId", value = "站点id", required = false, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "positionId", value = "岗位id", required = false, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "userName", value = "姓名编号", required = false, paramType = "query", dataType = "String"),
+    })
     @ResponseBody
-    @PostMapping("/createscheduleinfo")
-    public ResponseBundle createscheduleinfo(@RequestParam("suiteId") Integer suiteId,
-                                             @RequestParam("dateStr") String dateStr) {
+    @GetMapping("/scheduleinfo")
+    @RequiresAuthentication
+    public ResponseBundle getscheduleinfo(@Identity String phoneNumber,@RequestParam("startDateStr") String startDateStr,
+                                          @RequestParam("endDateStr") String endDateStr,@RequestParam(value = "stationId",required = false) Integer stationId,
+                                          @RequestParam(value = "positionId",required = false) Integer positionId,@RequestParam(value = "userName",required = false) String userName) {
+        User user = Repositories.userRepository.findByPhoneNumber(phoneNumber);
         try {
-            List<ScheduleInfo> scheduleInfos = scheduleTemplateService.createScheduleInfoData(suiteId, dateStr);
-            return new ResponseBundle().success(scheduleInfos);
+//            List<ScheduleInfo> scheduleInfo = Repositories.scheduleInfoRepository.findBySuiteId(suiteId);
+            return new ResponseBundle().success();
         } catch (Exception e) {
             logger.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
@@ -238,16 +251,18 @@ public class ScheduleController {
     }
 
     /**
-     * 查询排班计划
+     * 生成排班计划
      */
-
-    @ApiOperation(value = "查询排班计划", produces = "application/json")
-    @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "path", dataType = "integer")
+    @ApiOperation(value = "生成排班计划", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "integer"),
+            @ApiImplicitParam(name = "dateStr", value = "dateStr", required = true, paramType = "query", dataType = "integer"),})
     @ResponseBody
-    @GetMapping("/getscheduleinfo/{suiteId}")
-    public ResponseBundle getscheduleinfo(@PathVariable("suiteId") Integer suiteId) {
+    @PostMapping("/scheduleinfo")
+    public ResponseBundle createscheduleinfo(@RequestParam("suiteId") Integer suiteId,
+                                             @RequestParam("dateStr") String dateStr) {
         try {
-            List<ScheduleInfo> scheduleInfos = Repositories.scheduleInfoRepository.findBySuiteId(suiteId);
+            List<ScheduleInfo> scheduleInfos = scheduleTemplateService.createScheduleInfoData(suiteId, dateStr);
             return new ResponseBundle().success(scheduleInfos);
         } catch (Exception e) {
             logger.error("error:", e);

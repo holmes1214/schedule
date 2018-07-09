@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name="biz_schedule_info",indexes = {
-		@Index(name="IDX_CLASS_ID", columnList="districtId,dutySuiteId,dutyClassId")
+		@Index(name="IDX_DISTRICT_ID", columnList="districtId")
 })
 public class ScheduleInfo {
 
@@ -23,10 +23,6 @@ public class ScheduleInfo {
 	private Integer id;
 	
 	private Integer districtId;
-
-	private Integer dutySuiteId;
-
-	private Integer dutyClassId;
 
 	private Integer workflowId;
 
@@ -44,7 +40,7 @@ public class ScheduleInfo {
 
 	private String scheduleWeek;
 
-	private Integer workingHours;
+	private Double workingHours;
 
 	private Date createDate;
 
