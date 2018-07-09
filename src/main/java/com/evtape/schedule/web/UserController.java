@@ -186,6 +186,8 @@ public class UserController {
                     "integer"),
             @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType =
                     "integer"),
+            @ApiImplicitParam(name = "roleId", value = "角色id", required = true, paramType = "body", dataType =
+                    "integer"),
             @ApiImplicitParam(name = "userName", value = "用户名", required = true, paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "phoneNumber", value = "用户电话号", required = true, paramType = "body", dataType =

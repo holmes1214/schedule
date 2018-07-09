@@ -31,8 +31,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Transient
-    @JsonIgnore
     private Integer roleId;
 
     /**
