@@ -22,18 +22,6 @@ public class DutyPeriodChecking {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	/**
-	 * 站区id
-	 */
-	private Integer districtId;
-	/**
-	 * 站id
-	 */
-	private Integer stationId;
-	/**
-	 * 岗位id
-	 */
-	private Integer positionId;
-	/**
 	 * 班制id
 	 */
 	private Integer suiteId;
@@ -57,9 +45,4 @@ public class DutyPeriodChecking {
 	 * 人数
 	 */
     private Integer userCount;
-	/**
-	 * 备班标识
-	 */
-	private Integer backup;
-
 }

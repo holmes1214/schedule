@@ -47,7 +47,10 @@ public enum ResponseMeta {
     /* 系统错误 */
     SYSTEM_INNER_ERROR(50001, "系统繁忙，请稍后重试"),
     DUTY_PLANNING_ERROR(50002,"排班错误，请检查班次设置" ),
-    NOT_ENOUGH_WORKER(50003, "排班错误，人数设置不够");
+    NOT_ENOUGH_WORKER(50003, "排班错误，人数设置不够"),
+    HAS_CLASSES(50101, "当前班制包含班次，不能删除"),
+
+    HAS_WORKFLOW(50102, "当前班次包含工作流，不能删除"), HAS_TEMPLATE(50103, "当前班次包含排班模板，不能删除");
     /* 无权观看视频 */
 
     private Integer code;
