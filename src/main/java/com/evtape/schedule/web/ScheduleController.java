@@ -110,7 +110,7 @@ public class ScheduleController {
         });
 
         result.put("dutyclass", list);
-        result.put("weeks", templates.isEmpty()?"[]":templates.stream().mapToInt(i -> i.getWeekNum()).max().getAsInt());
+        result.put("weeks", templates.isEmpty()?0:templates.stream().mapToInt(i -> i.getWeekNum()).max().getAsInt());
         result.put("scheduleUsers", users);
         return new ResponseBundle().success(result);
     }
