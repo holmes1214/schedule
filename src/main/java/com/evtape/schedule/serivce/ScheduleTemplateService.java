@@ -165,8 +165,9 @@ public class ScheduleTemplateService {
         List<ScheduleTemplate> templates = Repositories.scheduleTemplateRepository.findBySuiteIdOrderByOrderIndex(suiteId);
         Repositories.scheduleInfoRepository.deleteBySuiteId(suiteId);
         List<ScheduleInfo> result = new ArrayList<>();
+        int weeks=templates.stream().mapToInt(t->t.getWeekNum()).max().getAsInt();
         users.forEach(u -> templates.forEach(t -> {
-            Date date = getDayStr(df, from, u.getWeekNum(), t.getWeekNum(), t.getDayNum(), users.size());
+            Date date = getDayStr( from, u.getWeekNum(), t.getWeekNum(), t.getDayNum(), weeks);
             ScheduleInfo info = new ScheduleInfo();
             info.setDistrictId(t.getDistrictId());
             info.setSuiteId(t.getSuiteId());
@@ -194,7 +195,7 @@ public class ScheduleTemplateService {
         return result;
     }
 
-    private Date getDayStr(DateFormat df, Date date, Integer weekNum, Integer weekNum1, Integer dayNum, int totalWeeks) {
+    private Date getDayStr( Date date, Integer weekNum, Integer weekNum1, Integer dayNum, int totalWeeks) {
         int days = ((weekNum1 + totalWeeks - weekNum) % totalWeeks) * 7 + dayNum;
         return DateUtils.addDays(date, days);
     }

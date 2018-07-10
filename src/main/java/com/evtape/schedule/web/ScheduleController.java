@@ -1,5 +1,7 @@
 package com.evtape.schedule.web;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.*;
 import com.evtape.schedule.domain.form.ScheduleForm;
@@ -23,10 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 排班
@@ -243,7 +243,21 @@ public class ScheduleController {
         User user = Repositories.userRepository.findByPhoneNumber(phoneNumber);
         try {
             List<ScheduleInfo> list= scheduleTemplateService.searchScheduleInfo(startDateStr,endDateStr,user.getDistrictId(),user.getStationId(),positionId,userName);
-            return new ResponseBundle().success(list);
+            List<User> userList=Repositories.userRepository.findByDistrictId(user.getDistrictId());
+            Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, u -> u));
+            Set<User> result=list.stream().map(u->userMap.get(u.getUserId())).collect(Collectors.toSet());
+            list.forEach(i->{
+                User u = userMap.get(i.getUserId());
+                if (u.getScheduleInfoList()==null){
+                    u.setScheduleInfoList(new ArrayList<>());
+                }
+                u.getScheduleInfoList().add(i);
+            });
+            result.forEach(u->{
+                u.getScheduleInfoList().stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
+            });
+
+            return new ResponseBundle().success(result);
         } catch (Exception e) {
             logger.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);

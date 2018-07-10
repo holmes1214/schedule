@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * 用户
@@ -163,5 +164,8 @@ public class User {
      * 是否是补位人员 1是0不是，默认0
      */
     private Integer backup = 0;
+
+    @Transient
+    private List<ScheduleInfo> scheduleInfoList;
 
 }
