@@ -5,6 +5,7 @@ import com.evtape.schedule.domain.ScheduleLeave;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.serivce.leave.LeaveHandler;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -20,6 +21,7 @@ import java.util.Map;
 /**
  * Created by holmes1214 on 2018/5/12.
  */
+@Api(value = "请假接口")
 @Controller
 @RequestMapping("/leave")
 public class LeaveController {
@@ -27,7 +29,8 @@ public class LeaveController {
     private static Logger logger = LoggerFactory.getLogger(LeaveController.class);
     @Autowired
     private Map<String, LeaveHandler> handlerMap;
-    @ApiOperation(value = "请假接口", produces = "application/json")
+
+    @ApiOperation(value = "请假", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "scheduleInfoId", value = "请假当天排班id", required = true, paramType = "query",
                     dataType = "int"),
@@ -48,7 +51,6 @@ public class LeaveController {
                                       @RequestParam("subType") Integer subType,@RequestParam("leaveCount") Double leaveCount,@RequestParam("content") String content){
         String handlerName="handler_leave"+leaveType+"_sub"+subType;
         try {
-
             List<ScheduleLeave> scheduleLeaves = handlerMap.get(handlerName).processLeaveHours(scheduleInfoId, leaveCount,instead,content,leaveType,subType);
             return new ResponseBundle().success(scheduleLeaves);
         }catch (Exception e){
