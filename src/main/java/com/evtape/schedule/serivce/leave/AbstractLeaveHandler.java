@@ -82,7 +82,7 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         return result;
     }
 
-    private ScheduleInfo completeScheduleInfo(ScheduleInfo info, User user, Date start, String dateStr) {
+    ScheduleInfo completeScheduleInfo(ScheduleInfo info, User user, Date start, String dateStr) {
         if (info!=null){
             return info;
         }

@@ -48,6 +48,10 @@ public class AnnualLeaveHandler extends AbstractLeaveHandler implements LeaveHan
             String dateStr=getLeaveDateStr(date);
             ScheduleInfo info=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId,dateStr);
             ScheduleInfo info2=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(instead,dateStr);
+            User user=Repositories.userRepository.findOne(userId);
+            User insteadUser=Repositories.userRepository.findOne(instead);
+            info=completeScheduleInfo(info,user,start,dateStr);
+            info2=completeScheduleInfo(info2,insteadUser,start,dateStr);
             ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), content);
             leave1.setLeaveHours(8d);
             ScheduleLeave leave2=getInsteadInfo(schedule.getDistrictId(),instead,info2.getId(),schedule.getWorkingHours(),conf.getDescription(),content);
