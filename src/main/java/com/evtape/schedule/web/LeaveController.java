@@ -37,13 +37,13 @@ public class LeaveController {
                     dataType = "int"),
             @ApiImplicitParam(name = "leaveType", value = "请假字典类别", required = true, paramType = "body",
                     dataType = "int"),
-            @ApiImplicitParam(name = "instead", value = "替换人/班 id", required = false, paramType = "body",
+            @ApiImplicitParam(name = "instead", value = "替换人/班 id", paramType = "body",
                     dataType = "int"),
             @ApiImplicitParam(name = "subType", value = "请假字典子类别", required = true, paramType = "body",
                     dataType = "int"),
             @ApiImplicitParam(name = "leaveCount", value = "离岗时间，天或小时", required = true, paramType = "body",
                     dataType = "double"),
-            @ApiImplicitParam(name = "content", value = "备注", required = true, paramType = "body",
+            @ApiImplicitParam(name = "content", value = "备注", paramType = "body",
                     dataType = "String"),
     })
     @PostMapping
