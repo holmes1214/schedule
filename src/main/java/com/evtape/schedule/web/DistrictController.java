@@ -34,6 +34,8 @@ public class DistrictController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body",
                     dataType = "string"),
+            @ApiImplicitParam(name = "lineNumber", value = "线路号", required = true, paramType = "body",
+                    dataType = "int"),
             @ApiImplicitParam(name = "content", value = "站区说明", required = true, paramType = "body",
                     dataType = "string"),
     })
@@ -53,6 +55,8 @@ public class DistrictController {
                     dataType = "int"),
             @ApiImplicitParam(name = "districtName", value = "站区名", required = true, paramType = "body",
                     dataType = "string"),
+            @ApiImplicitParam(name = "lineNumber", value = "线路号", required = true, paramType = "body",
+                    dataType = "int"),
             @ApiImplicitParam(name = "content", value = "站区说明", required = true, paramType = "body",
                     dataType = "string"),
     })

@@ -1,5 +1,6 @@
 package com.evtape.schedule.persistent;
 
+import com.evtape.schedule.domain.UserHolidayLimit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ public class Repositories {
 	public static ScheduleWorkflowContentRepository contentRepository;
 	public static StationRepository stationRepository;
 	public static UserRepository userRepository;
+	public static UserHolidayLimitRepository holidayLimitRepository;
 
 	@Autowired
 	public void setDistrictRepository(DistrictRepository districtRepository) {
@@ -106,5 +108,9 @@ public class Repositories {
 	@Autowired
 	public void setContentRepository(ScheduleWorkflowContentRepository contentRepository) {
 		Repositories.contentRepository = contentRepository;
+	}
+	@Autowired
+	public void setHolidayLimitRepository(UserHolidayLimitRepository repository) {
+		Repositories.holidayLimitRepository = repository;
 	}
 }
