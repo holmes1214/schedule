@@ -99,6 +99,8 @@ public class UserController {
             @ApiImplicitParam(name = "gender", value = "性别", required = true, paramType = "body", dataType = "String"),
             @ApiImplicitParam(name = "entryDate", value = "入职时间", required = true, paramType = "body", dataType =
                     "string"),
+            @ApiImplicitParam(name = "beginWorkDate", value = "参加工作时间", required = true, paramType = "body", dataType =
+                    "string"),
             @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚", required = true, paramType = "body",
                     dataType = "String"),
             @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育", required = true, paramType = "body",
@@ -195,6 +197,8 @@ public class UserController {
                     dataType = "string"),
             @ApiImplicitParam(name = "joinDate", value = "入党入团时间", required = true, paramType = "body", dataType =
                     "string"),
+            @ApiImplicitParam(name = "beginWorkDate", value = "参加工作时间", required = true, paramType = "body", dataType =
+                    "string"),
             @ApiImplicitParam(name = "homeAddress", value = "家庭住址", required = true, paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "certNo", value = "站务员证书编号", required = true, paramType = "body", dataType =
@@ -216,10 +220,10 @@ public class UserController {
 
         try {
 			District district = Repositories.districtRepository.findOne(user.getDistrictId());
-			Station station = Repositories.stationRepository.findOne(user.getStationId());
-			Position position = Repositories.positionRepository.findOne(user.getPositionId());
-			user.setDistrictName(district.getDistrictName());
-			user.setStationName(station.getStationName());
+            user.setDistrictName(district.getDistrictName());
+            Station station = Repositories.stationRepository.findOne(user.getStationId());
+            user.setStationName(station.getStationName());
+            Position position = Repositories.positionRepository.findOne(user.getPositionId());
 			user.setPositionName(position.getPositionName());
         	Repositories.userRepository.saveAndFlush(user);
             Subject currentUser = SecurityUtils.getSubject();

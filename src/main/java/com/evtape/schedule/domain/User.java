@@ -97,6 +97,10 @@ public class User {
      * 入职时间
      */
     private String entryDate;
+    /**
+     * 参加工作时间
+     */
+    private String beginWorkDate;
 
     /**
      * 婚否 ：已婚，未婚
