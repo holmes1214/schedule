@@ -28,7 +28,8 @@ public class DistrictController {
     @ApiOperation(value = "获取站区列表", produces = "application/json")
     @GetMapping
     public ResponseBundle getDistricts() {
-        return new ResponseBundle().success(Repositories.districtRepository.findAll());
+    	List<District> districts = Repositories.districtRepository.findAll();
+        return new ResponseBundle().success(districts);
     }
 
 
@@ -101,7 +102,7 @@ public class DistrictController {
             @ApiImplicitParam(name = "userId", value = "管理员Id", required = true, paramType = "body",
                     dataType = "String"),
     })
-    @PostMapping
+    @PostMapping("/managers")
     public ResponseBundle setAdmin(@RequestBody DistrictManagerForm form) {
         try {
             User manager = Repositories.userRepository.findOne(form.getUserId());
