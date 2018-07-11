@@ -9,12 +9,6 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-	// findbyid用getone
-	// insert和update用saveAndFlush
-	// 查找全部用findAll
-	
-	List<User> findById(Integer id);
-
 	User findByUserName(String userName);
 
 	User findByPhoneNumber(String phoneNumber);
@@ -35,4 +29,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	List<User> findByDistrictIdAndBackup(Integer districtId,Integer backup);
 
 	List<User> findByUserNameOrEmployeeCard(String userName, String employeeCard);
+
+	List<User> findByDistrictIdAndRoleId(Integer districtId, int i);
 }

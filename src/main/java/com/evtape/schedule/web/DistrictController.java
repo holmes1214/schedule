@@ -2,6 +2,8 @@ package com.evtape.schedule.web;
 
 import java.util.List;
 
+import com.evtape.schedule.domain.User;
+import com.evtape.schedule.domain.form.DistrictManagerForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -36,7 +38,7 @@ public class DistrictController {
                     dataType = "string"),
             @ApiImplicitParam(name = "lineNumber", value = "线路号", required = true, paramType = "body",
                     dataType = "String"),
-            @ApiImplicitParam(name = "content", value = "站区说明", required = true, paramType = "body",
+            @ApiImplicitParam(name = "content", value = "站区说明", required = false, paramType = "body",
                     dataType = "string"),
     })
     @PostMapping
@@ -57,7 +59,7 @@ public class DistrictController {
                     dataType = "string"),
             @ApiImplicitParam(name = "lineNumber", value = "线路号", required = true, paramType = "body",
                     dataType = "String"),
-            @ApiImplicitParam(name = "content", value = "站区说明", required = true, paramType = "body",
+            @ApiImplicitParam(name = "content", value = "站区说明", required = false, paramType = "body",
                     dataType = "string"),
     })
     @PutMapping("/{id}")
@@ -88,6 +90,31 @@ public class DistrictController {
             return new ResponseBundle().success(Repositories.districtRepository.findAll());
         } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+        }
+    }
+
+    @ApiOperation(value = "设置站区管理员", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "userId", value = "管理员Id", required = true, paramType = "body",
+                    dataType = "String"),
+    })
+    @PostMapping
+    public ResponseBundle setAdmin(@RequestBody DistrictManagerForm form) {
+        try {
+            User manager = Repositories.userRepository.findOne(form.getUserId());
+            District district = Repositories.districtRepository.findOne(form.getDistrictId());
+            if (!manager.getDistrictId().equals(district.getId())){
+                return new ResponseBundle().failure(ResponseMeta.UN_UNIQUE_DISTRICT);
+            }
+            manager.setRoleId(2);
+            Repositories.userRepository.saveAndFlush(manager);
+            List<User> list = Repositories.userRepository.findByDistrictIdAndRoleId(form.getDistrictId(), 2);
+            district.setManagers(list);
+            return new ResponseBundle().success(district);
+        } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }

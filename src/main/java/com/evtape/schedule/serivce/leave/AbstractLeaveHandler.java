@@ -20,11 +20,11 @@ import java.util.List;
  */
 public abstract class AbstractLeaveHandler implements LeaveHandler {
 
-    protected ScheduleLeave getLeaveInfo(Integer districtId, Integer userId, Integer scheduleInfoId, String desc, String content,Integer type,Integer subType) {
+    protected ScheduleLeave getLeaveInfo(Integer districtId, Integer userId, ScheduleInfo info, String desc, String content,Integer type,Integer subType) {
         ScheduleLeave leave1 = new ScheduleLeave();
         leave1.setComment(content);
         leave1.setDistrictId(districtId);
-        leave1.setScheduleInfoId(scheduleInfoId);
+        leave1.setScheduleInfoId(info.getId());
         leave1.setLeaveDesc(desc);
         leave1.setUserId(userId);
         leave1.setInstead(0);
@@ -32,14 +32,15 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         leave1.setCountOriginal(0);
         leave1.setType(type);
         leave1.setSubType(subType);
+        leave1.setLeaveDateStr(info.getDateStr());
         return leave1;
     }
 
-    protected ScheduleLeave getInsteadInfo(Integer districtId, Integer userId, Integer scheduleInfoId, double workingHours, String desc, String content,Integer type,Integer subType) {
+    protected ScheduleLeave getInsteadInfo(Integer districtId, Integer userId, ScheduleInfo info, double workingHours, String desc, String content,Integer type,Integer subType) {
         ScheduleLeave leave1 = new ScheduleLeave();
         leave1.setComment(content);
         leave1.setDistrictId(districtId);
-        leave1.setScheduleInfoId(scheduleInfoId);
+        leave1.setScheduleInfoId(info.getId());
         leave1.setLeaveDesc(desc);
         leave1.setUserId(userId);
         leave1.setInstead(1);
@@ -47,6 +48,7 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         leave1.setCountOriginal(0);
         leave1.setType(type);
         leave1.setSubType(subType);
+        leave1.setLeaveDateStr(info.getDateStr());
         return leave1;
     }
 
@@ -68,8 +70,8 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         User insteadUser=Repositories.userRepository.findOne(instead);
         info=completeScheduleInfo(info,user,start,dateStr);
         info2=completeScheduleInfo(info2,insteadUser,start,dateStr);
-        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), content,type,subType);
-        ScheduleLeave leave2 = getInsteadInfo(schedule.getDistrictId(), instead, info2.getId(), schedule.getWorkingHours(), conf.getDescription(), content,type,subType);
+        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info, conf.getDescription(), content,type,subType);
+        ScheduleLeave leave2 = getInsteadInfo(schedule.getDistrictId(), instead, info2, schedule.getWorkingHours(), conf.getDescription(), content,type,subType);
 
         result.add(leave1);
         result.add(leave2);

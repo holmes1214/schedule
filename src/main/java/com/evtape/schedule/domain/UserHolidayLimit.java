@@ -11,28 +11,32 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@Table(name="biz_schedule_user",indexes = {
-		@Index(name="IDX_DISTRICT_ID", columnList="districtId,stationId"),
-		@Index(name="IDX_SUITE_ID", columnList="districtId,suiteId"),
-		@Index(name="IDX_POSITION_ID", columnList="districtId,positionId"),
-		@Index(name="IDX_WEEKNUM_ID", columnList="suiteId,weekNum", unique = true),
-		@Index(name="IDX_USER_ID", columnList="suiteId,userId", unique = true)
+@Table(name="biz_user_holiday",indexes = {
+		@Index(name="IDX_LINE_NUMBER", columnList="yearStr,districtId"),
 })
 public class UserHolidayLimit {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
+
+	private String lineNumber;
 	
 	private Integer districtId;
 
+	private String districtName;
+
 	private Integer stationId;
+
+	private String stationName;
 
 	private Integer positionId;
 
 	private Integer leaveType;
 
 	private Integer userId;
+
+	private String userName;
 
 	private String yearStr;
 

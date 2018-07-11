@@ -34,6 +34,8 @@ public class ScheduleLeave {
 
 	private Integer userId;
 
+	private String leaveDateStr;
+
 	//是否替班
 	private Integer instead;
 	//是否计算原工时

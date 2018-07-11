@@ -16,4 +16,7 @@ public interface ScheduleLeaveRepository extends JpaRepository<ScheduleLeave, In
     @Modifying
     @Query("delete from ScheduleLeave where scheduleInfoId=?1")
     void deleteByScheduleInfoId(Integer scheduleInfoId);
+
+    @Query("select count(1) from ScheduleLeave where leaveType=1 and subType=1 and userId=?1 and leaveDateStr >= dateStr")
+    long countAnnualLeave(Integer userId, String dateStr);
 }
