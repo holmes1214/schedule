@@ -61,6 +61,10 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         String dateStr = getLeaveDateStr(start);
         ScheduleInfo info = Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId, dateStr);
         ScheduleInfo info2 = Repositories.scheduleInfoRepository.findByUserIdAndDateStr(instead, dateStr);
+        User user=Repositories.userRepository.findOne(userId);
+        User insteadUser=Repositories.userRepository.findOne(instead);
+        info=completeScheduleInfo(info,user,start,dateStr);
+        info2=completeScheduleInfo(info2,insteadUser,start,dateStr);
         ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), content);
         ScheduleLeave leave2 = getInsteadInfo(schedule.getDistrictId(), instead, info2.getId(), schedule.getWorkingHours(), conf.getDescription(), content);
 
@@ -78,8 +82,25 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         return result;
     }
 
+    private ScheduleInfo completeScheduleInfo(ScheduleInfo info, User user, Date start, String dateStr) {
+        if (info!=null){
+            return info;
+        }
+        info=new ScheduleInfo();
+        info.setDistrictId(user.getDistrictId());
+        info.setUserId(user.getId());
+        info.setWorkingHours(0d);
+        info.setDateStr(dateStr);
+        info.setScheduleDate(start);
+        info.setStationId(user.getStationId());
+        info.setPositionId(user.getPositionId());
+        info.setPositionName(user.getPositionName());
+        Repositories.scheduleInfoRepository.save(info);
+        return info;
+    }
+
     public static Date getLeaveDate(String dateStr) {
-        DateFormat df = new SimpleDateFormat("yyyyMMdd");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         try {
             return df.parse(dateStr);
         } catch (ParseException e) {
@@ -88,7 +109,7 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
     }
 
     public static String getLeaveDateStr(Date date) {
-        DateFormat df = new SimpleDateFormat("yyyyMMdd");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         return df.format(date);
     }
 }

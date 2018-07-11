@@ -21,14 +21,14 @@ import com.evtape.schedule.persistent.Repositories;
 public class PositionController {
 
 
-    @ApiOperation(value = "根据站点id获取岗位列表", produces = "application/json")
-    @ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "query",
+    @ApiOperation(value = "根据站区id获取岗位列表", produces = "application/json")
+    @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "query",
             dataType = "int")
     @ResponseBody
     @GetMapping
-    public ResponseBundle positionList(@RequestParam("stationId") Integer stationId) {
+    public ResponseBundle positionList(@RequestParam("districtId") Integer districtId) {
         try {
-            return new ResponseBundle().success(Repositories.positionRepository.findByStationId(stationId));
+            return new ResponseBundle().success(Repositories.positionRepository.findByDistrictId(districtId));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
@@ -40,8 +40,6 @@ public class PositionController {
                     dataType = "string"),
             @ApiImplicitParam(name = "districtId", value = "所属站区id", required = true, paramType = "body",
                     dataType = "integer"),
-            @ApiImplicitParam(name = "stationId", value = "所属站点id", required = true, paramType = "body",
-                    dataType = "integer"),
             @ApiImplicitParam(name = "backupPosition", value = "是否有备班(1备班，0正常)", required = true, paramType = "body",
                     dataType = "integer"),
     })
@@ -51,7 +49,7 @@ public class PositionController {
         try {
             Repositories.positionRepository.saveAndFlush(position);
             return new ResponseBundle()
-                    .success(Repositories.positionRepository.findByStationId(position.getStationId()));
+                    .success(Repositories.positionRepository.findByDistrictId(position.getDistrictId()));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
@@ -66,8 +64,6 @@ public class PositionController {
                     dataType = "string"),
             @ApiImplicitParam(name = "districtId", value = "所属站区id", required = true, paramType = "body",
                     dataType = "integer"),
-            @ApiImplicitParam(name = "stationId", value = "所属站点id", required = true, paramType = "body",
-                    dataType = "integer"),
             @ApiImplicitParam(name = "backupPosition", value = "是否有备班(1备班，0正常)", required = true, paramType = "body",
                     dataType = "integer"),
     })
@@ -79,10 +75,9 @@ public class PositionController {
             position.setBackupPosition(form.getBackupPosition());
             position.setDistrictId(form.getDistrictId());
             position.setPositionName(form.getPositionName());
-            position.setStationId(form.getStationId());
             Repositories.positionRepository.saveAndFlush(position);
             return new ResponseBundle()
-                    .success(Repositories.positionRepository.findByStationId(form.getStationId()));
+                    .success(Repositories.positionRepository.findByDistrictId(form.getDistrictId()));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
@@ -98,7 +93,7 @@ public class PositionController {
             Position position = Repositories.positionRepository.findOne(positionId);
             Repositories.positionRepository.delete(positionId);
             return new ResponseBundle()
-                    .success(Repositories.positionRepository.findByStationId(position.getStationId()));
+                    .success(Repositories.positionRepository.findByDistrictId(position.getDistrictId()));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }

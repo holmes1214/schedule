@@ -28,7 +28,7 @@ public class ScheduleInfo {
 
 	private Integer positionId;
 
-	private Integer positionName;
+	private String positionName;
 
 	private Integer dutySuiteId;
 

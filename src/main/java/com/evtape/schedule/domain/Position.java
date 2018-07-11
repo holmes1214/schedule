@@ -27,10 +27,6 @@ public class Position {
 	 */
 	private Integer districtId;
 	/**
-	 * 冗余：user表中含站点id
-	 */
-	private Integer stationId;
-	/**
 	 * 是否是补位岗，补位岗是挂在站区下面的，不挂在站下面，1补位，0正常
 	 */
 	private Integer backupPosition;
