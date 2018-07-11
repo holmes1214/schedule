@@ -1,11 +1,10 @@
 package com.evtape.schedule.serivce.leave;
 
-import com.evtape.schedule.domain.LeaveDaySet;
-import com.evtape.schedule.domain.ScheduleInfo;
-import com.evtape.schedule.domain.ScheduleLeave;
-import com.evtape.schedule.domain.User;
+import com.evtape.schedule.consts.Constants;
+import com.evtape.schedule.domain.*;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.persistent.UserRepository;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -89,27 +88,32 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         info=new ScheduleInfo();
         info.setDistrictId(user.getDistrictId());
         info.setUserId(user.getId());
+        info.setUserName(user.getUserName());
         info.setWorkingHours(0d);
         info.setDateStr(dateStr);
         info.setScheduleDate(start);
         info.setStationId(user.getStationId());
         info.setPositionId(user.getPositionId());
         info.setPositionName(user.getPositionName());
+        info.setCreateDate(new Date());
         Repositories.scheduleInfoRepository.save(info);
+        info.setModified(0);
+        info.setDutyName("休");
+        info.setWorkingHours(0d);
         return info;
     }
 
     public static Date getLeaveDate(String dateStr) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
         try {
             return df.parse(dateStr);
         } catch (ParseException e) {
         }
-        return new Date(0);
+        return new Date();
     }
 
     public static String getLeaveDateStr(Date date) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
         return df.format(date);
     }
 }

@@ -19,12 +19,10 @@ public interface ScheduleInfoRepository extends JpaRepository<ScheduleInfo, Inte
     @Query("delete from ScheduleInfo where suiteId=?1 ")
     void deleteBySuiteId(Integer suiteId);
     
-    List<ScheduleInfo> findBySuiteId(Integer suiteId);
-
     ScheduleInfo findByUserIdAndDateStr(Integer userId, String dateStr);
 
     @Query("from ScheduleInfo where userId=?1 and dateStr>=?2")
-    List<ScheduleInfo> findByUserWorkLeft(Integer userId, String dateStr);
+    List<ScheduleInfo> findByUserWorkLeft(Integer userId, Date dateStr);
 
     @Query("from ScheduleInfo where scheduleDate>=?1 and scheduleDate<?2 and userId in (?3)")
     List<ScheduleInfo> findByUserIds(Date startDate, Date endDate, List<Integer> collect);

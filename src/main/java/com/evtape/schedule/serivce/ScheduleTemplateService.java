@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.transaction.Transactional;
 
+import com.evtape.schedule.consts.Constants;
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.*;
 import com.evtape.schedule.exception.BaseException;
@@ -90,11 +91,11 @@ public class ScheduleTemplateService {
             template.setDistrictId(dutyClass.getDistrictId());
             template.setPositionId(dutyClass.getPositionId());
             template.setStationId(dutyClass.getStationId());
-            template.setOrderIndex(weekNum * 7 + dayNum);
+            template.setOrderIndex(weekNum * Constants.WEEK_DAYS + dayNum);
         }
         template.setClassId(template.getClassId());
         template.setCellColor(dutyClass.getClassColor());
-        template.setOrderIndex(weekNum * 7 + dayNum);
+        template.setOrderIndex(weekNum * Constants.WEEK_DAYS + dayNum);
         template.setWorkingLength(dutyClass.getWorkingLength());
         if (workflows.size() > 0) {
             int index = (int) (count % dutyClass.getUserCount());
@@ -127,7 +128,7 @@ public class ScheduleTemplateService {
     public void setDateInfo(ScheduleTemplate template, Integer week, Integer day) {
         template.setWeekNum(week);
         template.setDayNum(day);
-        template.setOrderIndex(week * 7 + day);
+        template.setOrderIndex(week * Constants.WEEK_DAYS + day);
     }
 
     /**
@@ -158,53 +159,59 @@ public class ScheduleTemplateService {
      */
     @Transactional
     public List<ScheduleInfo> createScheduleInfoData(Integer suiteId, String dateStr) throws ParseException {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
         Date from = df.parse(dateStr);
         Date now = new Date();
         List<ScheduleUser> users = Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
         List<ScheduleTemplate> templates = Repositories.scheduleTemplateRepository.findBySuiteIdOrderByOrderIndex(suiteId);
+        int weeks=templates.stream().mapToInt(t->t.getWeekNum()).max().getAsInt();
+
+
+        Map<Integer, ScheduleTemplate> scheduleMap = templates.stream().collect(Collectors.toMap(ScheduleTemplate::getOrderIndex, t -> t));
         Repositories.scheduleInfoRepository.deleteBySuiteId(suiteId);
         List<ScheduleInfo> result = new ArrayList<>();
-        int weeks=templates.stream().mapToInt(t->t.getWeekNum()).max().getAsInt();
-        users.forEach(u -> templates.forEach(t -> {
-            Date date = getDayStr( from, u.getWeekNum(), t.getWeekNum(), t.getDayNum(), weeks);
-            ScheduleInfo info = new ScheduleInfo();
-            info.setDistrictId(t.getDistrictId());
-            info.setSuiteId(t.getSuiteId());
-            info.setPositionId(t.getPositionId());
-            info.setStationId(t.getStationId());
-            info.setDutyClassId(t.getClassId());
-            info.setUserId(u.getUserId());
-            info.setCellColor(t.getCellColor());
-            info.setWorkingHours(t.getWorkingLength().doubleValue()/60);
-            info.setUserName(u.getUserName());
-            info.setCreateDate(now);
-            info.setScheduleDate(date);
-            info.setDateStr(df.format(date));
-            DutyClass dutyClass = Repositories.dutyClassRepository.findOne(t.getClassId());
-            if (t.getWorkflowId() != null) {
-                ScheduleWorkflow workflow = Repositories.workflowRepository.findOne(t.getWorkflowId());
-                info.setWorkflowId(t.getWorkflowId());
-                info.setWorkflowCode(workflow.getCode());
+        users.forEach(u ->{
+            List<ScheduleInfo> userLeft = Repositories.scheduleInfoRepository.findByUserWorkLeft(u.getUserId(), from);
+            Repositories.scheduleInfoRepository.delete(userLeft);
+            for(int i=u.getWeekNum()*Constants.WEEK_DAYS;i<(u.getWeekNum()+weeks)*Constants.WEEK_DAYS;i++){
+                ScheduleTemplate t = scheduleMap.get(i%(weeks*Constants.WEEK_DAYS));
+                ScheduleInfo info = new ScheduleInfo();
+                info.setDistrictId(u.getDistrictId());
+                info.setPositionId(u.getPositionId());
+                info.setStationId(u.getStationId());
+                info.setUserName(u.getUserName());
+                info.setUserId(u.getUserId());
+                info.setCreateDate(now);
+                info.setScheduleDate(DateUtils.addDays(from,i-u.getWeekNum()*7));
+                info.setDateStr(df.format(info.getScheduleDate()));
+                info.setModified(0);
+                if (t!=null){
+                    info.setSuiteId(t.getSuiteId());
+                    info.setDutyClassId(t.getClassId());
+                    info.setCellColor(t.getCellColor());
+                    info.setWorkingHours(t.getWorkingLength().doubleValue()/60);
+                    DutyClass dutyClass = Repositories.dutyClassRepository.findOne(t.getClassId());
+                    if (t.getWorkflowId() != null) {
+                        ScheduleWorkflow workflow = Repositories.workflowRepository.findOne(t.getWorkflowId());
+                        info.setWorkflowId(t.getWorkflowId());
+                        info.setWorkflowCode(workflow.getCode());
+                    }
+                    info.setDutyName(dutyClass.getDutyName());
+                    info.setDutyCode(dutyClass.getDutyCode());
+                }else {
+                    info.setDutyName("休");
+                    info.setWorkingHours(0d);
+                }
+                result.add(info);
             }
-            info.setDutyName(dutyClass.getDutyName());
-            info.setDutyCode(dutyClass.getDutyCode());
-            info.setModified(0);
-            info.setUserId(u.getUserId());
-            result.add(info);
-        }));
+        });
         Repositories.scheduleInfoRepository.save(result);
         return result;
     }
 
-    private Date getDayStr( Date date, Integer weekNum, Integer weekNum1, Integer dayNum, int totalWeeks) {
-        int days = ((weekNum1 + totalWeeks - weekNum) % totalWeeks) * 7 + dayNum;
-        return DateUtils.addDays(date, days);
-    }
-
     public List<ScheduleInfo> searchScheduleInfo(String startDateStr, String endDateStr, Integer districtId, Integer stationId, Integer positionId, String userName) throws ParseException {
         List<ScheduleInfo> result;
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
         if (StringUtils.isNotBlank(userName)) {
             List<User> users = Repositories.userRepository.findByUserNameOrEmployeeCard(userName, userName);
             result = Repositories.scheduleInfoRepository.findByUserIds(df.parse(startDateStr), df.parse(endDateStr), users.stream().map(User::getId).collect(Collectors.toList()));

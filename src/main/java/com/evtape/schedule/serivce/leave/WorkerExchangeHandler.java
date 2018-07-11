@@ -35,8 +35,7 @@ public class WorkerExchangeHandler extends TrainingTaskHandler implements LeaveH
 
         Date start = getLeaveDate(startDate);
         List<ScheduleLeave> result = new ArrayList<>();
-        String dateStr = getLeaveDateStr(start);
-        List<ScheduleInfo> infoList = Repositories.scheduleInfoRepository.findByUserWorkLeft(userId, dateStr);
+        List<ScheduleInfo> infoList = Repositories.scheduleInfoRepository.findByUserWorkLeft(userId, start);
         infoList.forEach(i->i.setUserId(instead));
 
 
