@@ -12,7 +12,6 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +21,12 @@ import java.util.Map;
  * Created by holmes1214 on 2018/5/12.
  */
 @Api(value = "请假接口")
-@Controller
-@RequestMapping("/leave")
+@RestController
+@RequestMapping(value = "/leave", produces = "application/json;charset=UTF-8")
 public class LeaveController {
 
     private static Logger logger = LoggerFactory.getLogger(LeaveController.class);
+
     @Autowired
     private Map<String, LeaveHandler> handlerMap;
 
@@ -45,34 +45,33 @@ public class LeaveController {
             @ApiImplicitParam(name = "content", value = "备注", required = true, paramType = "query",
                     dataType = "String"),
     })
-    @ResponseBody
     @PostMapping
-    public Object leave(@RequestParam("scheduleInfoId") Integer scheduleInfoId,@RequestParam("leaveType") Integer leaveType,@RequestParam("instead") Integer instead,
-                                      @RequestParam("subType") Integer subType,@RequestParam("leaveCount") Double leaveCount,@RequestParam("content") String content){
-        String handlerName="handler_leave"+leaveType+"_sub"+subType;
+    public ResponseBundle leave(@RequestParam("scheduleInfoId") Integer scheduleInfoId, @RequestParam("leaveType")
+            Integer leaveType, @RequestParam("instead") Integer instead,
+                                @RequestParam("subType") Integer subType, @RequestParam("leaveCount") Double
+                                        leaveCount, @RequestParam("content") String content) {
+        String handlerName = "handler_leave" + leaveType + "_sub" + subType;
         try {
-            List<ScheduleLeave> scheduleLeaves = handlerMap.get(handlerName).processLeaveHours(scheduleInfoId, leaveCount,instead,content,leaveType,subType);
+            List<ScheduleLeave> scheduleLeaves = handlerMap.get(handlerName).processLeaveHours(scheduleInfoId,
+                    leaveCount, instead, content, leaveType, subType);
             return new ResponseBundle().success(scheduleLeaves);
-        }catch (Exception e){
-            logger.error("error: ",e);
-            return new ResponseBundle().failure(ResponseMeta.BAD_REQUEST,e.getMessage());
+        } catch (Exception e) {
+            logger.error("error: ", e);
+            return new ResponseBundle().failure(ResponseMeta.BAD_REQUEST, e.getMessage());
         }
     }
 
     @ApiOperation(value = "取消离岗", produces = "application/json")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "scheduleInfoId", value = "请假当天排班id", required = true, paramType = "body",
-                    dataType = "int"),
-    })
-    @ResponseBody
+    @ApiImplicitParam(name = "scheduleInfoId", value = "请假当天排班id", required = true, paramType = "body",
+            dataType = "int")
     @PutMapping
-    public Object leave(@RequestBody Integer scheduleInfoId){
+    public ResponseBundle leave(@RequestBody Integer scheduleInfoId) {
         try {
             Repositories.scheduleLeaveRepository.deleteByScheduleInfoId(scheduleInfoId);
             return new ResponseBundle().success();
-        }catch (Exception e){
-            logger.error("error: ",e);
-            return new ResponseBundle().failure(ResponseMeta.BAD_REQUEST,e.getMessage());
+        } catch (Exception e) {
+            logger.error("error: ", e);
+            return new ResponseBundle().failure(ResponseMeta.BAD_REQUEST, e.getMessage());
         }
     }
 }
