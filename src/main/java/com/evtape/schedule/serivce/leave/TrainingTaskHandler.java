@@ -38,7 +38,7 @@ public class TrainingTaskHandler extends AbstractLeaveHandler implements LeaveHa
         List<ScheduleInfo> modifiedSchedule = new ArrayList<>();
         String dateStr = getLeaveDateStr(start);
         ScheduleInfo info = Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId, dateStr);
-        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), content);
+        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), content,type,subType);
         leave1.setLeaveHours(leaveCount);
         leave1.setCountOriginal(1);
         result.add(leave1);

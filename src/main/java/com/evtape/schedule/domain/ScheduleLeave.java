@@ -22,6 +22,10 @@ public class ScheduleLeave {
 
 	private Integer scheduleInfoId;
 
+	private Integer type;
+
+	private Integer subType;
+
 	private Double leaveHours;
 
 	private String comment;

@@ -5,14 +5,9 @@ import com.evtape.schedule.domain.ScheduleInfo;
 import com.evtape.schedule.domain.ScheduleLeave;
 import com.evtape.schedule.domain.User;
 import com.evtape.schedule.persistent.Repositories;
-import com.evtape.schedule.persistent.UserRepository;
-import com.evtape.schedule.util.DateUtil;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,9 +47,9 @@ public class AnnualLeaveHandler extends AbstractLeaveHandler implements LeaveHan
             User insteadUser=Repositories.userRepository.findOne(instead);
             info=completeScheduleInfo(info,user,start,dateStr);
             info2=completeScheduleInfo(info2,insteadUser,start,dateStr);
-            ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), content);
+            ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info.getId(), conf.getDescription(), content,type,subType);
             leave1.setLeaveHours(8d);
-            ScheduleLeave leave2=getInsteadInfo(schedule.getDistrictId(),instead,info2.getId(),schedule.getWorkingHours(),conf.getDescription(),content);
+            ScheduleLeave leave2=getInsteadInfo(schedule.getDistrictId(),instead,info2.getId(),schedule.getWorkingHours(),conf.getDescription(),content,type,subType);
             result.add(leave1);
             result.add(leave2);
 
