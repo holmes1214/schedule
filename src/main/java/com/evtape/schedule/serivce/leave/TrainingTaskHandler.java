@@ -14,11 +14,11 @@ import java.util.List;
  * Created by holmes1214 on 2018/5/12.
  */
 @Service("handler_leave4_sub1")
-public class RandomTaskHandler extends AbstractLeaveHandler implements LeaveHandler {
+public class TrainingTaskHandler extends AbstractLeaveHandler implements LeaveHandler {
 
 
     /**
-     * 临时安排
+     * 临时安排-培训
      *
      * @param scheduleInfoId
      * @param leaveCount

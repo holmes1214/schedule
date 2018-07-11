@@ -29,7 +29,11 @@ public class DataInitService {
         checkLeaveDaySetData(2,13,"假期编辑" ,"出差假","出差假");
         checkLeaveDaySetData(2,14,"假期编辑" ,"调休","调休");
         checkLeaveDaySetData(3,1,"班次变更" ,"","班次变更");
-        checkLeaveDaySetData(4,1,"临时安排" ,"","临时安排");
+        checkLeaveDaySetData(4,1,"临时安排" ,"培训","临时安排");
+        checkLeaveDaySetData(4,2,"临时安排" ,"演练","临时安排");
+        checkLeaveDaySetData(4,3,"临时安排" ,"会议","临时安排");
+        checkLeaveDaySetData(4,4,"临时安排" ,"活动","临时安排");
+        checkLeaveDaySetData(4,5,"临时安排" ,"考试","临时安排");
         checkLeaveDaySetData(5,1,"旷工缺勤" ,"","旷工缺勤");
         checkLeaveDaySetData(6,1,"加班补班" ,"","加班补班");
         checkLeaveDaySetData(7,1,"替班" ,"","替班");
