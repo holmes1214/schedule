@@ -178,6 +178,8 @@ public class DutyController {
             DutyPeriodChecking p = Repositories.dutyPeriodCheckingRepository.findOne(period.getId());
             p.setEndTime(getTime(period.getEndTimeStr()));
             p.setStartTime(getTime(period.getStartTimeStr()));
+            p.setStartTimeStr(period.getStartTimeStr());
+            p.setEndTimeStr(period.getEndTimeStr());
             p.setUserCount(period.getUserCount());
             Repositories.dutyPeriodCheckingRepository.saveAndFlush(p);
             return new ResponseBundle().success(p);

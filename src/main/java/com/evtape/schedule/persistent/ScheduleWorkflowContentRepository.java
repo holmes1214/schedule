@@ -12,4 +12,5 @@ public interface ScheduleWorkflowContentRepository extends JpaRepository<Schedul
 	
 	List<ScheduleWorkflowContent> findByWorkFlowId(Integer workFlowId);
 
+    List<ScheduleWorkflowContent> findByDistrictId(Integer districtId);
 }

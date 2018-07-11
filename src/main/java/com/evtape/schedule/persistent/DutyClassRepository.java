@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface DutyClassRepository extends JpaRepository<DutyClass, Integer> {
 	List<DutyClass> findBySuiteId(Integer suiteId);
 
+    List<DutyClass> findByDistrictId(Integer districtId);
 }

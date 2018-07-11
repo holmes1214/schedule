@@ -12,4 +12,6 @@ public interface ScheduleWorkflowRepository extends JpaRepository<ScheduleWorkfl
     List<ScheduleWorkflow> findBySuiteIdAndClassId(Integer dutySuiteId, Integer dutyClassId);
 
     List<ScheduleWorkflow> findBySuiteId(Integer suiteId);
+
+    List<ScheduleWorkflow> findByDistrictId(Integer districtId);
 }

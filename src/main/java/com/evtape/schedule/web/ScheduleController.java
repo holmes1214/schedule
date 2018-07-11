@@ -12,6 +12,7 @@ import com.evtape.schedule.exception.BaseException;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.serivce.ScheduleTemplateService;
 import com.evtape.schedule.serivce.WorkflowService;
+import com.evtape.schedule.util.PictureUtil;
 import com.evtape.schedule.web.auth.Identity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -261,6 +263,48 @@ public class ScheduleController {
         } catch (Exception e) {
             logger.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+        }
+    }
+    @ApiOperation(value = "导出个人排班计划", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "startDateStr", value = "开始时间", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "endDateStr", value = "结束时间", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "stationId", value = "站点id", required = false, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "positionId", value = "岗位id", required = false, paramType = "query", dataType = "Integer"),
+            @ApiImplicitParam(name = "userName", value = "姓名编号", required = false, paramType = "query", dataType = "String"),
+    })
+    @GetMapping("/scheduleinfo/export/img")
+    @RequiresAuthentication
+    public void exportImage(@Identity String phoneNumber, @RequestParam("startDateStr") String startDateStr,
+                                      @RequestParam("endDateStr") String endDateStr, @RequestParam(value = "stationId",required = false) Integer stationId,
+                                      @RequestParam(value = "positionId",required = false) Integer positionId,
+                                      @RequestParam(value = "userName",required = false) String userName, HttpServletResponse response) {
+        User user = Repositories.userRepository.findByPhoneNumber(phoneNumber);
+        try {
+            List<ScheduleInfo> list= scheduleTemplateService.searchScheduleInfo(startDateStr,endDateStr,user.getDistrictId(),user.getStationId(),positionId,userName);
+            List<User> userList=Repositories.userRepository.findByDistrictId(user.getDistrictId());
+            Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, u -> u));
+            Map<User,List<ScheduleInfo>> scheduleMap=new HashMap<>();
+            list.forEach(i->{
+                User u = userMap.get(i.getUserId());
+                if (u.getScheduleInfoList()==null){
+                    u.setScheduleInfoList(new ArrayList<>());
+                    scheduleMap.put(u,u.getScheduleInfoList());
+                }
+                u.getScheduleInfoList().add(i);
+            });
+            scheduleMap.values().forEach(l->{
+                l.stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
+            });
+            List<DutyClass> classList=Repositories.dutyClassRepository.findByDistrictId(user.getDistrictId());
+            Map<Integer, DutyClass> shiftMap=classList.stream().collect(Collectors.toMap(DutyClass::getId,d->d));
+            List<ScheduleWorkflow> workflowList=Repositories.workflowRepository.findByDistrictId(user.getDistrictId());
+            Map<Integer, List<ScheduleWorkflow>> workflowMap=workflowList.stream().collect(Collectors.groupingBy(ScheduleWorkflow::getClassId));;
+            List<ScheduleWorkflowContent> contentList=Repositories.contentRepository.findByDistrictId(user.getDistrictId());
+            Map<Integer, List<ScheduleWorkflowContent>> contentMap=contentList.stream().collect(Collectors.groupingBy(ScheduleWorkflowContent::getWorkFlowId));
+            PictureUtil.createUserSchedulePicture(scheduleMap,shiftMap,workflowMap,contentMap,response.getOutputStream());
+        } catch (Exception e) {
+            logger.error("error:", e);
         }
     }
 

@@ -42,6 +42,8 @@ public class ScheduleInfo {
 
 	private String dutyCode;
 
+	private String cellColor;
+
 	private Integer userId;
 
 	private String userName;

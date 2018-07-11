@@ -175,6 +175,8 @@ public class ScheduleTemplateService {
             info.setStationId(t.getStationId());
             info.setDutyClassId(t.getClassId());
             info.setUserId(u.getUserId());
+            info.setCellColor(t.getCellColor());
+            info.setWorkingHours(t.getWorkingLength().doubleValue()/60);
             info.setUserName(u.getUserName());
             info.setCreateDate(now);
             info.setScheduleDate(date);
