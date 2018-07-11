@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@Table(name = "biz_position", indexes = { @Index(name = "IDX_DISTRICT_ID", columnList = "districtId,stationId") })
+@Table(name = "biz_position", indexes = { @Index(name = "IDX_DISTRICT_ID", columnList = "districtId") })
 public class Position {
 
 	@Id
