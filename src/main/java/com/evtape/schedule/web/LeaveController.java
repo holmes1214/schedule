@@ -2,6 +2,7 @@ package com.evtape.schedule.web;
 
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.ScheduleLeave;
+import com.evtape.schedule.domain.form.LeaveForm;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.serivce.leave.LeaveHandler;
@@ -32,28 +33,25 @@ public class LeaveController {
 
     @ApiOperation(value = "请假", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "scheduleInfoId", value = "请假当天排班id", required = true, paramType = "query",
+            @ApiImplicitParam(name = "scheduleInfoId", value = "请假当天排班id", required = true, paramType = "body",
                     dataType = "int"),
-            @ApiImplicitParam(name = "leaveType", value = "请假字典类别", required = true, paramType = "query",
+            @ApiImplicitParam(name = "leaveType", value = "请假字典类别", required = true, paramType = "body",
                     dataType = "int"),
-            @ApiImplicitParam(name = "instead", value = "替换人/班 id", required = false, paramType = "query",
+            @ApiImplicitParam(name = "instead", value = "替换人/班 id", required = false, paramType = "body",
                     dataType = "int"),
-            @ApiImplicitParam(name = "subType", value = "请假字典子类别", required = true, paramType = "query",
+            @ApiImplicitParam(name = "subType", value = "请假字典子类别", required = true, paramType = "body",
                     dataType = "int"),
-            @ApiImplicitParam(name = "leaveCount", value = "离岗时间，天或小时", required = true, paramType = "query",
+            @ApiImplicitParam(name = "leaveCount", value = "离岗时间，天或小时", required = true, paramType = "body",
                     dataType = "double"),
-            @ApiImplicitParam(name = "content", value = "备注", required = true, paramType = "query",
+            @ApiImplicitParam(name = "content", value = "备注", required = true, paramType = "body",
                     dataType = "String"),
     })
     @PostMapping
-    public ResponseBundle leave(@RequestParam("scheduleInfoId") Integer scheduleInfoId, @RequestParam("leaveType")
-            Integer leaveType, @RequestParam("instead") Integer instead,
-                                @RequestParam("subType") Integer subType, @RequestParam("leaveCount") Double
-                                        leaveCount, @RequestParam("content") String content) {
-        String handlerName = "handler_leave" + leaveType + "_sub" + subType;
+    public ResponseBundle leave(@RequestBody LeaveForm form ) {
+        String handlerName = "handler_leave" + form.getLeaveType() + "_sub" + form.getSubType();
         try {
-            List<ScheduleLeave> scheduleLeaves = handlerMap.get(handlerName).processLeaveHours(scheduleInfoId,
-                    leaveCount, instead, content, leaveType, subType);
+            List<ScheduleLeave> scheduleLeaves = handlerMap.get(handlerName).processLeaveHours(form.getScheduleInfoId(),
+                    form.getLeaveCount(), form.getInstead(), form.getContent(), form.getLeaveType(), form.getSubType());
             return new ResponseBundle().success(scheduleLeaves);
         } catch (Exception e) {
             logger.error("error: ", e);
@@ -65,9 +63,9 @@ public class LeaveController {
     @ApiImplicitParam(name = "scheduleInfoId", value = "请假当天排班id", required = true, paramType = "body",
             dataType = "int")
     @PutMapping
-    public ResponseBundle leave(@RequestBody Integer scheduleInfoId) {
+    public ResponseBundle cancelLeave(@RequestBody LeaveForm form) {
         try {
-            Repositories.scheduleLeaveRepository.deleteByScheduleInfoId(scheduleInfoId);
+            Repositories.scheduleLeaveRepository.deleteByScheduleInfoId(form.getScheduleInfoId());
             return new ResponseBundle().success();
         } catch (Exception e) {
             logger.error("error: ", e);
