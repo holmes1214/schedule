@@ -18,7 +18,7 @@ public class District {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 
-	private Integer lineNumber;
+	private String lineNumber;
 	/**
 	 * 站区名
 	 */
