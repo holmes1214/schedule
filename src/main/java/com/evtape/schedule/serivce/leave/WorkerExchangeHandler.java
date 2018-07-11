@@ -15,7 +15,7 @@ import java.util.List;
  * Created by holmes1214 on 2018/5/12.
  */
 @Service("handler_leave8_sub1")
-public class WorkerExchangeHandler extends RandomTaskHandler implements LeaveHandler {
+public class WorkerExchangeHandler extends TrainingTaskHandler implements LeaveHandler {
 
 
     /**
