@@ -21,5 +21,5 @@ public interface ScheduleLeaveRepository extends JpaRepository<ScheduleLeave, In
     long countAnnualLeave(Integer userId, String dateStr);
 
     @Query("select count(1) from ScheduleLeave where leaveType=2 and subType=1 and userId=?1 and leaveDateStr >= dateStr")
-    long countSickLeave(Integer userId, String s);
+    long countSickLeave(Integer userId, String dateStr);
 }

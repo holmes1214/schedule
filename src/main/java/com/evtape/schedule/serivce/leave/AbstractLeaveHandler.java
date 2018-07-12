@@ -102,10 +102,10 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         info.setPositionId(user.getPositionId());
         info.setPositionName(user.getPositionName());
         info.setCreateDate(new Date());
-        Repositories.scheduleInfoRepository.save(info);
         info.setModified(0);
         info.setDutyName("休");
         info.setWorkingHours(0d);
+        Repositories.scheduleInfoRepository.save(info);
         return info;
     }
 
