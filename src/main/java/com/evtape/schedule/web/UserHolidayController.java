@@ -57,7 +57,7 @@ public class UserHolidayController {
     }
 
     @ApiOperation(value = "获取用户剩余病假", produces = "application/json")
-    @GetMapping("/sickleaf//{userId}")
+    @GetMapping("/sickleaf/{userId}")
     public ResponseBundle getSickLeave(@PathVariable("userId") Integer userId) throws ParseException {
         int year = Calendar.getInstance().get(Calendar.YEAR);
         DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);

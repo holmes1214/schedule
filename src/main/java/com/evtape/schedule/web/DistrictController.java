@@ -1,5 +1,6 @@
 package com.evtape.schedule.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.evtape.schedule.domain.User;
@@ -105,13 +106,19 @@ public class DistrictController {
     @PostMapping("/managers")
     public ResponseBundle setAdmin(@RequestBody DistrictManagerForm form) {
         try {
-            User manager = Repositories.userRepository.findOne(form.getUserId());
             District district = Repositories.districtRepository.findOne(form.getDistrictId());
-            if (!manager.getDistrictId().equals(district.getId())){
-                return new ResponseBundle().failure(ResponseMeta.UN_UNIQUE_DISTRICT);
+            String[] userids=form.getUserId().split(",");
+            List<User> managerList=new ArrayList<>();
+            for(String uid:userids){
+                int userId = Integer.parseInt(uid);
+                User manager = Repositories.userRepository.findOne(userId);
+                if (!manager.getDistrictId().equals(district.getId())){
+                    return new ResponseBundle().failure(ResponseMeta.UN_UNIQUE_DISTRICT);
+                }
+                manager.setRoleId(2);
+                managerList.add(manager);
             }
-            manager.setRoleId(2);
-            Repositories.userRepository.saveAndFlush(manager);
+            Repositories.userRepository.save(managerList);
             List<User> list = Repositories.userRepository.findByDistrictIdAndRoleId(form.getDistrictId(), 2);
             district.setManagers(list);
             return new ResponseBundle().success(district);

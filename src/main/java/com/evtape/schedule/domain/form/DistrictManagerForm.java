@@ -13,5 +13,5 @@ import lombok.ToString;
 public class DistrictManagerForm {
     private Integer districtId;
 
-    private Integer userId;
+    private String userId;
 }
