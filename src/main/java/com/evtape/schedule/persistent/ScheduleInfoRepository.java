@@ -21,7 +21,7 @@ public interface ScheduleInfoRepository extends JpaRepository<ScheduleInfo, Inte
     
     ScheduleInfo findByUserIdAndDateStr(Integer userId, String dateStr);
 
-    @Query("from ScheduleInfo where userId=?1 and dateStr>=?2")
+    @Query("from ScheduleInfo where userId=?1 and scheduleDate>=?2")
     List<ScheduleInfo> findByUserWorkLeft(Integer userId, Date dateStr);
 
     @Query("from ScheduleInfo where scheduleDate>=?1 and scheduleDate<?2 and userId in (?3)")
