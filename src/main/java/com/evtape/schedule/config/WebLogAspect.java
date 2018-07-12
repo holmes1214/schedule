@@ -1,6 +1,7 @@
 package com.evtape.schedule.config;
 
 import com.alibaba.fastjson.JSON;
+import com.evtape.schedule.util.JWTUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -43,6 +44,10 @@ public class WebLogAspect {
         // 记录下请求内容
         LOGGER.info("请求URL : " + request.getRequestURL().toString());
         LOGGER.info("请求方法 : " + request.getMethod());
+        String authorization = request.getHeader("Authorization");
+        if (authorization != null) {
+            LOGGER.info("手机号码: {}", getPhoneNumber(authorization));
+        }
         LOGGER.info("请求IP : " + request.getRemoteAddr());
         LOGGER.info("请求Handler : " + joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint
                 .getSignature().getName());
@@ -62,5 +67,12 @@ public class WebLogAspect {
         LOGGER.info("调用Handler花费时间time = {}s", callTime);
         LOGGER.info("--------------------------AOP end--------------------------");
         return result;
+    }
+
+    private String getPhoneNumber(String header) {
+        LOGGER.debug("aspect header: {}", header);
+        String phoneNumber = JWTUtil.getPhoneNumber(header);
+        LOGGER.debug("aspect phoneNumber: {}", phoneNumber);
+        return phoneNumber;
     }
 }
