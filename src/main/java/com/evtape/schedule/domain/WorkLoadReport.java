@@ -25,8 +25,8 @@ public class WorkLoadReport {
 	private String yearStr;
 	private String seasonStr;
 	private String monthStr;
-	private Double averWorkerCount;
-	private Double planedHours;
+	private Integer averWorkerCount;
+	private Double plannedHours;
 	private Double actualHours;
 	private Double workedRate;
 	private Double extraHours;

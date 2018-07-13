@@ -57,8 +57,8 @@ public class WebLogAspect {
         if (authorization != null) {
             String phoneNumber=getPhoneNumber(authorization);
             LOGGER.info("手机号码: {}", phoneNumber);
-            log.setPhoneNumber(phoneNumber);
             if (request.getMethod().equals("POST")||request.getMethod().equals("PUT")||request.getMethod().equals("DELETE")){
+                log.setPhoneNumber(phoneNumber);
                 User u=Repositories.userRepository.findByPhoneNumber(phoneNumber);
                 if (u!=null){
                     log.setOperatorName(u.getUserName());

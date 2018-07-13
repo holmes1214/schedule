@@ -1,5 +1,6 @@
 package com.evtape.schedule.web;
 
+import com.evtape.schedule.consts.Constants;
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.*;
 import com.evtape.schedule.domain.form.DistrictManagerForm;
@@ -10,6 +11,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -41,8 +44,8 @@ public class LogController {
     })
     @GetMapping("/operation")
     public ResponseBundle getOperationLog(@Identity String userPhoneNumber,
-                                      @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
-                                      @RequestParam(value = "dateStr", required = false) String dateStr
+                                          @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
+                                          @RequestParam(value = "dateStr", required = false) String dateStr
     ) {
         try {
             User user = Repositories.userRepository.findByPhoneNumber(userPhoneNumber);
@@ -51,13 +54,13 @@ public class LogController {
             }
             String sql = "select * from sys_operation_log where 1=1 ";
             if (user.getDistrictId() != null) {
-                sql += " and district_id="+user.getDistrictId();
+                sql += " and district_id=" + user.getDistrictId();
             }
-            if (phoneNumber!=null){
-                sql+=" and phone_number="+phoneNumber;
+            if (phoneNumber != null) {
+                sql += " and phone_number=" + phoneNumber;
             }
-            if(dateStr!=null){
-                sql+=" and date(create_date)="+dateStr;
+            if (dateStr != null) {
+                sql += " and date(create_date)=" + dateStr;
             }
             List<OperationLog> resultList = em.createNativeQuery(sql, OperationLog.class).getResultList();
             return new ResponseBundle().success(resultList);
@@ -65,11 +68,12 @@ public class LogController {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
+
     @ApiOperation(value = "工时报表查询", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "districtId", value = "站区", paramType = "query",
                     dataType = "int"),
-            @ApiImplicitParam(name = "yearStr", value = "查询年份", required = true,paramType = "query",
+            @ApiImplicitParam(name = "yearStr", value = "查询年份", required = true, paramType = "query",
                     dataType = "string"),
             @ApiImplicitParam(name = "season", value = "查询季度", paramType = "query",
                     dataType = "string"),
@@ -85,21 +89,25 @@ public class LogController {
     ) {
         try {
             User user = Repositories.userRepository.findByPhoneNumber(userPhoneNumber);
-            if (user.getRoleId()!=1||user.getRoleId()!=2){
+            if (user.getRoleId() != 1 || user.getRoleId() != 2) {
                 return new ResponseBundle().failure(ResponseMeta.FORBIDDEN);
             }
-            if (user.getRoleId()==2){
-                districtId=user.getDistrictId();
+            if (user.getRoleId() == 2) {
+                districtId = user.getDistrictId();
             }
-            String sql="from WorkLoadReport where yearStr="+yearStr;
-            if (districtId!=null){
-                sql+=" and districtId="+districtId;
+            String sql = "from WorkLoadReport where yearStr=" + yearStr;
+            if (districtId != null) {
+                sql += " and districtId=" + districtId;
             }
-            if (season!=null){
-                sql+=" and seasonStr="+season;
+            if (season != null) {
+                sql += " and seasonStr=" + season;
+            } else {
+                sql += " and seasonStr is null";
             }
-            if (month!=null){
-                sql+=" and monthStr="+month;
+            if (month != null) {
+                sql += " and monthStr=" + month;
+            } else {
+                sql += " and monthStr is null";
             }
             List<WorkLoadReport> resultList = em.createQuery(sql, WorkLoadReport.class).getResultList();
             return new ResponseBundle().success(resultList.stream().collect(Collectors.groupingBy(WorkLoadReport::getLineNumber)));
@@ -109,7 +117,35 @@ public class LogController {
     }
 
     @Scheduled(cron = "0 0 0 1 * ?")
-    public void calcWorkLoad(){
+    public void calcWorkLoad() {
+        Date now = new Date();
+        Date lastDay = DateUtils.addDays(now, -1);
+        Date begin = DateUtils.ceiling(DateUtils.addDays(lastDay, -31), Calendar.MONTH);
+        DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
+        String[] format = df.format(now).split("-");
 
+        boolean seasonly = false, yearly = false;
+        if (format[1].equals("01")) {
+            seasonly = true;
+            yearly = true;
+        } else if (format[1].equals("04") || format[1].equals("07") || format[1].equals("10")) {
+            seasonly = true;
+        }
+
+        Map<Integer, District> districtMap = Repositories.districtRepository.findAll().stream()
+                .collect(Collectors.toMap(District::getId, d->d));
+        List<ScheduleInfo> list = Repositories.scheduleInfoRepository.findByDate(begin, now);
+        Map<Integer, List<ScheduleInfo>> collect = list.stream().collect(Collectors.groupingBy(ScheduleInfo::getDistrictId));
+
+        for (Integer districtId :
+                collect.keySet()) {
+            WorkLoadReport r=new WorkLoadReport();
+            District d=districtMap.get(districtId);
+            r.setLineNumber(d.getLineNumber());
+            r.setDistrictId(d.getId());
+            r.setDistrictName(d.getDistrictName());
+            int workerCount=0;
+            double planned=0d;
+        }
     }
 }
