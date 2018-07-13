@@ -146,6 +146,8 @@ public class LogController {
             r.setDistrictName(d.getDistrictName());
             int workerCount=0;
             double planned=0d;
+            double actual=0d;
+
         }
     }
 }

@@ -61,6 +61,7 @@ public class WebLogAspect {
                 log.setPhoneNumber(phoneNumber);
                 User u=Repositories.userRepository.findByPhoneNumber(phoneNumber);
                 if (u!=null){
+                    log.setDistrictId(u.getDistrictId());
                     log.setOperatorName(u.getUserName());
                     log.setOperationName(getOperationName(joinPoint));
                 }
