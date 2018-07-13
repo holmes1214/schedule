@@ -13,7 +13,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "sys_operation_log")
+@Table(name = "sys_operation_log", indexes = { @Index(name = "IDX_DISTRICT_ID", columnList = "districtId"),
+		@Index(name = "IDX_PHONE_NUMBER", columnList = "phoneNumber") })
 public class OperationLog {
 
 	@Id

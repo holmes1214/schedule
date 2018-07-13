@@ -12,7 +12,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "sys_work_load")
+@Table(name = "sys_work_load", indexes = { @Index(name = "IDX_YEAR", columnList = "yearStr,districtId"),
+		@Index(name = "IDX_LINE_NUMBER", columnList = "lineNumber") })
 public class WorkLoadReport {
 
 	@Id
