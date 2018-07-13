@@ -30,6 +30,6 @@ public interface ScheduleInfoRepository extends JpaRepository<ScheduleInfo, Inte
     @Query("from ScheduleInfo where scheduleDate>=?1 and scheduleDate<?2 and districtId=?3")
     List<ScheduleInfo> findByCondition(Date parse, Date parse1, Integer districtId);
 
-    @Query("from ScheduleInfo where scheduleDate>=?1 and scheduleDate<?2 and districtId=?3")
+    @Query("from ScheduleInfo where scheduleDate>=?1 and scheduleDate<?2")
     List<ScheduleInfo> findByDate(Date begin, Date end);
 }

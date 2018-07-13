@@ -26,6 +26,7 @@ public class Repositories {
 	public static UserRepository userRepository;
 	public static UserHolidayLimitRepository holidayLimitRepository;
 	public static OperationLogRepository logRepository;
+	public static WorkLoadReportRepository workLoadRepository;
 
 	@Autowired
 	public void setDistrictRepository(DistrictRepository districtRepository) {
@@ -118,5 +119,10 @@ public class Repositories {
 	@Autowired
 	public  void setLogRepository(OperationLogRepository repository){
 		Repositories.logRepository=repository;
+	}
+
+	@Autowired
+	public void setWorkLoadRepository(WorkLoadReportRepository repository){
+		Repositories.workLoadRepository=repository;
 	}
 }

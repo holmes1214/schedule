@@ -57,10 +57,10 @@ public class LogController {
                 sql += " and district_id=" + user.getDistrictId();
             }
             if (phoneNumber != null) {
-                sql += " and phone_number=" + phoneNumber;
+                sql += " and phone_number='" + phoneNumber+"'";
             }
             if (dateStr != null) {
-                sql += " and date(create_date)=" + dateStr;
+                sql += " and date(create_date)='" + dateStr+"'";
             }
             List<OperationLog> resultList = em.createNativeQuery(sql, OperationLog.class).getResultList();
             return new ResponseBundle().success(resultList);
@@ -100,12 +100,12 @@ public class LogController {
                 sql += " and districtId=" + districtId;
             }
             if (season != null) {
-                sql += " and seasonStr=" + season;
+                sql += " and seasonStr='" + season+"'";
             } else {
                 sql += " and seasonStr is null";
             }
             if (month != null) {
-                sql += " and monthStr=" + month;
+                sql += " and monthStr='" + month+"'";
             } else {
                 sql += " and monthStr is null";
             }
@@ -122,18 +122,31 @@ public class LogController {
         Date lastDay = DateUtils.addDays(now, -1);
         Date begin = DateUtils.ceiling(DateUtils.addDays(lastDay, -31), Calendar.MONTH);
         DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
-        String[] format = df.format(now).split("-");
+        String[] format = df.format(lastDay).split("-");
 
         boolean seasonly = false, yearly = false;
-        if (format[1].equals("01")) {
+        if (format[1].equals("12")) {
             seasonly = true;
             yearly = true;
-        } else if (format[1].equals("04") || format[1].equals("07") || format[1].equals("10")) {
+        } else if (format[1].equals("03") || format[1].equals("06") || format[1].equals("09")) {
             seasonly = true;
         }
 
         Map<Integer, District> districtMap = Repositories.districtRepository.findAll().stream()
                 .collect(Collectors.toMap(District::getId, d->d));
+        calcData(districtMap,begin,now,format[0],null,format[1]);
+        if (seasonly){
+            Date b=DateUtils.ceiling(DateUtils.addDays(lastDay,-93),Calendar.MONTH);
+            int season= (int) ((now.getTime()-b.getTime())/3600000/24/93+1);
+            calcData(districtMap,b,now,format[0],season+"",null);
+        }
+        if (yearly){
+            Date b=DateUtils.ceiling(DateUtils.addDays(lastDay,-366),Calendar.YEAR);
+            calcData(districtMap,b,now,format[0],null,null);
+        }
+    }
+
+    private void calcData(Map<Integer, District> districtMap, Date begin, Date now, String year, String season, String month) {
         List<ScheduleInfo> list = Repositories.scheduleInfoRepository.findByDate(begin, now);
         Map<Integer, List<ScheduleInfo>> collect = list.stream().collect(Collectors.groupingBy(ScheduleInfo::getDistrictId));
 
@@ -144,12 +157,12 @@ public class LogController {
             r.setLineNumber(d.getLineNumber());
             r.setDistrictId(d.getId());
             r.setDistrictName(d.getDistrictName());
-            int workerCount=0;
+            r.setYearStr(year);
+            r.setSeasonStr(season);
+            r.setMonthStr(month);
             double planned=0d;
             double actual=0d;
-            double workedHours=0d;
-            double extraHours=0d;
-            double offWorkHours=0d;
+            double offWorkTimes=0d;
             Set<Integer> userSet=new HashSet<>();
             for (ScheduleInfo info :
                     collect.get(districtId)) {
@@ -157,19 +170,32 @@ public class LogController {
                 planned+=info.getWorkingHours();
                 if (info.getModified()==1){
                     List<ScheduleLeave> leaveList = Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId());
-                    boolean countOrigin=true;
+                    boolean countOrigin=true,offwork=false;
                     for (ScheduleLeave leave :
                             leaveList) {
                         if (leave.getCountOriginal()==0){
                             countOrigin=false;
+                        }
+                        if (leave.getInstead()==0&&leave.getLeaveHours()<0){
+                            offwork=true;
                         }
                         actual+=leave.getLeaveHours();
                     }
                     if (countOrigin){
                         actual+=info.getWorkingHours();
                     }
+                    if (offwork){
+                        offWorkTimes+=1;
+                    }
                 }
             }
+            r.setAverWorkerCount(userSet.size());
+            r.setPlannedHours(planned);
+            r.setActualHours(actual);
+            r.setOffWorkRate(offWorkTimes/collect.get(districtId).size());
+            r.setExtraHours(actual-planned);
+            r.setWorkedRate(actual/planned);
+            Repositories.workLoadRepository.save(r);
         }
     }
 }
