@@ -30,11 +30,11 @@ public class UserHolidayController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "year", value = "年度", required = true, paramType = "query",
                     dataType = "string"),
-            @ApiImplicitParam(name = "districtId", value = "站区id", required = false, paramType = "query",
+            @ApiImplicitParam(name = "districtId", value = "站区id", paramType = "query",
                     dataType = "int"),
     })
     @GetMapping
-    public ResponseBundle search(@RequestParam("year") String year, @RequestParam("lineNumber") String lineNumber, @RequestParam("districtId") Integer districtId) {
+    public ResponseBundle search(@RequestParam("year") String year, @RequestParam(value = "districtId",required = false) Integer districtId) {
         List<UserHolidayLimit> list = Repositories.holidayLimitRepository.findByYearStr(year);
         if (districtId != null) {
             list = list.stream().filter(t -> districtId.equals(t.getDistrictId())).collect(Collectors.toList());

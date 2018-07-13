@@ -40,8 +40,8 @@ public class LogController {
             @ApiImplicitParam(name = "dateStr", value = "查询日期", paramType = "query",
                     dataType = "String"),
     })
-    @GetMapping
-    public ResponseBundle addDistrict(@Identity String userPhoneNumber,
+    @GetMapping("/operation")
+    public ResponseBundle getOperationLog(@Identity String userPhoneNumber,
                                       @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
                                       @RequestParam(value = "dateStr", required = false) String dateStr
     ) {
@@ -62,6 +62,30 @@ public class LogController {
             }
             List<OperationLog> resultList = em.createNativeQuery(sql, OperationLog.class).getResultList();
             return new ResponseBundle().success(resultList);
+        } catch (Exception e) {
+            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+        }
+    }
+    @ApiOperation(value = "工时报表查询", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "districtId", value = "站区", paramType = "query",
+                    dataType = "int"),
+            @ApiImplicitParam(name = "yearStr", value = "查询年份", paramType = "query",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "season", value = "查询季度", paramType = "query",
+                    dataType = "int"),
+            @ApiImplicitParam(name = "month", value = "查询月份", paramType = "query",
+                    dataType = "int"),
+    })
+    @GetMapping("/workload")
+    public ResponseBundle getWorkLoad(@Identity String userPhoneNumber,
+                                      @RequestParam(value = "districtId", required = false) Integer districtId,
+                                      @RequestParam(value = "yearStr", required = false) String yearStr,
+                                      @RequestParam(value = "season", required = false) String season,
+                                      @RequestParam(value = "month", required = false) String month
+    ) {
+        try {
+            return new ResponseBundle().success();
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
