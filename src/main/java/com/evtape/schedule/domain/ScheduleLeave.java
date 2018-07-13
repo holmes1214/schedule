@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * 离岗记录
@@ -35,6 +36,8 @@ public class ScheduleLeave {
 	private Integer userId;
 
 	private String leaveDateStr;
+
+	private Date createDate;
 
 	//是否替班
 	private Integer instead;

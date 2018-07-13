@@ -33,6 +33,7 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         leave1.setType(type);
         leave1.setSubType(subType);
         leave1.setLeaveDateStr(info.getDateStr());
+        leave1.setCreateDate(new Date());
         return leave1;
     }
 
@@ -49,6 +50,7 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         leave1.setType(type);
         leave1.setSubType(subType);
         leave1.setLeaveDateStr(info.getDateStr());
+        leave1.setCreateDate(new Date());
         return leave1;
     }
 

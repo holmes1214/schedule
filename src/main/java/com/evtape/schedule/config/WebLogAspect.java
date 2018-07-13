@@ -2,6 +2,8 @@ package com.evtape.schedule.config;
 
 import com.alibaba.fastjson.JSON;
 import com.evtape.schedule.util.JWTUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -14,8 +16,12 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by lianhai on 2018/6/7.
@@ -27,6 +33,14 @@ public class WebLogAspect {
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     private static final ThreadLocal<Long> timeTreadLocal = new ThreadLocal<>();
+
+    class LogData{
+        long time;
+        String phone;
+        String className;
+        String method;
+
+    }
 
     @Pointcut("execution(public * com.evtape.schedule.web..*.*(..))")
     public void webLog() {
@@ -74,5 +88,20 @@ public class WebLogAspect {
         String phoneNumber = JWTUtil.getPhoneNumber(header);
         LOGGER.debug("aspect phoneNumber: {}", phoneNumber);
         return phoneNumber;
+    }
+
+    private String getOperationName(JoinPoint joinPoint) {
+        Class clz = joinPoint.getSignature().getDeclaringType();
+        Api api = (Api) clz.getDeclaredAnnotation(Api.class);
+        Object[] args = joinPoint.getArgs();
+        List<Class<?>> types = Arrays.stream(args).map(a -> a.getClass()).collect(Collectors.toList());
+        Method method = null;
+        try {
+            method = clz.getMethod(joinPoint.getSignature().getName(), types.toArray(new Class[0]));
+            ApiOperation apiOperation = method.getDeclaredAnnotation(ApiOperation.class);
+            return api.value()+"-"+apiOperation.value();
+        } catch (NoSuchMethodException e) {
+            return joinPoint.getSignature().getName();
+        }
     }
 }
