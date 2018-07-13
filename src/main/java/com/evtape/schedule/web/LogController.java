@@ -89,7 +89,7 @@ public class LogController {
     ) {
         try {
             User user = Repositories.userRepository.findByPhoneNumber(userPhoneNumber);
-            if (user.getRoleId() != 1 || user.getRoleId() != 2) {
+            if (user.getRoleId() != 1 && user.getRoleId() != 2) {
                 return new ResponseBundle().failure(ResponseMeta.FORBIDDEN);
             }
             if (user.getRoleId() == 2) {
@@ -147,7 +147,29 @@ public class LogController {
             int workerCount=0;
             double planned=0d;
             double actual=0d;
-
+            double workedHours=0d;
+            double extraHours=0d;
+            double offWorkHours=0d;
+            Set<Integer> userSet=new HashSet<>();
+            for (ScheduleInfo info :
+                    collect.get(districtId)) {
+                userSet.add(info.getUserId());
+                planned+=info.getWorkingHours();
+                if (info.getModified()==1){
+                    List<ScheduleLeave> leaveList = Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId());
+                    boolean countOrigin=true;
+                    for (ScheduleLeave leave :
+                            leaveList) {
+                        if (leave.getCountOriginal()==0){
+                            countOrigin=false;
+                        }
+                        actual+=leave.getLeaveHours();
+                    }
+                    if (countOrigin){
+                        actual+=info.getWorkingHours();
+                    }
+                }
+            }
         }
     }
 }

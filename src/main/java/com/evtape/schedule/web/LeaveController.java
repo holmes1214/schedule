@@ -1,6 +1,7 @@
 package com.evtape.schedule.web;
 
 import com.evtape.schedule.consts.ResponseMeta;
+import com.evtape.schedule.domain.ScheduleInfo;
 import com.evtape.schedule.domain.ScheduleLeave;
 import com.evtape.schedule.domain.form.LeaveForm;
 import com.evtape.schedule.domain.vo.ResponseBundle;
@@ -65,6 +66,9 @@ public class LeaveController {
     @PutMapping
     public ResponseBundle cancelLeave(@RequestBody LeaveForm form) {
         try {
+            ScheduleInfo info = Repositories.scheduleInfoRepository.findOne(form.getScheduleInfoId());
+            info.setModified(0);
+            Repositories.scheduleInfoRepository.save(info);
             Repositories.scheduleLeaveRepository.deleteByScheduleInfoId(form.getScheduleInfoId());
             return new ResponseBundle().success();
         } catch (Exception e) {
