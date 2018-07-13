@@ -19,10 +19,12 @@ public class OperationLog {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-	private Integer operatorId;
+	private String phoneNumber;
 	private String operatorName;
 	private String operationName;
 	private Integer operationState;
 	private Date createDate;
 	private String content;
+	@Transient
+	private long beginTime;
 }

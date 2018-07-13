@@ -40,6 +40,10 @@ public class ResponseBundle {
         return this;
     }
 
+    public boolean isSuccess(){
+        return meta.code==0;
+    }
+
     @Getter
     @Setter
     public class Meta {

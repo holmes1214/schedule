@@ -1,6 +1,10 @@
 package com.evtape.schedule.config;
 
 import com.alibaba.fastjson.JSON;
+import com.evtape.schedule.domain.OperationLog;
+import com.evtape.schedule.domain.User;
+import com.evtape.schedule.domain.vo.ResponseBundle;
+import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.util.JWTUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,6 +16,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -19,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,15 +38,7 @@ public class WebLogAspect {
 
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    private static final ThreadLocal<Long> timeTreadLocal = new ThreadLocal<>();
-
-    class LogData{
-        long time;
-        String phone;
-        String className;
-        String method;
-
-    }
+    private static final ThreadLocal<OperationLog> threadLocal = new ThreadLocal<>();
 
     @Pointcut("execution(public * com.evtape.schedule.web..*.*(..))")
     public void webLog() {
@@ -50,7 +48,9 @@ public class WebLogAspect {
     @Before("webLog()")
     public void doBefore(JoinPoint joinPoint) {
         LOGGER.info("--------------------------AOP begin--------------------------");
-        timeTreadLocal.set(System.currentTimeMillis());
+        OperationLog log=new OperationLog();
+        log.setBeginTime(System.currentTimeMillis());
+
         // 接收到请求，记录请求内容
         LOGGER.info("WebLogAspect.doBefore()");
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -60,26 +60,51 @@ public class WebLogAspect {
         LOGGER.info("请求方法 : " + request.getMethod());
         String authorization = request.getHeader("Authorization");
         if (authorization != null) {
-            LOGGER.info("手机号码: {}", getPhoneNumber(authorization));
+            String phoneNumber=getPhoneNumber(authorization);
+            LOGGER.info("手机号码: {}", phoneNumber);
+            log.setPhoneNumber(phoneNumber);
+            if (request.getMethod().equals("POST")||request.getMethod().equals("PUT")||request.getMethod().equals("DELETE")){
+                User u=Repositories.userRepository.findByPhoneNumber(phoneNumber);
+                if (u!=null){
+                    log.setOperatorName(u.getUserName());
+                    log.setOperationName(getOperationName(joinPoint));
+                }
+            }
         }
         LOGGER.info("请求IP : " + request.getRemoteAddr());
         LOGGER.info("请求Handler : " + joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint
                 .getSignature().getName());
         LOGGER.info("请求参数 : " + Arrays.toString(joinPoint.getArgs()));
         Enumeration<String> enu = request.getParameterNames();
+        StringBuilder content=new StringBuilder();
         while (enu.hasMoreElements()) {
             String paraName = enu.nextElement();
             LOGGER.info("paramName: {}", request.getParameter(paraName));
+            content.append(request.getParameter(paraName)).append(";");
         }
+        log.setContent(content.toString());
+        threadLocal.set(log);
+
     }
 
     @AfterReturning(returning = "result", pointcut = "webLog()")
     public Object doAfterReturning(Object result) {
         LOGGER.debug("返回值: {}", result == null ? "" : JSON.toJSONString(result));
-        long startTime = timeTreadLocal.get();
+        OperationLog log = threadLocal.get();
+        long startTime = log.getBeginTime();
         double callTime = (System.currentTimeMillis() - startTime) / 1000.0;
         LOGGER.info("调用Handler花费时间time = {}s", callTime);
         LOGGER.info("--------------------------AOP end--------------------------");
+        if (log.getPhoneNumber()!=null){
+            log.setCreateDate(new Date());
+            ResponseBundle responseBundle= (ResponseBundle) result;
+            if (responseBundle.isSuccess()){
+                log.setOperationState(0);
+            }else {
+                log.setOperationState(1);
+            }
+            Repositories.logRepository.save(log);
+        }
         return result;
     }
 
