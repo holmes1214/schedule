@@ -50,7 +50,7 @@ public class LoginController {
                     .collect(Collectors.toList());
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID, errors);
         }
-        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByUserName(form.getUserName()));
+        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(form.getPhoneNumber()));
         return user.map(u -> {
             if (ObjectUtils.notEqual(form.getPassword(), u.getPassword())) {
                 return new ResponseBundle().failure(ResponseMeta.ADMIN_PASSWD_NOT_ERROR);
