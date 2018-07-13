@@ -1,10 +1,7 @@
 package com.evtape.schedule.web;
 
 import com.evtape.schedule.consts.ResponseMeta;
-import com.evtape.schedule.domain.District;
-import com.evtape.schedule.domain.OperationLog;
-import com.evtape.schedule.domain.Station;
-import com.evtape.schedule.domain.User;
+import com.evtape.schedule.domain.*;
 import com.evtape.schedule.domain.form.DistrictManagerForm;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
@@ -14,6 +11,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
@@ -21,6 +19,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ripper 站区接口,增刪改查
@@ -70,25 +69,47 @@ public class LogController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "districtId", value = "站区", paramType = "query",
                     dataType = "int"),
-            @ApiImplicitParam(name = "yearStr", value = "查询年份", paramType = "query",
+            @ApiImplicitParam(name = "yearStr", value = "查询年份", required = true,paramType = "query",
                     dataType = "string"),
             @ApiImplicitParam(name = "season", value = "查询季度", paramType = "query",
-                    dataType = "int"),
+                    dataType = "string"),
             @ApiImplicitParam(name = "month", value = "查询月份", paramType = "query",
-                    dataType = "int"),
+                    dataType = "string"),
     })
     @GetMapping("/workload")
     public ResponseBundle getWorkLoad(@Identity String userPhoneNumber,
                                       @RequestParam(value = "districtId", required = false) Integer districtId,
-                                      @RequestParam(value = "yearStr", required = false) String yearStr,
+                                      @RequestParam(value = "yearStr") String yearStr,
                                       @RequestParam(value = "season", required = false) String season,
                                       @RequestParam(value = "month", required = false) String month
     ) {
         try {
-            return new ResponseBundle().success();
+            User user = Repositories.userRepository.findByPhoneNumber(userPhoneNumber);
+            if (user.getRoleId()!=1||user.getRoleId()!=2){
+                return new ResponseBundle().failure(ResponseMeta.FORBIDDEN);
+            }
+            if (user.getRoleId()==2){
+                districtId=user.getDistrictId();
+            }
+            String sql="from WorkLoadReport where yearStr="+yearStr;
+            if (districtId!=null){
+                sql+=" and districtId="+districtId;
+            }
+            if (season!=null){
+                sql+=" and seasonStr="+season;
+            }
+            if (month!=null){
+                sql+=" and monthStr="+month;
+            }
+            List<WorkLoadReport> resultList = em.createQuery(sql, WorkLoadReport.class).getResultList();
+            return new ResponseBundle().success(resultList.stream().collect(Collectors.groupingBy(WorkLoadReport::getLineNumber)));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
 
+    @Scheduled(cron = "0 0 0 1 * ?")
+    public void calcWorkLoad(){
+
+    }
 }

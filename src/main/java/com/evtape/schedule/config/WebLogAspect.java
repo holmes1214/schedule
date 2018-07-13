@@ -21,10 +21,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -116,14 +113,17 @@ public class WebLogAspect {
     private String getOperationName(JoinPoint joinPoint) {
         Class clz = joinPoint.getSignature().getDeclaringType();
         Api api = (Api) clz.getDeclaredAnnotation(Api.class);
-        Object[] args = joinPoint.getArgs();
-        List<Class<?>> types = Arrays.stream(args).map(a -> a.getClass()).collect(Collectors.toList());
+        int argLength = joinPoint.getArgs().length;
         Method method = null;
         try {
-            method = clz.getMethod(joinPoint.getSignature().getName(), types.toArray(new Class[0]));
+            Method[] declaredMethods = clz.getDeclaredMethods();
+            List<Method> methods = Arrays.stream(declaredMethods).filter(m -> m.getName()
+                    .equals(joinPoint.getSignature().getName()) && m.getParameterCount() == argLength)
+                    .collect(Collectors.toList());
+            method = methods.get(0);
             ApiOperation apiOperation = method.getDeclaredAnnotation(ApiOperation.class);
             return api.value()+"-"+apiOperation.value();
-        } catch (NoSuchMethodException e) {
+        } catch (Exception e) {
             return joinPoint.getSignature().getName();
         }
     }
