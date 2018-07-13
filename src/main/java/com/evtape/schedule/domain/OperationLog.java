@@ -19,6 +19,7 @@ public class OperationLog {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
+	private Integer districtId;
 	private String phoneNumber;
 	private String operatorName;
 	private String operationName;

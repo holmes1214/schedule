@@ -31,36 +31,6 @@ public class PermissionController extends RolePermissionController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PermissionController.class);
 
-//    private Map<String, Map<String, List<P>>> group(List<Permission> permissions) {
-//
-//        Map<String, Map<String, List<P>>> levelMap = new HashMap<>();
-//
-//        permissions.forEach(permission -> {
-//
-//            String levelKey = permission.getLevel();
-//            String categoryKey = permission.getCategory();
-//
-//            if (levelMap.containsKey(levelKey)) {
-//                // category为key
-//                Map<String, List<P>> categoryMap = levelMap.get(levelKey);
-//                if (categoryMap.containsKey(categoryKey)) {
-//                    // 若categoryMap中存在category的key, 则对应的value一定存在, 直接put
-//                    categoryMap.get(categoryKey).add(new P(permission.getId(), permission.getName()));
-//                } else {
-//                    List<P> nameList = new ArrayList<>();
-//                    nameList.add(new P(permission.getId(), permission.getName()));
-//                    categoryMap.put(categoryKey, nameList);
-//                }
-//            } else {
-//                Map<String, List<P>> categoryMap = new HashMap<>();
-//                List<P> nameList = new ArrayList<>();
-//                nameList.add(new P(permission.getId(), permission.getName()));
-//                categoryMap.put(categoryKey, nameList);
-//                levelMap.put(levelKey, categoryMap);
-//            }
-//        });
-//        return levelMap;
-//    }
 
     @GetMapping
     @RequiresRoles("role:admin")
@@ -82,19 +52,4 @@ public class PermissionController extends RolePermissionController {
         }).orElseThrow(UnauthenticatedException::new);
     }
 
-    @AllArgsConstructor
-    @Getter
-    private class P {
-        int id;
-        String name;
-    }
-
-//    @PostMapping
-//    public ResponseBundle addPermission(@RequestBody Permission permission, @Identity String phoneNumber) {
-//        Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
-//        return user.map(u -> {
-//            Repositories.permissionRepository.saveAndFlush(permission);
-//            return new ResponseBundle().success();
-//        }).orElseThrow(UnauthenticatedException::new);
-//    }
 }
