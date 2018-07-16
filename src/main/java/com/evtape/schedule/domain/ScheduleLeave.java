@@ -41,6 +41,11 @@ public class ScheduleLeave {
 
 	//是否替班
 	private Integer instead;
+
+	private Integer exchangeUserId;
+
+	private String exchangeUserName;
+
 	//是否计算原工时
 	private Integer countOriginal;
 }

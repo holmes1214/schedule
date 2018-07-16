@@ -39,7 +39,7 @@ public class SwitchClassHandler extends AbstractLeaveHandler implements LeaveHan
         List<ScheduleInfo> modifiedSchedule = new ArrayList<>();
         String dateStr = getLeaveDateStr(start);
         ScheduleInfo info = Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId, dateStr);
-        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info, conf.getDescription(), getContent(dutyClass),type,subType);
+        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info, conf.getDescription(), getContent(dutyClass),type,subType,null);
         leave1.setLeaveHours((double)dutyClass.getWorkingLength()/60);
         result.add(leave1);
 

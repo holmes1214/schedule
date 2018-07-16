@@ -20,7 +20,7 @@ import java.util.List;
  */
 public abstract class AbstractLeaveHandler implements LeaveHandler {
 
-    protected ScheduleLeave getLeaveInfo(Integer districtId, Integer userId, ScheduleInfo info, String desc, String content,Integer type,Integer subType) {
+    protected ScheduleLeave getLeaveInfo(Integer districtId, Integer userId, ScheduleInfo info, String desc, String content,Integer type,Integer subType,User insteadUser) {
         ScheduleLeave leave1 = new ScheduleLeave();
         leave1.setComment(content);
         leave1.setDistrictId(districtId);
@@ -34,10 +34,14 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         leave1.setSubType(subType);
         leave1.setLeaveDateStr(info.getDateStr());
         leave1.setCreateDate(new Date());
+        if (insteadUser!=null){
+            leave1.setExchangeUserId(insteadUser.getId());
+            leave1.setExchangeUserName(insteadUser.getUserName());
+        }
         return leave1;
     }
 
-    protected ScheduleLeave getInsteadInfo(Integer districtId, Integer userId, ScheduleInfo info, double workingHours, String desc, String content,Integer type,Integer subType) {
+    protected ScheduleLeave getInsteadInfo(Integer districtId, Integer userId, ScheduleInfo info, double workingHours, String desc, String content,Integer type,Integer subType,User leaveUser) {
         ScheduleLeave leave1 = new ScheduleLeave();
         leave1.setComment(content);
         leave1.setDistrictId(districtId);
@@ -51,6 +55,10 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         leave1.setSubType(subType);
         leave1.setLeaveDateStr(info.getDateStr());
         leave1.setCreateDate(new Date());
+        if (leaveUser!=null){
+            leave1.setExchangeUserId(leaveUser.getId());
+            leave1.setExchangeUserName(leaveUser.getUserName());
+        }
         return leave1;
     }
 
@@ -72,8 +80,8 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         User insteadUser=Repositories.userRepository.findOne(instead);
         info=completeScheduleInfo(info,user,start,dateStr);
         info2=completeScheduleInfo(info2,insteadUser,start,dateStr);
-        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info, conf.getDescription(), content,type,subType);
-        ScheduleLeave leave2 = getInsteadInfo(schedule.getDistrictId(), instead, info2, schedule.getWorkingHours(), conf.getDescription(), content,type,subType);
+        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info, conf.getDescription(), content,type,subType,insteadUser);
+        ScheduleLeave leave2 = getInsteadInfo(schedule.getDistrictId(), instead, info2, schedule.getWorkingHours(), conf.getDescription(), content,type,subType,user);
 
         result.add(leave1);
         result.add(leave2);

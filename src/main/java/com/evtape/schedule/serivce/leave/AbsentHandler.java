@@ -39,7 +39,7 @@ public class AbsentHandler extends AbstractLeaveHandler implements LeaveHandler 
         List<ScheduleInfo> modifiedSchedule = new ArrayList<>();
         String dateStr = getLeaveDateStr(start);
         ScheduleInfo info = Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId, dateStr);
-        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info, conf.getDescription(), content,type,subType);
+        ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info, conf.getDescription(), content,type,subType,null);
         leave1.setLeaveHours(0-leaveCount);
         leave1.setCountOriginal(1);
         result.add(leave1);
