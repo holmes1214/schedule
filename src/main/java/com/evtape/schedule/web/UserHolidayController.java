@@ -67,21 +67,52 @@ public class UserHolidayController {
         Date next = DateUtils.ceiling(leaveDate, Calendar.YEAR);
         Date begin=DateUtils.addYears(next,-1);
         long n = Repositories.scheduleLeaveRepository.countSickLeave(info.getUserId(),  df.format(begin));
-        int limit=calcSickLimit(Repositories.userRepository.findOne(info.getUserId()),leaveDate);
-        Map<String, Integer> result = new HashMap<>();
+        String limit=calcSickLimit(Repositories.userRepository.findOne(info.getUserId()),leaveDate);
+        Map<String, Object> result = new HashMap<>();
         result.put("limit", limit);
         result.put("consumed", (int) n);
         return new ResponseBundle().success(result);
     }
 
-    private int calcSickLimit(User user,Date leaveDate) throws ParseException {
+    private String calcSickLimit(User user,Date leaveDate) throws ParseException {
         DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
         String beginWork = user.getBeginWorkDate();
         String entry = user.getEntryDate();
         Date beginDate = df.parse(beginWork);
         Date entryDate = df.parse(entry);
-        //TODO
-        return 0;
+        Date decade = DateUtils.addYears(beginDate, 10);
+        boolean moreThanDecade=false;
+        if (decade.getTime()<leaveDate.getTime()){
+            moreThanDecade=true;
+        }
+        String medicalPeriod="医疗期";
+        if (!moreThanDecade){
+            Date delta = DateUtils.addYears(entryDate, 5);
+            if (delta.getTime()>leaveDate.getTime()){
+                return medicalPeriod+"3个月";
+            }else {
+                return medicalPeriod+"6个月";
+            }
+        }else {
+            Date delta1 = DateUtils.addYears(entryDate, 5);
+            if (delta1.getTime()>leaveDate.getTime()){
+                return medicalPeriod+"6个月";
+            }
+            Date delta2=DateUtils.addYears(entryDate, 10);
+            if (delta2.getTime()>leaveDate.getTime()){
+                return medicalPeriod+"9个月";
+            }
+            Date delta3=DateUtils.addYears(entryDate, 15);
+            if (delta3.getTime()>leaveDate.getTime()){
+                return medicalPeriod+"12个月";
+            }
+            Date delta4=DateUtils.addYears(entryDate, 20);
+            if (delta4.getTime()>leaveDate.getTime()){
+                return medicalPeriod+"18个月";
+            }else {
+                return medicalPeriod+"24个月";
+            }
+        }
     }
 
 
