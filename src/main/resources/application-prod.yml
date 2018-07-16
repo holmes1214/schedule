@@ -5,7 +5,7 @@ server:
 logging:
   level:
     com.sagacn: DEBUG
-  config: classpath:logback-dev.xml
+  config: classpath:logback-prod.xml
   
 # 数据源设定
 druid:
