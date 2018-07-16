@@ -148,19 +148,7 @@ public class PoiUtil {
                 Row row0 = sheet.getRow(readFromRowNum);
                 // 标题总列数
                 List<String> titleList = Lists.newArrayList();
-                while (true) {
-                    Cell cell = row0.getCell(colNum);
-                    if (cell == null) {
-                        break;
-                    }
-                    String title = getCellFormatValue(cell);
-                    if (StringUtils.isBlank(title)) {
-                        break;
-                    }
-                    titleList.add(title);
-                    colNum++;
-                    logger.debug(" - Title : {} = {}", colNum, title);
-                }
+                colNum=getTitleList(row0,titleList,readFromColNum);
                 logger.debug("Excel: {}, Sheet: {}, Column Num: {}", excelName, sheetName, colNum);
                 String[] titles = titleList.toArray(new String[titleList.size()]);
 
@@ -183,19 +171,101 @@ public class PoiUtil {
 
                     int j = readFromColNum;
                     int titleCnt = 0;
+                    getColContent(rowMap,j,colNum,titleCnt,row,titles);
+
+                    if (rowNum > readFromRowNum) {
+                        rows.add(rowMap);
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+        logger.debug("Row Map Data: {}", rows);
+        return rows;
+    }
+
+    private static void getColContent(Map<String, String> rowMap, int j, int colNum, int titleCnt, Row row,String[] titles) {
+        while (j < colNum) {
+            Cell cell = row.getCell(j);
+            if (cell != null) {
+                String cellValue = getCellFormatValue(cell);
+                if (StringUtils.isNotBlank(cellValue)) {
+                    rowMap.put(titles[titleCnt], cellValue);
+                }
+            }
+            titleCnt++;
+            j++;
+        }
+    }
+
+
+    /**
+     * <pre>
+     * 读取Excel数据内容
+     * 约定格式要求：第(titleStartRowNum+1)行为标题行，之后为数据行
+     * 返回结构为Map结构的List集合：每行的key=第(titleStartRowNum+1)行的标题，
+     * value=单元格值，统一为字符串，根据需要自行转换数据类型
+     * </pre>
+     *
+     * @param excelFile      表格名称
+     * @param readFromRowNum 以readFromRowNum作为标题开始读取
+     * @return Map                       包含单元格数据内容的Map对象
+     */
+    public static List<List<String>> readExcelListContent(MultipartFile excelFile, Integer sheetIndex, Integer readFromRowNum) {
+        List<List<String>> rows = Lists.newArrayList();
+        if (excelFile.isEmpty()) {
+            return rows;
+        }
+        InputStream is = null;
+        String excelName = excelFile.getOriginalFilename();
+        try {
+            //读取Excel文件
+            is = excelFile.getInputStream(); //this.getClass().getResourceAsStream(excelName);
+            if (excelName.toLowerCase().endsWith(".xls")) {
+
+                Workbook wb = new HSSFWorkbook(is);
+                Sheet sheet = null;
+                if (null == sheetIndex) {
+                    sheetIndex = 0;
+                }
+                sheet = wb.getSheetAt(sheetIndex);
+                int colNum = 0;
+                // 标题总列数
+
+                // 正文内容应该从第readFromRowNum + 1行开始,第readFromRowNum行为表头的标题
+                int rowNum = readFromRowNum + 1;
+                while (rowNum > readFromRowNum) {
+                    Row row = sheet.getRow(rowNum++);
+                    if (row == null) {
+                        break;
+                    }
+                    List<String> rowList = new ArrayList<>();
+
+                    Cell firstCell = row.getCell(0);
+                    //假如第colNum列并且为空则终止行项数据处理
+                    if (firstCell == null) {
+                        logger.info("End as first cell is Null at row: {}", rowNum);
+                        break;
+                    }
+
+                    int j = 0;
                     while (j < colNum) {
                         Cell cell = row.getCell(j);
                         if (cell != null) {
                             String cellValue = getCellFormatValue(cell);
                             if (StringUtils.isNotBlank(cellValue)) {
-                                rowMap.put(titles[titleCnt], cellValue);
+                                rowList.add(cellValue);
                             }
                         }
-                        titleCnt++;
                         j++;
                     }
                     if (rowNum > readFromRowNum) {
-                        rows.add(rowMap);
+                        rows.add(rowList);
                     }
                 }
             }
@@ -225,21 +295,8 @@ public class PoiUtil {
             Sheet sheet = wb.getSheet(sheetName);
             Row row0 = sheet.getRow(0);
             // 标题总列数
-            int colNum = 0;
             List<String> titleList = Lists.newArrayList();
-            while (true) {
-                Cell cell = row0.getCell(colNum);
-                if (cell == null) {
-                    break;
-                }
-                String title = getCellFormatValue(cell);
-                if (StringUtils.isBlank(title)) {
-                    break;
-                }
-                titleList.add(title);
-                colNum++;
-                logger.debug(" - Title : {} = {}", colNum, title);
-            }
+            int colNum = getTitleList(row0,titleList,0);
             logger.debug("Excel: {}, Sheet: {}, Column Num: {}", excelName, sheetName, colNum);
             String[] titles = titleList.toArray(new String[titleList.size()]);
 
@@ -396,17 +453,7 @@ public class PoiUtil {
 
                 int j = 0;
                 int titleCnt = 0;
-                while (j < colNum) {
-                    Cell cell = row.getCell(j);
-                    if (cell != null) {
-                        String cellValue = getCellFormatValue(cell);
-                        if (StringUtils.isNotBlank(cellValue)) {
-                            rowMap.put(titles[titleCnt], cellValue);
-                        }
-                    }
-                    titleCnt++;
-                    j++;
-                }
+                getColContent(rowMap,j,colNum,titleCnt,row,titles);
                 if (rowNum > readFromRowNum) {
                     rows.add(rowMap);
                 }
@@ -463,11 +510,11 @@ public class PoiUtil {
                                 //读取当前单元格的值
                                 try {
                                     String cellStr = cell.getStringCellValue();
-                                    if (cellStr==null){
+                                    if (cellStr == null) {
                                         cellStr = "";
                                     }
                                     rowList.add(cellStr);
-                                }catch (Exception e){
+                                } catch (Exception e) {
                                     rowList.add("");
                                 }
                             }
@@ -503,7 +550,6 @@ public class PoiUtil {
         }
         throw new IllegalArgumentException("无法解析的excel版本");
     }
-
 
 
     public static void getCellStyle(HSSFWorkbook wb, HSSFCellStyle style, HSSFCell cell, Map<String, Integer> colorMap, String color) {
@@ -547,4 +593,40 @@ public class PoiUtil {
     }
 
 
+    public static List<String> readTitle(MultipartFile file, int sheetIndex) {
+        List<String> titleList = Lists.newArrayList();
+        try {
+            //读取Excel文件
+            InputStream is = file.getInputStream();
+            Workbook wb = new HSSFWorkbook(is);
+            Sheet sheet = null;
+
+            sheet = wb.getSheetAt(sheetIndex);
+
+            Row row0 = sheet.getRow(0);
+            // 标题总列数
+            getTitleList(row0,titleList,0);
+        }catch (Exception e){
+            logger.error("error: ",e);
+        }
+        return titleList;
+    }
+
+    private static int getTitleList(Row row0, List<String> titleList,int col) {
+        int colNum = col;
+        while (true) {
+            Cell cell = row0.getCell(colNum);
+            if (cell == null) {
+                break;
+            }
+            String title = getCellFormatValue(cell);
+            if (StringUtils.isBlank(title)) {
+                break;
+            }
+            titleList.add(title);
+            colNum++;
+            logger.debug(" - Title : {} = {}", colNum, title);
+        }
+        return colNum;
+    }
 }

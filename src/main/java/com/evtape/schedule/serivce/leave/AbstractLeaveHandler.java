@@ -30,7 +30,7 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         leave1.setInstead(0);
         leave1.setLeaveHours(0d);
         leave1.setCountOriginal(0);
-        leave1.setType(type);
+        leave1.setLeaveType(type);
         leave1.setSubType(subType);
         leave1.setLeaveDateStr(info.getDateStr());
         leave1.setCreateDate(new Date());
@@ -47,7 +47,7 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         leave1.setInstead(1);
         leave1.setLeaveHours(workingHours);
         leave1.setCountOriginal(0);
-        leave1.setType(type);
+        leave1.setLeaveType(type);
         leave1.setSubType(subType);
         leave1.setLeaveDateStr(info.getDateStr());
         leave1.setCreateDate(new Date());

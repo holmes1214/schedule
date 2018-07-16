@@ -23,7 +23,7 @@ public class ScheduleLeave {
 
 	private Integer scheduleInfoId;
 
-	private Integer type;
+	private Integer leaveType;
 
 	private Integer subType;
 

@@ -20,6 +20,8 @@ import java.util.List;
 @Setter
 @Table(name = "biz_user", indexes = {@Index(name = "IDX_DISTRICT_ID", columnList = "districtId,stationId"),
         @Index(name = "IDX_PHONE", columnList = "phoneNumber",unique = true),
+        @Index(name = "IDX_CODE", columnList = "employeeCode",unique = true),
+        @Index(name = "IDX_IDENTITY", columnList = "idCardNumber",unique = true),
         @Index(name = "IDX_POSITION_ID", columnList = "districtId,positionId")})
 public class User {
     // 包括所有用户，管理员，员工，都可以登录，查看自己的排班信息

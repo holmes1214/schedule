@@ -7,6 +7,7 @@ import com.evtape.schedule.domain.User;
 import com.evtape.schedule.domain.UserHolidayLimit;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
+import com.evtape.schedule.util.PoiUtil;
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.web.bind.annotation.*;
@@ -122,8 +123,22 @@ public class UserHolidayController {
     @PostMapping
     public ResponseBundle addDistrict(@ApiParam(value = "上传的文件",required = true) MultipartFile file) {
         try {
-            File xls=new File("./"+file.getName());
-            file.transferTo(xls);
+            List<String> titles=PoiUtil.readTitle(file,0);
+            List<List<String>> lists = PoiUtil.readExcelListContent(file, 0, 1);
+            lists.forEach(l->{
+                String code=l.get(0);
+                String identity=l.get(1);
+                String days=l.get(3);
+                User u=Repositories.userRepository.findByEmployeeCode(code);
+                if (u==null){
+                    u=Repositories.userRepository.findByIdCardNumber(identity);
+                    if (u==null){
+                        return;
+                    }
+                }
+
+            });
+
 
             return new ResponseBundle().success();
         } catch (Exception e) {

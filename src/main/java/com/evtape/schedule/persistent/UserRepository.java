@@ -31,4 +31,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	List<User> findByUserNameOrEmployeeCard(String userName, String employeeCard);
 
 	List<User> findByDistrictIdAndRoleId(Integer districtId, int i);
+
+    User findByEmployeeCode(String code);
+
+	User findByIdCardNumber(String identity);
 }
