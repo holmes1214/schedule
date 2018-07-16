@@ -4,6 +4,7 @@ import com.evtape.schedule.consts.Constants;
 import com.evtape.schedule.domain.*;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.persistent.UserRepository;
+import com.evtape.schedule.serivce.ScheduleTemplateService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -108,6 +109,7 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         info.setWorkingHours(0d);
         info.setDateStr(dateStr);
         info.setScheduleDate(start);
+        info.setScheduleWeek(ScheduleTemplateService.dateToWeek(start));
         info.setStationId(user.getStationId());
         info.setPositionId(user.getPositionId());
         info.setPositionName(user.getPositionName());

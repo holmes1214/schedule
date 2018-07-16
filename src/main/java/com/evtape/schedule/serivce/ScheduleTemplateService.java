@@ -164,17 +164,17 @@ public class ScheduleTemplateService {
         Date now = new Date();
         List<ScheduleUser> users = Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
         List<ScheduleTemplate> templates = Repositories.scheduleTemplateRepository.findBySuiteIdOrderByOrderIndex(suiteId);
-        int weeks=templates.stream().mapToInt(t->t.getWeekNum()).max().getAsInt();
+        int weeks = templates.stream().mapToInt(t -> t.getWeekNum()).max().getAsInt();
 
 
         Map<Integer, ScheduleTemplate> scheduleMap = templates.stream().collect(Collectors.toMap(ScheduleTemplate::getOrderIndex, t -> t));
         Repositories.scheduleInfoRepository.deleteBySuiteId(suiteId);
         List<ScheduleInfo> result = new ArrayList<>();
-        users.forEach(u ->{
+        users.forEach(u -> {
             List<ScheduleInfo> userLeft = Repositories.scheduleInfoRepository.findByUserWorkLeft(u.getUserId(), from);
             Repositories.scheduleInfoRepository.delete(userLeft);
-            for(int i=u.getWeekNum()*Constants.WEEK_DAYS;i<(u.getWeekNum()+weeks)*Constants.WEEK_DAYS;i++){
-                ScheduleTemplate t = scheduleMap.get(i%(weeks*Constants.WEEK_DAYS));
+            for (int i = u.getWeekNum() * Constants.WEEK_DAYS; i < (u.getWeekNum() + weeks) * Constants.WEEK_DAYS; i++) {
+                ScheduleTemplate t = scheduleMap.get(i % (weeks * Constants.WEEK_DAYS));
                 ScheduleInfo info = new ScheduleInfo();
                 info.setDistrictId(u.getDistrictId());
                 info.setPositionId(u.getPositionId());
@@ -182,14 +182,15 @@ public class ScheduleTemplateService {
                 info.setUserName(u.getUserName());
                 info.setUserId(u.getUserId());
                 info.setCreateDate(now);
-                info.setScheduleDate(DateUtils.addDays(from,i-u.getWeekNum()*7));
+                info.setScheduleDate(DateUtils.addDays(from, i - u.getWeekNum() * 7));
+                info.setScheduleWeek(dateToWeek(info.getScheduleDate()));
                 info.setDateStr(df.format(info.getScheduleDate()));
                 info.setModified(0);
-                if (t!=null){
+                if (t != null) {
                     info.setSuiteId(t.getSuiteId());
                     info.setDutyClassId(t.getClassId());
                     info.setCellColor(t.getCellColor());
-                    info.setWorkingHours(t.getWorkingLength().doubleValue()/60);
+                    info.setWorkingHours(t.getWorkingLength().doubleValue() / 60);
                     DutyClass dutyClass = Repositories.dutyClassRepository.findOne(t.getClassId());
                     if (t.getWorkflowId() != null) {
                         ScheduleWorkflow workflow = Repositories.workflowRepository.findOne(t.getWorkflowId());
@@ -198,7 +199,7 @@ public class ScheduleTemplateService {
                     }
                     info.setDutyName(dutyClass.getDutyName());
                     info.setDutyCode(dutyClass.getDutyCode());
-                }else {
+                } else {
                     info.setDutyName("休");
                     info.setWorkingHours(0d);
                 }
@@ -217,7 +218,7 @@ public class ScheduleTemplateService {
             result = Repositories.scheduleInfoRepository.findByUserIds(df.parse(startDateStr), df.parse(endDateStr), users.stream().map(User::getId).collect(Collectors.toList()));
         } else {
             result = Repositories.scheduleInfoRepository.findByCondition(df.parse(startDateStr), df.parse(endDateStr), districtId);
-            LOGGER.debug("start date {}, end date{}, districtId {}, size {}",startDateStr,endDateStr,districtId,result.size());
+            LOGGER.debug("start date {}, end date{}, districtId {}, size {}", startDateStr, endDateStr, districtId, result.size());
             if (stationId != null) {
                 result = result.stream().filter(i -> stationId.equals(i.getStationId())).collect(Collectors.toList());
             }
@@ -227,6 +228,16 @@ public class ScheduleTemplateService {
         }
         result.stream().filter(i -> i.getModified() > 0).forEach(info -> info.setLeaveList(Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId())));
         return result;
+    }
+
+    public static String dateToWeek(Date date) {
+        String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
+        Calendar cal = Calendar.getInstance(); // 获得一个日历
+        cal.setTime(date);
+        int w = cal.get(Calendar.DAY_OF_WEEK) - 1; // 指示一个星期中的某天。
+        if (w < 0)
+            w = 0;
+        return weekDays[w];
     }
 }
 
