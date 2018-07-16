@@ -2,6 +2,7 @@ package com.evtape.schedule.web;
 
 import com.evtape.schedule.consts.Constants;
 import com.evtape.schedule.consts.ResponseMeta;
+import com.evtape.schedule.domain.District;
 import com.evtape.schedule.domain.ScheduleInfo;
 import com.evtape.schedule.domain.User;
 import com.evtape.schedule.domain.UserHolidayLimit;
@@ -124,7 +125,11 @@ public class UserHolidayController {
     public ResponseBundle addDistrict(@ApiParam(value = "上传的文件",required = true) MultipartFile file) {
         try {
             List<String> titles=PoiUtil.readTitle(file,0);
+            String title = titles.get(3);
+            String yearStr=title.substring(0,4);
+            Map<Integer, District> districtMap = Repositories.districtRepository.findAll().stream().collect(Collectors.toMap(District::getId, d -> d));
             List<List<String>> lists = PoiUtil.readExcelListContent(file, 0, 1);
+            List<UserHolidayLimit> result=new ArrayList<>();
             lists.forEach(l->{
                 String code=l.get(0);
                 String identity=l.get(1);
@@ -137,9 +142,22 @@ public class UserHolidayController {
                     }
                 }
 
+                UserHolidayLimit limit=new UserHolidayLimit();
+                limit.setLeaveType(1);
+                limit.setYearStr(yearStr);
+                limit.setLineNumber(districtMap.get(u.getDistrictId()).getLineNumber());
+                limit.setDistrictId(u.getDistrictId());
+                limit.setDistrictName(u.getDistrictName());
+                limit.setPositionId(u.getPositionId());
+                limit.setStationName(u.getPositionName());
+                limit.setStationId(u.getStationId());
+                limit.setStationName(u.getStationName());
+                limit.setUserId(u.getId());
+                limit.setYearlyLimit(Integer.parseInt(days));
+                limit.setUserName(u.getUserName());
+                result.add(limit);
             });
-
-
+            Repositories.holidayLimitRepository.save(result);
             return new ResponseBundle().success();
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
