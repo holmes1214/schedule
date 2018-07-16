@@ -66,7 +66,7 @@ public class DutyController {
     }
 
     @ApiOperation(value = "根据班制id获取班次和检查条件", produces = "application/json")
-    @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "int")
+    @ApiImplicitParam(name = "suiteId", value = "班制id", required = true,  paramType = "path", dataType = "int")
     @ResponseBody
     @GetMapping("/suite/{suiteId}")
     public ResponseBundle getSuite(@PathVariable("suiteId") Integer suiteId) {
@@ -191,7 +191,7 @@ public class DutyController {
 
     @ApiOperation(value = "删除时间段", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "periodId", value = "时间段id", required = true, paramType = "body", dataType = "integer")})
+            @ApiImplicitParam(name = "periodId", value = "时间段id", required = true,  paramType = "path", dataType = "integer")})
     @ResponseBody
     @DeleteMapping("/period/{periodId}")
     public ResponseBundle modifyPeriod(@PathVariable Integer periodId) {

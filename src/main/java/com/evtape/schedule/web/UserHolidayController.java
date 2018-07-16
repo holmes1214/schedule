@@ -12,6 +12,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,6 +44,7 @@ public class UserHolidayController {
     }
 
     @ApiOperation(value = "获取用户剩余年假", produces = "application/json")
+    @ApiImplicitParam(name = "userId", value = "用户id", required = true,  paramType = "path", dataType = "int")
     @GetMapping("/annual/{userId}")
     public ResponseBundle getHoliday(@PathVariable("userId") Integer userId) {
         int year = Calendar.getInstance().get(Calendar.YEAR);
@@ -116,10 +118,13 @@ public class UserHolidayController {
     }
 
 
-    @ApiOperation(value = "导入休假", produces = "application/json")
+    @ApiOperation(value = "导入年假", produces = "application/json")
     @PostMapping
     public ResponseBundle addDistrict(@ApiParam(value = "上传的文件",required = true) MultipartFile file) {
         try {
+            File xls=new File("./"+file.getName());
+            file.transferTo(xls);
+
             return new ResponseBundle().success();
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
