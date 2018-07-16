@@ -302,6 +302,8 @@ public class ScheduleController {
             Map<Integer, List<ScheduleWorkflow>> workflowMap=workflowList.stream().collect(Collectors.groupingBy(ScheduleWorkflow::getClassId));;
             List<ScheduleWorkflowContent> contentList=Repositories.contentRepository.findByDistrictId(user.getDistrictId());
             Map<Integer, List<ScheduleWorkflowContent>> contentMap=contentList.stream().collect(Collectors.groupingBy(ScheduleWorkflowContent::getWorkFlowId));
+            response.setHeader("Content-Disposition", "attachment; filename=\"排班.zip\"");
+            response.setContentType("application/octet-stream;charset=UTF-8");
             PictureUtil.createUserSchedulePicture(scheduleMap,shiftMap,workflowMap,contentMap,response.getOutputStream());
         } catch (Exception e) {
             logger.error("error:", e);
