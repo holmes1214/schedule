@@ -141,7 +141,7 @@ public class PoiUtil {
                     sheetName = sheet.getSheetName();
                 }
                 int colNum = readFromColNum;
-                Row row0 = sheet.getRow(readFromRowNum);
+                Row row0 = sheet.getRow(0);
                 // 标题总列数
                 List<String> titleList = Lists.newArrayList();
                 colNum=getTitleList(row0,titleList,readFromColNum);
@@ -410,7 +410,7 @@ public class PoiUtil {
             }
             sheet = wb.getSheetAt(sheetIndex);
             int colNum = 0;
-            Row row0 = sheet.getRow(readFromRowNum);
+            Row row0 = sheet.getRow(0);
             // 标题总列数
             List<String> titleList = Lists.newArrayList();
             while (colNum <= specifyColNum) {
