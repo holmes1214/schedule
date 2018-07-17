@@ -351,6 +351,7 @@ public class ScheduleController {
                 scheduleTemplate.setSuiteId(form.getSuiteId());
                 scheduleTemplate.setWeekNum(form.getWeekNum());
                 scheduleTemplate.setDayNum(form.getDayNum());
+                scheduleTemplate.setOrderIndex(form.getWeekNum()*7+form.getDayNum());
             }
             DutyClass dutyClass = Repositories.dutyClassRepository.findOne(form.getClassId());
             scheduleTemplate.setCellColor(dutyClass.getClassColor());
