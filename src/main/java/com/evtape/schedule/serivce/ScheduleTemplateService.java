@@ -112,7 +112,7 @@ public class ScheduleTemplateService {
         Date now = new Date();
         List<ScheduleUser> users = Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
         List<ScheduleTemplate> templates = Repositories.scheduleTemplateRepository.findBySuiteIdOrderByOrderIndex(suiteId);
-        int weeks = templates.stream().mapToInt(t -> t.getWeekNum()).max().getAsInt();
+        int weeks = templates.stream().mapToInt(t -> t.getWeekNum()).max().getAsInt()+1;
 
 
         Map<Integer, ScheduleTemplate> scheduleMap = templates.stream().collect(Collectors.toMap(ScheduleTemplate::getOrderIndex, t -> t));
@@ -132,7 +132,7 @@ public class ScheduleTemplateService {
                 info.setUserName(u.getUserName());
                 info.setUserId(u.getUserId());
                 info.setCreateDate(now);
-                info.setScheduleDate(DateUtils.addDays(from, i - u.getWeekNum() * 7));
+                info.setScheduleDate(DateUtils.addDays(from, i - u.getWeekNum() * Constants.WEEK_DAYS));
                 info.setScheduleWeek(dateToWeek(info.getScheduleDate()));
                 info.setDateStr(df.format(info.getScheduleDate()));
                 info.setModified(0);
