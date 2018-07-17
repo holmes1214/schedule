@@ -84,9 +84,9 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "stationId", value = "站点id", required = false, paramType = "body", dataType =
+            @ApiImplicitParam(name = "stationId", value = "站点id", paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "positionId", value = "岗位id", paramType = "body", dataType =
                     "integer"),
             @ApiImplicitParam(name = "userName", value = "用户名", required = true, paramType = "body", dataType =
                     "string"),
@@ -96,16 +96,16 @@ public class UserController {
                     "string"),
             @ApiImplicitParam(name = "idCardNumber", value = "身份证号", required = true, paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "birthday", value = "生日", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "birthday", value = "生日", paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "gender", value = "性别", required = true, paramType = "body", dataType = "String"),
-            @ApiImplicitParam(name = "entryDate", value = "入职时间", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "entryDate", value = "入职时间", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "beginWorkDate", value = "参加工作时间", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "beginWorkDate", value = "参加工作时间",  paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚", required = true, paramType = "body",
+            @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚",  paramType = "body",
                     dataType = "String"),
-            @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育", required = true, paramType = "body",
+            @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育",  paramType = "body",
                     dataType = "String"),
             @ApiImplicitParam(name = "employeeCard", value = "员工卡号", required = true, paramType = "body", dataType =
                     "string"),
@@ -113,23 +113,23 @@ public class UserController {
                     "string"),
             @ApiImplicitParam(name = "roleId", value = "角色Id", required = true, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "eduBackGround", value = "学历，高中以下，本科，专科，研究生，博士", required = true, paramType =
+            @ApiImplicitParam(name = "eduBackGround", value = "学历，高中以下，本科，专科，研究生，博士",  paramType =
                     "body", dataType = "string"),
-            @ApiImplicitParam(name = "partyMember", value = "群众，党员，团员，民主党派", required = true, paramType = "body",
+            @ApiImplicitParam(name = "partyMember", value = "群众，党员，团员，民主党派",  paramType = "body",
                     dataType = "string"),
-            @ApiImplicitParam(name = "joinDate", value = "入党入团时间", required = false, paramType = "body", dataType =
+            @ApiImplicitParam(name = "joinDate", value = "入党入团时间", paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "homeAddress", value = "家庭住址", required = true, paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "certNo", value = "站务员证书编号", required = false, paramType = "body", dataType =
+            @ApiImplicitParam(name = "certNo", value = "站务员证书编号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "certLevel", value = "站务员证书等级，站务初级", required = false, paramType = "body",
+            @ApiImplicitParam(name = "certLevel", value = "站务员证书等级，站务初级",  paramType = "body",
                     dataType = "string"),
-            @ApiImplicitParam(name = "xfzNo", value = "消防证书编号", required = false, paramType = "body", dataType =
+            @ApiImplicitParam(name = "xfzNo", value = "消防证书编号",  paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "zwyNo", value = "综控员证书编号", required = false, paramType = "body", dataType =
+            @ApiImplicitParam(name = "zwyNo", value = "综控员证书编号",  paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "zwyLevel", value = "综控员证书级别", required = false, paramType = "body", dataType =
+            @ApiImplicitParam(name = "zwyLevel", value = "综控员证书级别",  paramType = "body", dataType =
                     "string"),})
     @ResponseBody
     @PostMapping
@@ -166,9 +166,9 @@ public class UserController {
             @ApiImplicitParam(name = "id", value = "主键id", required = true, paramType = "body", dataType = "integer"),
             @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "stationId", value = "站点id", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "stationId", value = "站点id",  paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "positionId", value = "岗位id", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "positionId", value = "岗位id", paramType = "body", dataType =
                     "integer"),
             @ApiImplicitParam(name = "roleId", value = "角色id", required = true, paramType = "body", dataType =
                     "integer"),
@@ -180,36 +180,38 @@ public class UserController {
                     "string"),
             @ApiImplicitParam(name = "idCardNumber", value = "身份证号", required = true, paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "birthday", value = "生日", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "birthday", value = "生日", paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "gender", value = "性别", required = true, paramType = "body", dataType = "string"),
-            @ApiImplicitParam(name = "entryDate", value = "入职时间", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "entryDate", value = "入职时间",  paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚", required = true, paramType = "body",
+            @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚",  paramType = "body",
                     dataType = "string"),
-            @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育", required = true, paramType = "body",
+            @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育",  paramType = "body",
                     dataType = "string"),
             @ApiImplicitParam(name = "employeeCard", value = "员工卡号", required = true, paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "eduBackGround", value = "学历，高中以下，本科，专科，研究生，博士", required = true, paramType =
-                    "body", dataType = "string"),
-            @ApiImplicitParam(name = "partyMember", value = " 群众共产党员，共青团员", required = true, paramType = "body",
-                    dataType = "string"),
-            @ApiImplicitParam(name = "joinDate", value = "入党入团时间", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "employeeCode", value = "人员编码", required = true, paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "beginWorkDate", value = "参加工作时间", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "eduBackGround", value = "学历，高中以下，本科，专科，研究生，博士", paramType =
+                    "body", dataType = "string"),
+            @ApiImplicitParam(name = "partyMember", value = " 群众共产党员，共青团员", paramType = "body",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "joinDate", value = "入党入团时间",  paramType = "body", dataType =
+                    "string"),
+            @ApiImplicitParam(name = "beginWorkDate", value = "参加工作时间", paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "homeAddress", value = "家庭住址", required = true, paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "certNo", value = "站务员证书编号", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "certNo", value = "站务员证书编号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "certLevel", value = "站务员证书等级，站务初级", required = true, paramType = "body",
+            @ApiImplicitParam(name = "certLevel", value = "站务员证书等级，站务初级",  paramType = "body",
                     dataType = "string"),
-            @ApiImplicitParam(name = "xfzNo", value = "消防证书编号", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "xfzNo", value = "消防证书编号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "zwyNo", value = "综控员证书编号", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "zwyNo", value = "综控员证书编号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "zwyLevel", value = "综控员证书级别", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "zwyLevel", value = "综控员证书级别",paramType = "body", dataType =
                     "string"),})
     @ResponseBody
     @PutMapping
