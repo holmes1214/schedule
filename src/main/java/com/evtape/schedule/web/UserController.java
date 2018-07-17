@@ -312,6 +312,7 @@ public class UserController {
                     User user = Repositories.userRepository.findByEmployeeCode(code);
                     if (user==null){
                         user=new User();
+                        user.setPassword("abcd1234");
                     }
                     user.setEmployeeCard(empNo);
                     user.setUserName(name);
