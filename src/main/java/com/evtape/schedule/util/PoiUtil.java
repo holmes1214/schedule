@@ -7,7 +7,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +17,6 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -36,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
-import com.evtape.schedule.domain.ScheduleInfo;
 
 public class PoiUtil {
 
@@ -129,9 +125,9 @@ public class PoiUtil {
         try {
             //读取Excel文件
             is = excelFile.getInputStream(); //this.getClass().getResourceAsStream(excelName);
-            if (excelName.toLowerCase().endsWith(".xls")||excelName.toLowerCase().endsWith(".xlsx")) {
+            if (excelName.toLowerCase().endsWith(".xlsx")) {
 
-                Workbook wb = new HSSFWorkbook(is);
+                Workbook wb = new XSSFWorkbook(is);
                 Sheet sheet = null;
                 if (StringUtils.isNotBlank(sheetName)) {
                     logger.debug("Excel: {}, Sheet: {}", excelName, sheetName);
@@ -226,9 +222,9 @@ public class PoiUtil {
         try {
             //读取Excel文件
             is = excelFile.getInputStream(); //this.getClass().getResourceAsStream(excelName);
-            if (excelName.toLowerCase().endsWith(".xls")) {
+            if (excelName.toLowerCase().endsWith(".xlsx")) {
 
-                Workbook wb = new HSSFWorkbook(is);
+                Workbook wb = new XSSFWorkbook(is);
                 Sheet sheet = null;
                 if (null == sheetIndex) {
                     sheetIndex = 0;
@@ -290,7 +286,7 @@ public class PoiUtil {
     public static List<Map<String, String>> readExcelContent(InputStream is, String excelName, String sheetName) {
         List<Map<String, String>> rows = Lists.newArrayList();
         try {
-            Workbook wb = new HSSFWorkbook(is);
+            Workbook wb = new XSSFWorkbook(is);
             logger.debug("Excel: {}, Sheet: {}", excelName, sheetName);
             Sheet sheet = wb.getSheet(sheetName);
             Row row0 = sheet.getRow(0);

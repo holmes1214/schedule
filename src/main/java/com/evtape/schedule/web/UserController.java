@@ -277,6 +277,9 @@ public class UserController {
     @PostMapping("/import")
     public ResponseBundle backuplist(@ApiParam(value = "上传的文件", required = true) MultipartFile file) {
         try {
+            if (!file.getName().endsWith("xlsx")){
+                return new ResponseBundle().failure(ResponseMeta.BAD_FILE_FORMAT);
+            }
             List<Map<String, String>> users = PoiUtil.readExcelContent(file, 0, 1);
             List<District> districts = Repositories.districtRepository.findAll();
             Map<String, District> districtMap = districts.stream().collect(Collectors.toMap(District::getDistrictName, d -> d));
@@ -385,6 +388,7 @@ public class UserController {
             Repositories.userRepository.save(newUsers);
             return new ResponseBundle().success();
         } catch (Exception e) {
+            LOGGER.error("error:",e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
