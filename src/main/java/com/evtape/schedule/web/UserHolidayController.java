@@ -124,7 +124,7 @@ public class UserHolidayController {
     @PostMapping
     public ResponseBundle importAnnualLeave(@ApiParam(value = "上传的文件",required = true) MultipartFile file) {
         try {
-            if (!file.getName().endsWith("xlsx")){
+            if (!file.getOriginalFilename().endsWith("xlsx")){
                 return new ResponseBundle().failure(ResponseMeta.BAD_FILE_FORMAT);
             }
             List<String> titles=PoiUtil.readTitle(file,0);
