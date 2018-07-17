@@ -75,35 +75,6 @@ public class ScheduleTemplateService {
         }
     }
 
-    /**
-     *
-     */
-    public ScheduleTemplate saveTemplate(Integer dutySuiteId, Integer weekNum, Integer dayNum) {
-        ScheduleTemplate template = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(dutySuiteId, weekNum, dayNum);
-        long count = Repositories.scheduleTemplateRepository.countBySuiteIdAndClassId(dutySuiteId, template.getClassId());
-        List<ScheduleWorkflow> workflows = Repositories.workflowRepository.findBySuiteIdAndClassId(dutySuiteId, template.getClassId());
-        DutyClass dutyClass = Repositories.dutyClassRepository.findOne(template.getClassId());
-        if (template == null) {
-            template = new ScheduleTemplate();
-            template.setSuiteId(dutySuiteId);
-            template.setWeekNum(weekNum);
-            template.setDayNum(dayNum);
-            template.setDistrictId(dutyClass.getDistrictId());
-            template.setPositionId(dutyClass.getPositionId());
-            template.setStationId(dutyClass.getStationId());
-            template.setOrderIndex(weekNum * Constants.WEEK_DAYS + dayNum);
-        }
-        template.setClassId(template.getClassId());
-        template.setCellColor(dutyClass.getClassColor());
-        template.setOrderIndex(weekNum * Constants.WEEK_DAYS + dayNum);
-        template.setWorkingLength(dutyClass.getWorkingLength());
-        if (workflows.size() > 0) {
-            int index = (int) (count % dutyClass.getUserCount());
-            template.setWorkflowId(workflows.get(index).getId());
-        }
-        Repositories.scheduleTemplateRepository.save(template);
-        return template;
-    }
 
     /**
      * 排班模板交换任务
@@ -129,29 +100,6 @@ public class ScheduleTemplateService {
         template.setWeekNum(week);
         template.setDayNum(day);
         template.setOrderIndex(week * Constants.WEEK_DAYS + day);
-    }
-
-    /**
-     * 排班模板设置人员
-     */
-    public void setScheduleUser(Integer suiteId, Integer weekNum, Integer userId) {
-        ScheduleUser scheduleUser = new ScheduleUser();
-        scheduleUser.setWeekNum(weekNum);
-        scheduleUser.setSuiteId(suiteId);
-        scheduleUser.setUserId(userId);
-        DutySuite suite = Repositories.dutySuiteRepository.findOne(suiteId);
-        scheduleUser.setDistrictId(suite.getDistrictId());
-        scheduleUser.setStationId(suite.getStationId());
-        scheduleUser.setPositionId(suite.getPositionId());
-        Repositories.scheduleUserRepository.save(scheduleUser);
-    }
-
-    /**
-     * 排班模板取消人员设置
-     */
-    public void removeScheduleUser(Integer suiteId, Integer weekNum) {
-        ScheduleUser user = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(suiteId, weekNum);
-        Repositories.scheduleUserRepository.delete(user);
     }
 
     /**
