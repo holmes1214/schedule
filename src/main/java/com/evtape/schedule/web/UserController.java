@@ -313,6 +313,7 @@ public class UserController {
                     if (user==null){
                         user=new User();
                         user.setPassword("abcd1234");
+                        user.setRoleId(3);
                     }
                     user.setEmployeeCard(empNo);
                     user.setUserName(name);
@@ -334,6 +335,9 @@ public class UserController {
                     }
                     user.setPositionId(p.getId());
                     user.setPositionName(p.getPositionName());
+                    if (p.getPositionName().equals("站区长")){
+                        user.setRoleId(2);
+                    }
                     user.setPhoneNumber(phone);
                     user.setGender(map.get("性别"));
                     user.setBirthday(map.get("出生日期"));
