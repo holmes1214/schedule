@@ -122,7 +122,7 @@ public class UserHolidayController {
 
     @ApiOperation(value = "导入年假", produces = "application/json")
     @PostMapping
-    public ResponseBundle addDistrict(@ApiParam(value = "上传的文件",required = true) MultipartFile file) {
+    public ResponseBundle importAnnualLeave(@ApiParam(value = "上传的文件",required = true) MultipartFile file) {
         try {
             List<String> titles=PoiUtil.readTitle(file,0);
             String title = titles.get(3);
@@ -150,6 +150,7 @@ public class UserHolidayController {
                 limit.setDistrictName(u.getDistrictName());
                 limit.setPositionId(u.getPositionId());
                 limit.setStationName(u.getPositionName());
+                limit.setUserCode(code);
                 limit.setStationId(u.getStationId());
                 limit.setStationName(u.getStationName());
                 limit.setUserId(u.getId());

@@ -1,6 +1,7 @@
 package com.evtape.schedule.web;
 
 import com.beust.jcommander.internal.Lists;
+import com.evtape.schedule.consts.Constants;
 import com.evtape.schedule.consts.ResponseMeta;
 import com.evtape.schedule.domain.District;
 import com.evtape.schedule.domain.Position;
@@ -8,11 +9,9 @@ import com.evtape.schedule.domain.Station;
 import com.evtape.schedule.domain.User;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
+import com.evtape.schedule.util.PoiUtil;
 import com.evtape.schedule.web.auth.Identity;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.annotation.Logical;
@@ -25,10 +24,11 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Api(value = "用户接口")
@@ -256,6 +256,95 @@ public class UserController {
     public ResponseBundle backuplist(@PathVariable("districtId") Integer districtId) {
         try {
             return new ResponseBundle().success(Repositories.userRepository.findByDistrictIdAndBackup(districtId, 1));
+        } catch (Exception e) {
+            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+        }
+    }
+    @ApiOperation(value = "导入用户列表", produces = "application/json")
+    @ResponseBody
+    @PostMapping("/import")
+    public ResponseBundle backuplist(@ApiParam(value = "上传的文件",required = true) MultipartFile file) {
+        try {
+            List<Map<String, String>> users = PoiUtil.readExcelContent(file, 0, 1);
+            List<District> districts = Repositories.districtRepository.findAll();
+            Map<String, District> districtMap = districts.stream().collect(Collectors.toMap(District::getDistrictName, d -> d));
+            Map<String, Station> stationMap = Repositories.stationRepository.findAll().stream().collect(Collectors.toMap(Station::getStationName, s -> s));
+            Map<String, Position> positionMap = Repositories.positionRepository.findAll().stream().collect(Collectors.toMap(p -> p.getDistrictId() + p.getPositionName(), t -> t));
+            List<User> newUsers=new ArrayList<>();
+            users.forEach(map->{
+                User user=new User();
+                String empNo = map.get("员工卡号");
+                if (empNo==null){
+                    return ;
+                }
+                String code = map.get("人员编码");
+                if (code==null){
+                    return ;
+                }
+                String name = map.get("姓名");
+                if (name==null){
+                    return ;
+                }
+                String district = map.get("站区");
+                if (district==null){
+                    return ;
+                }
+                if (!districtMap.containsKey(district)){
+                    return;
+                }
+                String position = map.get("岗位");
+                if (position==null){
+                    return ;
+                }
+                String phone = map.get("手机号");
+                if (phone==null){
+                    phone=map.get("电话");
+                    if (phone==null){
+                        return ;
+                    }
+                }
+                String station = map.get("站点");
+                user.setEmployeeCard(empNo);
+                user.setUserName(name);
+                user.setEmployeeCode(code);
+                District d = districtMap.get(district);
+                if (d==null){
+                    return ;
+                }
+                user.setDistrictId(d.getId());
+                user.setDistrictName(d.getDistrictName());
+                Station s = stationMap.get(station);
+                if (s!=null){
+                    user.setStationId(s.getId());
+                    user.setStationName(s.getStationName());
+                }
+                Position p = positionMap.get(d.getId() + position);
+                if (p==null){
+                    return ;
+                }
+                user.setPositionId(p.getId());
+                user.setPositionName(p.getPositionName());
+                user.setPhoneNumber(phone);
+                user.setGender(map.get("性别"));
+                user.setBirthday(map.get("出生日期"));
+                user.setHomeAddress(map.get("住址"));
+                user.setIdCardNumber(map.get("身份证号码"));
+                user.setIsMarried(map.get("婚否"));
+                user.setHasChild(map.get("子女"));
+                user.setEduBackGround(map.get("学历"));
+                user.setXfzNo(map.get("消防证书编号"));
+                user.setZwyNo(map.get("综控员证书编号"));
+                user.setZwyLevel(map.get("综控员证书级别"));
+                user.setCertNo(map.get("站务员证书编号"));
+                user.setCertLevel(map.get("站务员证书等级"));
+                user.setPartyMember(map.get("政治面貌"));
+                user.setBeginWorkDate(map.get("参加工作时间"));
+                user.setJoinDate(map.get("入党\\团时间"));
+                user.setEntryDate(map.get("入职时间"));
+                newUsers.add(user);
+            });
+            Repositories.userRepository.save(newUsers);
+            return new ResponseBundle().success();
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
