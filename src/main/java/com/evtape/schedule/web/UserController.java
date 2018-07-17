@@ -130,9 +130,7 @@ public class UserController {
             @ApiImplicitParam(name = "zwyNo", value = "综控员证书编号", required = false, paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "zwyLevel", value = "综控员证书级别", required = false, paramType = "body", dataType =
-                    "string"),
-            @ApiImplicitParam(name = "backup", value = "是否是补位人员 1是0不是，默认0", required = true, paramType = "body",
-                    dataType = "integer"),})
+                    "string"),})
     @ResponseBody
     @PostMapping
     @RequiresRoles(value = {"role:admin", "role:district"}, logical = Logical.OR)
@@ -155,7 +153,7 @@ public class UserController {
             form.setDistrictName(district.getDistrictName());
             form.setStationName(station.getStationName());
             form.setPositionName(position.getPositionName());
-
+            form.setBackup(position.getBackupPosition());
             Repositories.userRepository.saveAndFlush(form);
             Subject currentUser = SecurityUtils.getSubject();
             return new ResponseBundle().success(getUserList(currentUser, null, phoneNumber));
@@ -212,9 +210,7 @@ public class UserController {
             @ApiImplicitParam(name = "zwyNo", value = "综控员证书编号", required = true, paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "zwyLevel", value = "综控员证书级别", required = true, paramType = "body", dataType =
-                    "string"),
-            @ApiImplicitParam(name = "backup", value = "是否是补位人员 1是0不是，默认0", required = true, paramType = "body",
-                    dataType = "integer"),})
+                    "string"),})
     @ResponseBody
     @PutMapping
     @RequiresRoles(value = {"role:admin", "role:district"}, logical = Logical.OR)
@@ -227,6 +223,7 @@ public class UserController {
             user.setStationName(station.getStationName());
             Position position = Repositories.positionRepository.findOne(user.getPositionId());
             user.setPositionName(position.getPositionName());
+            user.setBackup(position.getBackupPosition());
             Repositories.userRepository.saveAndFlush(user);
             Subject currentUser = SecurityUtils.getSubject();
             return new ResponseBundle().success(getUserList(currentUser, null, phoneNumber));
@@ -335,6 +332,7 @@ public class UserController {
                     }
                     user.setPositionId(p.getId());
                     user.setPositionName(p.getPositionName());
+                    user.setBackup(p.getBackupPosition());
                     if (p.getPositionName().equals("站区长")){
                         user.setRoleId(2);
                     }
