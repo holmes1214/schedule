@@ -277,7 +277,7 @@ public class UserController {
     @PostMapping("/import")
     public ResponseBundle backuplist(@ApiParam(value = "上传的文件", required = true) MultipartFile file) {
         try {
-            if (!file.getName().endsWith("xlsx")){
+            if (!file.getOriginalFilename().endsWith("xlsx")){
                 return new ResponseBundle().failure(ResponseMeta.BAD_FILE_FORMAT);
             }
             List<Map<String, String>> users = PoiUtil.readExcelContent(file, 0, 1);
