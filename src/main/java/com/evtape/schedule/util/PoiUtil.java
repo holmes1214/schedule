@@ -129,7 +129,7 @@ public class PoiUtil {
         try {
             //读取Excel文件
             is = excelFile.getInputStream(); //this.getClass().getResourceAsStream(excelName);
-            if (excelName.toLowerCase().endsWith(".xls")) {
+            if (excelName.toLowerCase().endsWith(".xls")||excelName.toLowerCase().endsWith(".xlsx")) {
 
                 Workbook wb = new HSSFWorkbook(is);
                 Sheet sheet = null;
