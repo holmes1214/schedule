@@ -103,8 +103,8 @@ public class ScheduleController {
         if (dutySuite.getBackup() == 1) {
             userList = Repositories.userRepository.findByDistrictIdAndBackup(dutySuite.getDistrictId(), 1);
         } else {
-            userList = Repositories.userRepository.findByDistrictIdAndStationId(dutySuite.getDistrictId(),
-                    dutySuite.getStationId());
+            userList = Repositories.userRepository.findByDistrictIdAndStationIdAndPositionId(dutySuite.getDistrictId(),dutySuite.getStationId(),
+                    dutySuite.getPositionId());
         }
         result.put("templatelist", templates);
         result.put("userlist", userList);
