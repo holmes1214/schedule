@@ -116,7 +116,7 @@ public class ScheduleTemplateService {
 
 
         Map<Integer, ScheduleTemplate> scheduleMap = templates.stream().collect(Collectors.toMap(ScheduleTemplate::getOrderIndex, t -> t));
-        List<ScheduleInfo> list=Repositories.scheduleInfoRepository.findBySuiteIdAndStartDate(suiteId,from);
+        List<ScheduleInfo> list = Repositories.scheduleInfoRepository.findBySuiteIdAndStartDate(suiteId, from);
         Repositories.scheduleInfoRepository.deleteInBatch(list);
         Repositories.scheduleInfoRepository.flush();
         List<ScheduleInfo> result = new ArrayList<>();
