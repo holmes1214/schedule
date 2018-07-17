@@ -15,10 +15,6 @@ import org.springframework.stereotype.Repository;
 public interface ScheduleInfoRepository extends JpaRepository<ScheduleInfo, Integer> {
 
 
-    @Modifying
-    @Query("delete from ScheduleInfo where suiteId=?1 ")
-    void deleteBySuiteId(Integer suiteId);
-    
     ScheduleInfo findByUserIdAndDateStr(Integer userId, String dateStr);
 
     @Query("from ScheduleInfo where userId=?1 and scheduleDate>=?2")
@@ -32,4 +28,6 @@ public interface ScheduleInfoRepository extends JpaRepository<ScheduleInfo, Inte
 
     @Query("from ScheduleInfo where scheduleDate>=?1 and scheduleDate<?2")
     List<ScheduleInfo> findByDate(Date begin, Date end);
+    @Query("from ScheduleInfo where suiteId=?1 and scheduleDate>=2")
+    List<ScheduleInfo> findBySuiteIdAndStartDate(Integer suiteId, Date from);
 }
