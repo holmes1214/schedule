@@ -148,12 +148,18 @@ public class UserController {
         Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
             District district = Repositories.districtRepository.findOne(form.getDistrictId());
-            Station station = Repositories.stationRepository.findOne(form.getStationId());
-            Position position = Repositories.positionRepository.findOne(form.getPositionId());
+            if (form.getStationId()!=null){
+                Station station = Repositories.stationRepository.findOne(form.getStationId());
+                form.setStationName(station.getStationName());
+            }
+            if (form.getPositionId()!=null){
+                Position position = Repositories.positionRepository.findOne(form.getPositionId());
+                form.setPositionName(position.getPositionName());
+                form.setBackup(position.getBackupPosition());
+            }else {
+                form.setBackup(0);
+            }
             form.setDistrictName(district.getDistrictName());
-            form.setStationName(station.getStationName());
-            form.setPositionName(position.getPositionName());
-            form.setBackup(position.getBackupPosition());
             Repositories.userRepository.saveAndFlush(form);
             Subject currentUser = SecurityUtils.getSubject();
             return new ResponseBundle().success(getUserList(currentUser, null, phoneNumber));
@@ -221,11 +227,15 @@ public class UserController {
         try {
             District district = Repositories.districtRepository.findOne(user.getDistrictId());
             user.setDistrictName(district.getDistrictName());
-            Station station = Repositories.stationRepository.findOne(user.getStationId());
-            user.setStationName(station.getStationName());
-            Position position = Repositories.positionRepository.findOne(user.getPositionId());
-            user.setPositionName(position.getPositionName());
-            user.setBackup(position.getBackupPosition());
+            if (user.getStationId()!=null){
+                Station station = Repositories.stationRepository.findOne(user.getStationId());
+                user.setStationName(station.getStationName());
+            }
+            if (user.getPositionId()!=null){
+                Position position = Repositories.positionRepository.findOne(user.getPositionId());
+                user.setPositionName(position.getPositionName());
+                user.setBackup(position.getBackupPosition());
+            }
             Repositories.userRepository.saveAndFlush(user);
             Subject currentUser = SecurityUtils.getSubject();
             return new ResponseBundle().success(getUserList(currentUser, null, phoneNumber));
