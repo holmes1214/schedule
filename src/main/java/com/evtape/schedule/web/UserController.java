@@ -327,7 +327,7 @@ public class UserController {
                         }
                     }
                     String station = map.get("站点");
-                    User user = Repositories.userRepository.findByEmployeeCode(code);
+                    User user = Repositories.userRepository.findByPhoneNumber(phone);
                     if (user==null){
                         user=new User();
                         user.setPassword("abcd1234");
