@@ -278,7 +278,6 @@ public class UserController {
             DateFormat standard = new SimpleDateFormat(Constants.DATE_FORMAT);
             users.forEach(map -> {
                 try {
-                    User user = new User();
                     String empNo = map.get("员工卡号");
                     if (empNo == null) {
                         return;
@@ -310,6 +309,10 @@ public class UserController {
                         }
                     }
                     String station = map.get("站点");
+                    User user = Repositories.userRepository.findByEmployeeCode(code);
+                    if (user==null){
+                        user=new User();
+                    }
                     user.setEmployeeCard(empNo);
                     user.setUserName(name);
                     user.setEmployeeCode(code);
