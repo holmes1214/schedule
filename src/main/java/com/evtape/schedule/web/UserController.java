@@ -291,15 +291,15 @@ public class UserController {
             users.forEach(map -> {
                 try {
                     String empNo = map.get("员工卡号");
-                    if (empNo == null) {
-                        LOGGER.error("员工卡号为空");
-                        return;
-                    }
+//                    if (empNo == null) {
+//                        LOGGER.error("员工卡号为空");
+//                        return;
+//                    }
                     String code = map.get("人员编码");
-                    if (code == null) {
-                        LOGGER.error("人员编码为空");
-                        return;
-                    }
+//                    if (code == null) {
+//                        LOGGER.error("人员编码为空");
+//                        return;
+//                    }
                     String name = map.get("姓名");
                     if (name == null) {
                         LOGGER.error("姓名为空");
