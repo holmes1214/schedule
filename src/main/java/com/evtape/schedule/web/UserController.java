@@ -289,18 +289,22 @@ public class UserController {
                 try {
                     String empNo = map.get("员工卡号");
                     if (empNo == null) {
+                        LOGGER.error("员工卡号为空");
                         return;
                     }
                     String code = map.get("人员编码");
                     if (code == null) {
+                        LOGGER.error("人员编码为空");
                         return;
                     }
                     String name = map.get("姓名");
                     if (name == null) {
+                        LOGGER.error("姓名为空");
                         return;
                     }
                     String district = map.get("站区");
                     if (district == null) {
+                        LOGGER.error("站区为空{}",name);
                         return;
                     }
                     if (!districtMap.containsKey(district)) {
@@ -308,12 +312,14 @@ public class UserController {
                     }
                     String position = map.get("岗位");
                     if (position == null) {
+                        LOGGER.error("position为空{}",name);
                         return;
                     }
                     String phone = map.get("手机号");
                     if (phone == null) {
                         phone = map.get("电话");
                         if (phone == null) {
+                            LOGGER.error("phone number为空{}",name);
                             return;
                         }
                     }
@@ -340,6 +346,7 @@ public class UserController {
                     }
                     Position p = positionMap.get(d.getId() + position);
                     if (p == null) {
+                        LOGGER.error("position为空{}",name);
                         return;
                     }
                     user.setPositionId(p.getId());
@@ -371,6 +378,7 @@ public class UserController {
                     user.setEntryDate(map.get("入职时间"));
                     newUsers.add(user);
                 } catch (Exception e) {
+                    LOGGER.error("import error: ",e);
                     return;
                 }
             });
