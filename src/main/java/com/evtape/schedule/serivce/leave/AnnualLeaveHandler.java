@@ -38,26 +38,31 @@ public class AnnualLeaveHandler extends AbstractLeaveHandler implements LeaveHan
         Date start=getLeaveDate(startDate);
         List<ScheduleLeave> result=new ArrayList<>();
         List<ScheduleInfo> modifiedSchedule=new ArrayList<>();
+        User user=Repositories.userRepository.findOne(userId);
+        User insteadUser=null;
+        if (instead!=null){
+            insteadUser=Repositories.userRepository.findOne(instead);
+        }
         for(int i=0;i<leaveCount;i++){
             Date date= DateUtils.addDays(start,i);
             String dateStr=getLeaveDateStr(date);
             ScheduleInfo info=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId,dateStr);
-            ScheduleInfo info2=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(instead,dateStr);
-            User user=Repositories.userRepository.findOne(userId);
-            User insteadUser=Repositories.userRepository.findOne(instead);
+            if (insteadUser!=null){
+                ScheduleInfo info2=Repositories.scheduleInfoRepository.findByUserIdAndDateStr(instead,dateStr);
+                info2=completeScheduleInfo(info2,insteadUser,date,dateStr);
+                ScheduleLeave leave2=getInsteadInfo(schedule.getDistrictId(),instead,info2,schedule.getWorkingHours(),conf.getDescription(),content,type,subType,user);
+                result.add(leave2);
+                info2.setModified(1);
+                modifiedSchedule.add(info2);
+            }
             info=completeScheduleInfo(info,user,date,dateStr);
-            info2=completeScheduleInfo(info2,insteadUser,date,dateStr);
             ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info, conf.getDescription(), content,type,subType,insteadUser);
             leave1.setLeaveHours(8d);
-            ScheduleLeave leave2=getInsteadInfo(schedule.getDistrictId(),instead,info2,schedule.getWorkingHours(),conf.getDescription(),content,type,subType,user);
             result.add(leave1);
-            result.add(leave2);
 
             //将排班信息设置为修改，方便查询是否有请假数据
             info.setModified(1);
-            info2.setModified(1);
             modifiedSchedule.add(info);
-            modifiedSchedule.add(info2);
         }
 
         Repositories.scheduleLeaveRepository.save(result);

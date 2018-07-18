@@ -286,8 +286,8 @@ public class UserController {
                 return new ResponseBundle().success(backupList);
             }
             ScheduleInfo info = Repositories.scheduleInfoRepository.findOne(scheduleInfoId);
-            List<ScheduleInfo> list = Repositories.scheduleInfoRepository.findByUserIdsAndDateStr(backupList.stream().map(User::getId).collect(Collectors.toList()), info.getDateStr());
-            Set<Integer> userSet = list.stream().map(ScheduleInfo::getUserId).collect(Collectors.toSet());
+            List<ScheduleLeave> list = Repositories.scheduleLeaveRepository.findByUserIdsAndDateStr(backupList.stream().map(User::getId).collect(Collectors.toList()), info.getDateStr());
+            Set<Integer> userSet = list.stream().map(ScheduleLeave::getUserId).collect(Collectors.toSet());
             return new ResponseBundle().success(backupList.stream().filter(u->!userSet.contains(u.getId())).collect(Collectors.toList()));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);

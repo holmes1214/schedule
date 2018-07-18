@@ -28,15 +28,22 @@ public class WorkerExchangeHandler extends TrainingTaskHandler implements LeaveH
      * @return
      */
     @Override
-    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Double leaveCount, Integer instead, String content,Integer type,Integer subType) {
+    public List<ScheduleLeave> processLeaveHours(Integer scheduleInfoId, Double leaveCount, Integer instead, String content, Integer type, Integer subType) {
         ScheduleInfo schedule = Repositories.scheduleInfoRepository.findOne(scheduleInfoId);
         Integer userId = schedule.getUserId();
         String startDate = schedule.getDateStr();
 
+        User insteadUser = Repositories.userRepository.findOne(instead);
         Date start = getLeaveDate(startDate);
         List<ScheduleLeave> result = new ArrayList<>();
         List<ScheduleInfo> infoList = Repositories.scheduleInfoRepository.findByUserWorkLeft(userId, start);
-        infoList.forEach(i->i.setUserId(instead));
+        infoList.forEach(i -> {
+            i.setUserId(instead);
+            i.setUserName(insteadUser.getUserName());
+            i.setPositionId(insteadUser.getPositionId());
+            i.setPositionName(insteadUser.getPositionName());
+            i.setStationId(insteadUser.getStationId());
+        });
 
 
         Repositories.scheduleLeaveRepository.save(result);

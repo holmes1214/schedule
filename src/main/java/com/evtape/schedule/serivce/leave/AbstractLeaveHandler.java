@@ -78,14 +78,17 @@ public abstract class AbstractLeaveHandler implements LeaveHandler {
         ScheduleInfo info = Repositories.scheduleInfoRepository.findByUserIdAndDateStr(userId, dateStr);
         ScheduleInfo info2 = Repositories.scheduleInfoRepository.findByUserIdAndDateStr(instead, dateStr);
         User user=Repositories.userRepository.findOne(userId);
-        User insteadUser=Repositories.userRepository.findOne(instead);
+        User insteadUser=null;
+        if(instead!=null){
+            insteadUser=Repositories.userRepository.findOne(instead);
+            info2=completeScheduleInfo(info2,insteadUser,start,dateStr);
+            ScheduleLeave leave2 = getInsteadInfo(schedule.getDistrictId(), instead, info2, schedule.getWorkingHours(), conf.getDescription(), content,type,subType,user);
+            result.add(leave2);
+        }
         info=completeScheduleInfo(info,user,start,dateStr);
-        info2=completeScheduleInfo(info2,insteadUser,start,dateStr);
         ScheduleLeave leave1 = getLeaveInfo(schedule.getDistrictId(), schedule.getUserId(), info, conf.getDescription(), content,type,subType,insteadUser);
-        ScheduleLeave leave2 = getInsteadInfo(schedule.getDistrictId(), instead, info2, schedule.getWorkingHours(), conf.getDescription(), content,type,subType,user);
 
         result.add(leave1);
-        result.add(leave2);
 
         //将排班信息设置为修改，方便查询是否有请假数据
         info.setModified(1);
