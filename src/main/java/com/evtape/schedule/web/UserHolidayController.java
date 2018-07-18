@@ -10,6 +10,7 @@ import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.util.PoiUtil;
 import io.swagger.annotations.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,9 +36,20 @@ public class UserHolidayController {
                     dataType = "string"),
             @ApiImplicitParam(name = "districtId", value = "站区id", paramType = "query",
                     dataType = "int"),
+            @ApiImplicitParam(name = "idCardNo", value = "身份证号", paramType = "query",
+                    dataType = "int"),
     })
     @GetMapping
-    public ResponseBundle search(@RequestParam("year") String year, @RequestParam(value = "districtId",required = false) Integer districtId) {
+    public ResponseBundle search(@RequestParam("year") String year, @RequestParam(value = "districtId",required = false) Integer districtId,
+                                 @RequestParam(value = "idCardNo",required = false) String idCardNo) {
+        if (StringUtils.isNotBlank(idCardNo)){
+            User user = Repositories.userRepository.findByIdCardNumber(idCardNo);
+            if (user!=null) {
+                List<UserHolidayLimit> list=new ArrayList<>();
+                list.add(Repositories.holidayLimitRepository.findByYearStrAndUserId(year,user.getId()));
+                return new ResponseBundle().success(list);
+            }
+        }
         List<UserHolidayLimit> list = Repositories.holidayLimitRepository.findByYearStr(year);
         if (districtId != null) {
             list = list.stream().filter(t -> districtId.equals(t.getDistrictId())).collect(Collectors.toList());

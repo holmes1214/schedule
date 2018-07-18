@@ -3,10 +3,7 @@ package com.evtape.schedule.web;
 import com.beust.jcommander.internal.Lists;
 import com.evtape.schedule.consts.Constants;
 import com.evtape.schedule.consts.ResponseMeta;
-import com.evtape.schedule.domain.District;
-import com.evtape.schedule.domain.Position;
-import com.evtape.schedule.domain.Station;
-import com.evtape.schedule.domain.User;
+import com.evtape.schedule.domain.*;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.util.PoiUtil;
@@ -273,13 +270,25 @@ public class UserController {
     }
 
     @ApiOperation(value = "备班用户列表", produces = "application/json")
-    @ApiImplicitParam(name = "districtId", value = "districtId", required = true, paramType = "path", dataType =
-            "integer")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "districtId", value = "districtId", required = true, paramType = "path", dataType =
+                    "integer"),
+            @ApiImplicitParam(name = "scheduleInfoId", value = "排班id", paramType = "query", dataType =
+                    "integer"),
+    })
     @ResponseBody
     @GetMapping("/backuplist/{districtId}")
-    public ResponseBundle backuplist(@PathVariable("districtId") Integer districtId) {
+    public ResponseBundle backuplist(@PathVariable("districtId") Integer districtId,
+                                     @RequestParam(value = "scheduleInfoId",required = false) Integer scheduleInfoId) {
         try {
-            return new ResponseBundle().success(Repositories.userRepository.findByDistrictIdAndBackup(districtId, 1));
+            List<User> backupList = Repositories.userRepository.findByDistrictIdAndBackup(districtId, 1);
+            if (scheduleInfoId==null){
+                return new ResponseBundle().success(backupList);
+            }
+            ScheduleInfo info = Repositories.scheduleInfoRepository.findOne(scheduleInfoId);
+            List<ScheduleInfo> list = Repositories.scheduleInfoRepository.findByUserIdsAndDateStr(backupList.stream().map(User::getId).collect(Collectors.toList()), info.getDateStr());
+            Set<Integer> userSet = list.stream().map(ScheduleInfo::getUserId).collect(Collectors.toSet());
+            return new ResponseBundle().success(backupList.stream().filter(u->!userSet.contains(u.getId())).collect(Collectors.toList()));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
