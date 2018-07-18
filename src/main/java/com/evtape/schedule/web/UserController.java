@@ -96,16 +96,13 @@ public class UserController {
                     "string"),
             @ApiImplicitParam(name = "idCardNumber", value = "身份证号", required = true, paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "birthday", value = "生日", paramType = "body", dataType =
-                    "string"),
-            @ApiImplicitParam(name = "gender", value = "性别", required = true, paramType = "body", dataType = "String"),
             @ApiImplicitParam(name = "entryDate", value = "入职时间", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "beginWorkDate", value = "参加工作时间",  paramType = "body", dataType =
+            @ApiImplicitParam(name = "beginWorkDate", value = "参加工作时间", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚",  paramType = "body",
+            @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚", paramType = "body",
                     dataType = "String"),
-            @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育",  paramType = "body",
+            @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育", paramType = "body",
                     dataType = "String"),
             @ApiImplicitParam(name = "employeeCard", value = "员工卡号", required = true, paramType = "body", dataType =
                     "string"),
@@ -113,9 +110,9 @@ public class UserController {
                     "string"),
             @ApiImplicitParam(name = "roleId", value = "角色Id", required = true, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "eduBackGround", value = "学历，高中以下，本科，专科，研究生，博士",  paramType =
+            @ApiImplicitParam(name = "eduBackGround", value = "学历，高中以下，本科，专科，研究生，博士", paramType =
                     "body", dataType = "string"),
-            @ApiImplicitParam(name = "partyMember", value = "群众，党员，团员，民主党派",  paramType = "body",
+            @ApiImplicitParam(name = "partyMember", value = "群众，党员，团员，民主党派", paramType = "body",
                     dataType = "string"),
             @ApiImplicitParam(name = "joinDate", value = "入党入团时间", paramType = "body", dataType =
                     "string"),
@@ -123,13 +120,13 @@ public class UserController {
                     "string"),
             @ApiImplicitParam(name = "certNo", value = "站务员证书编号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "certLevel", value = "站务员证书等级，站务初级",  paramType = "body",
+            @ApiImplicitParam(name = "certLevel", value = "站务员证书等级，站务初级", paramType = "body",
                     dataType = "string"),
-            @ApiImplicitParam(name = "xfzNo", value = "消防证书编号",  paramType = "body", dataType =
+            @ApiImplicitParam(name = "xfzNo", value = "消防证书编号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "zwyNo", value = "综控员证书编号",  paramType = "body", dataType =
+            @ApiImplicitParam(name = "zwyNo", value = "综控员证书编号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "zwyLevel", value = "综控员证书级别",  paramType = "body", dataType =
+            @ApiImplicitParam(name = "zwyLevel", value = "综控员证书级别", paramType = "body", dataType =
                     "string"),})
     @ResponseBody
     @PostMapping
@@ -148,17 +145,18 @@ public class UserController {
         Optional<User> user = Optional.ofNullable(Repositories.userRepository.findByPhoneNumber(phoneNumber));
         return user.map(u -> {
             District district = Repositories.districtRepository.findOne(form.getDistrictId());
-            if (form.getStationId()!=null){
+            if (form.getStationId() != null) {
                 Station station = Repositories.stationRepository.findOne(form.getStationId());
                 form.setStationName(station.getStationName());
             }
-            if (form.getPositionId()!=null){
+            if (form.getPositionId() != null) {
                 Position position = Repositories.positionRepository.findOne(form.getPositionId());
                 form.setPositionName(position.getPositionName());
                 form.setBackup(position.getBackupPosition());
-            }else {
+            } else {
                 form.setBackup(0);
             }
+            setBirthdayAndGender(form);
             form.setDistrictName(district.getDistrictName());
             Repositories.userRepository.saveAndFlush(form);
             Subject currentUser = SecurityUtils.getSubject();
@@ -167,12 +165,29 @@ public class UserController {
 
     }
 
+    private void setBirthdayAndGender(User form) {
+        try {
+            String birthday = form.getIdCardNumber().substring(6, 14);
+            DateFormat df = new SimpleDateFormat("yyyyMMdd");
+            DateFormat standard = new SimpleDateFormat(Constants.DATE_FORMAT);
+            form.setBirthday(standard.format(df.parse(birthday)));
+            char c = form.getIdCardNumber().charAt(16);
+            if (c == '1') {
+                form.setGender("男");
+            } else {
+                form.setGender("女");
+            }
+        } catch (Exception e) {
+            LOGGER.error("set birthday error: ", e);
+        }
+    }
+
     @ApiOperation(value = "更新用户", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "主键id", required = true, paramType = "body", dataType = "integer"),
             @ApiImplicitParam(name = "districtId", value = "站区id", required = true, paramType = "body", dataType =
                     "integer"),
-            @ApiImplicitParam(name = "stationId", value = "站点id",  paramType = "body", dataType =
+            @ApiImplicitParam(name = "stationId", value = "站点id", paramType = "body", dataType =
                     "integer"),
             @ApiImplicitParam(name = "positionId", value = "岗位id", paramType = "body", dataType =
                     "integer"),
@@ -186,14 +201,11 @@ public class UserController {
                     "string"),
             @ApiImplicitParam(name = "idCardNumber", value = "身份证号", required = true, paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "birthday", value = "生日", paramType = "body", dataType =
+            @ApiImplicitParam(name = "entryDate", value = "入职时间", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "gender", value = "性别", required = true, paramType = "body", dataType = "string"),
-            @ApiImplicitParam(name = "entryDate", value = "入职时间",  paramType = "body", dataType =
-                    "string"),
-            @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚",  paramType = "body",
+            @ApiImplicitParam(name = "isMarried", value = "未婚已婚 0未婚 1已婚", paramType = "body",
                     dataType = "string"),
-            @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育",  paramType = "body",
+            @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育", paramType = "body",
                     dataType = "string"),
             @ApiImplicitParam(name = "employeeCard", value = "员工卡号", required = true, paramType = "body", dataType =
                     "string"),
@@ -203,7 +215,7 @@ public class UserController {
                     "body", dataType = "string"),
             @ApiImplicitParam(name = "partyMember", value = " 群众共产党员，共青团员", paramType = "body",
                     dataType = "string"),
-            @ApiImplicitParam(name = "joinDate", value = "入党入团时间",  paramType = "body", dataType =
+            @ApiImplicitParam(name = "joinDate", value = "入党入团时间", paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "beginWorkDate", value = "参加工作时间", paramType = "body", dataType =
                     "string"),
@@ -211,13 +223,13 @@ public class UserController {
                     "string"),
             @ApiImplicitParam(name = "certNo", value = "站务员证书编号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "certLevel", value = "站务员证书等级，站务初级",  paramType = "body",
+            @ApiImplicitParam(name = "certLevel", value = "站务员证书等级，站务初级", paramType = "body",
                     dataType = "string"),
             @ApiImplicitParam(name = "xfzNo", value = "消防证书编号", paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "zwyNo", value = "综控员证书编号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "zwyLevel", value = "综控员证书级别",paramType = "body", dataType =
+            @ApiImplicitParam(name = "zwyLevel", value = "综控员证书级别", paramType = "body", dataType =
                     "string"),})
     @ResponseBody
     @PutMapping
@@ -227,15 +239,16 @@ public class UserController {
         try {
             District district = Repositories.districtRepository.findOne(user.getDistrictId());
             user.setDistrictName(district.getDistrictName());
-            if (user.getStationId()!=null){
+            if (user.getStationId() != null) {
                 Station station = Repositories.stationRepository.findOne(user.getStationId());
                 user.setStationName(station.getStationName());
             }
-            if (user.getPositionId()!=null){
+            if (user.getPositionId() != null) {
                 Position position = Repositories.positionRepository.findOne(user.getPositionId());
                 user.setPositionName(position.getPositionName());
                 user.setBackup(position.getBackupPosition());
             }
+            setBirthdayAndGender(user);
             Repositories.userRepository.saveAndFlush(user);
             Subject currentUser = SecurityUtils.getSubject();
             return new ResponseBundle().success(getUserList(currentUser, null, phoneNumber));
@@ -277,7 +290,7 @@ public class UserController {
     @PostMapping("/import")
     public ResponseBundle backuplist(@ApiParam(value = "上传的文件", required = true) MultipartFile file) {
         try {
-            if (!file.getOriginalFilename().endsWith("xlsx")){
+            if (!file.getOriginalFilename().endsWith("xlsx")) {
                 return new ResponseBundle().failure(ResponseMeta.BAD_FILE_FORMAT);
             }
             List<Map<String, String>> users = PoiUtil.readExcelContent(file, 0, 1);
@@ -307,7 +320,7 @@ public class UserController {
                     }
                     String district = map.get("站区");
                     if (district == null) {
-                        LOGGER.error("站区为空{}",name);
+                        LOGGER.error("站区为空{}", name);
                         return;
                     }
                     if (!districtMap.containsKey(district)) {
@@ -315,21 +328,21 @@ public class UserController {
                     }
                     String position = map.get("岗位");
                     if (position == null) {
-                        LOGGER.error("position为空{}",name);
+                        LOGGER.error("position为空{}", name);
                         return;
                     }
                     String phone = map.get("手机号");
                     if (phone == null) {
                         phone = map.get("电话");
                         if (phone == null) {
-                            LOGGER.error("phone number为空{}",name);
+                            LOGGER.error("phone number为空{}", name);
                             return;
                         }
                     }
                     String station = map.get("站点");
                     User user = Repositories.userRepository.findByPhoneNumber(phone);
-                    if (user==null){
-                        user=new User();
+                    if (user == null) {
+                        user = new User();
                         user.setPassword("abcd1234");
                         user.setRoleId(3);
                     }
@@ -349,24 +362,19 @@ public class UserController {
                     }
                     Position p = positionMap.get(d.getId() + position);
                     if (p == null) {
-                        LOGGER.error("position为空{}",name);
+                        LOGGER.error("position为空{}", name);
                         return;
                     }
                     user.setPositionId(p.getId());
                     user.setPositionName(p.getPositionName());
                     user.setBackup(p.getBackupPosition());
-                    if (p.getPositionName().equals("站区长")){
+                    if (p.getPositionName().equals("站区长")) {
                         user.setRoleId(2);
                     }
                     user.setPhoneNumber(phone);
-                    user.setGender(map.get("性别"));
-                    user.setBirthday(map.get("出生日期"));
                     user.setHomeAddress(map.get("住址"));
                     user.setIdCardNumber(map.get("身份证号码"));
-                    if (StringUtils.isBlank(user.getBirthday()) && StringUtils.isNotBlank(user.getIdCardNumber())) {
-                        String birthday = user.getIdCardNumber().substring(6, 14);
-                        user.setBirthday(standard.format(df.parse(birthday)));
-                    }
+                    setBirthdayAndGender(user);
                     user.setIsMarried(map.get("婚否"));
                     user.setHasChild(map.get("子女"));
                     user.setEduBackGround(map.get("学历"));
@@ -381,14 +389,14 @@ public class UserController {
                     user.setEntryDate(map.get("入职时间"));
                     newUsers.add(user);
                 } catch (Exception e) {
-                    LOGGER.error("import error: ",e);
+                    LOGGER.error("import error: ", e);
                     return;
                 }
             });
             Repositories.userRepository.save(newUsers);
             return new ResponseBundle().success();
         } catch (Exception e) {
-            LOGGER.error("error:",e);
+            LOGGER.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }

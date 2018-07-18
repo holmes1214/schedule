@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +65,7 @@ public class LeaveController {
     @ApiImplicitParam(name = "scheduleInfoId", value = "请假当天排班id", required = true, paramType = "body",
             dataType = "int")
     @PutMapping
+    @Transactional
     public ResponseBundle cancelLeave(@RequestBody LeaveForm form) {
         try {
             ScheduleInfo info = Repositories.scheduleInfoRepository.findOne(form.getScheduleInfoId());
