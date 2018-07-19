@@ -90,6 +90,7 @@ public class ScheduleTemplateService {
     /**
      * 排班模板交换任务
      */
+    @Transactional
     public void exchangeTemplate(Integer suiteId, Integer weekNum1, Integer dayNum1, Integer weekNum2,
                                  Integer dayNum2) {
         ScheduleTemplate template1 = Repositories.scheduleTemplateRepository.
@@ -100,12 +101,16 @@ public class ScheduleTemplateService {
         List<ScheduleTemplate> list=new ArrayList<>();
         if (template1 != null) {
             setDateInfo(template1, weekNum2, dayNum2);
+//            template1.setTemprory(1);
             list.add(template1);
         }
         if (template2 != null) {
             setDateInfo(template2, weekNum1, dayNum1);
+//            template2.setTemprory(1);
             list.add(template2);
         }
+//        Repositories.scheduleTemplateRepository.save(list);
+//        list.forEach(t->t.setTemprory(0));
         Repositories.scheduleTemplateRepository.save(list);
     }
 
