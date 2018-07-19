@@ -3,17 +3,18 @@ package com.evtape.schedule.serivce;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.swing.*;
 import javax.transaction.Transactional;
-
-import com.evtape.schedule.consts.Constants;
-import com.evtape.schedule.consts.ResponseMeta;
-import com.evtape.schedule.domain.*;
-import com.evtape.schedule.exception.BaseException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -21,6 +22,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.evtape.schedule.consts.Constants;
+import com.evtape.schedule.consts.ResponseMeta;
+import com.evtape.schedule.domain.DutyClass;
+import com.evtape.schedule.domain.DutySuite;
+import com.evtape.schedule.domain.ScheduleInfo;
+import com.evtape.schedule.domain.ScheduleTemplate;
+import com.evtape.schedule.domain.ScheduleUser;
+import com.evtape.schedule.domain.ScheduleWorkflow;
+import com.evtape.schedule.domain.User;
+import com.evtape.schedule.exception.BaseException;
 import com.evtape.schedule.persistent.Repositories;
 import com.evtape.schedule.support.service.ScheduleCalculator;
 
@@ -183,7 +194,10 @@ public class ScheduleTemplateService {
                 result = result.stream().filter(i -> positionId.equals(i.getPositionId())).collect(Collectors.toList());
             }
         }
-        if (result!=null&&result.size()>0){
+        if(result==null){
+        	return new ArrayList<>();
+        }
+        if (result.size()>0){
             result.stream().filter(i -> i.getModified() > 0).forEach(info -> info.setLeaveList(Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId())));
         }
         return result;

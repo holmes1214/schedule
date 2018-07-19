@@ -1,12 +1,46 @@
 package com.evtape.schedule.web;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.evtape.schedule.consts.ResponseMeta;
-import com.evtape.schedule.domain.*;
+import com.evtape.schedule.domain.DutyClass;
+import com.evtape.schedule.domain.DutySuite;
+import com.evtape.schedule.domain.ScheduleInfo;
+import com.evtape.schedule.domain.ScheduleTemplate;
+import com.evtape.schedule.domain.ScheduleUser;
+import com.evtape.schedule.domain.ScheduleWorkflow;
+import com.evtape.schedule.domain.ScheduleWorkflowContent;
+import com.evtape.schedule.domain.User;
 import com.evtape.schedule.domain.form.ScheduleForm;
 import com.evtape.schedule.domain.form.ScheduleUserForm;
-import com.evtape.schedule.domain.vo.DutyClassVo;
 import com.evtape.schedule.domain.vo.ResponseBundle;
 import com.evtape.schedule.exception.BaseException;
 import com.evtape.schedule.persistent.Repositories;
@@ -14,21 +48,6 @@ import com.evtape.schedule.serivce.ScheduleTemplateService;
 import com.evtape.schedule.serivce.WorkflowService;
 import com.evtape.schedule.util.PictureUtil;
 import com.evtape.schedule.web.auth.Identity;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
-import org.apache.shiro.subject.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 排班
