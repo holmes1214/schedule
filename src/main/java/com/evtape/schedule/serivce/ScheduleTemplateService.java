@@ -166,7 +166,7 @@ public class ScheduleTemplateService {
     }
 
     public List<ScheduleInfo> searchScheduleInfo(String startDateStr, String endDateStr, Integer districtId, Integer stationId, Integer positionId, String userName) throws ParseException {
-        List<ScheduleInfo> result;
+        List<ScheduleInfo> result=null;
         DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
         if (StringUtils.isNotBlank(userName)) {
             List<User> users = Repositories.userRepository.findByUserNameOrEmployeeCard(userName, userName);
@@ -183,7 +183,9 @@ public class ScheduleTemplateService {
                 result = result.stream().filter(i -> positionId.equals(i.getPositionId())).collect(Collectors.toList());
             }
         }
-        result.stream().filter(i -> i.getModified() > 0).forEach(info -> info.setLeaveList(Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId())));
+        if (result!=null&&result.size()>0){
+            result.stream().filter(i -> i.getModified() > 0).forEach(info -> info.setLeaveList(Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId())));
+        }
         return result;
     }
 
