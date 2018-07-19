@@ -51,7 +51,8 @@ public enum ResponseMeta {
     HAS_CLASSES(50101, "当前班制包含班次，不能删除"),
 
     HAS_WORKFLOW(50102, "当前班次包含工作流，不能删除"), HAS_TEMPLATE(50103, "当前班次包含排班模板，不能删除"),
-    UN_UNIQUE_DISTRICT(50104,"站区不一致" ), BAD_FILE_FORMAT(50105, "请上传office2007版本的excel表格");
+    UN_UNIQUE_DISTRICT(50104,"站区不一致" ), BAD_FILE_FORMAT(50105, "请上传office2007版本的excel表格"),
+    USER_ACCOUNT_NOT_EXISTS(50105,"没有这个用户" );
     /* 无权观看视频 */
 
     private Integer code;

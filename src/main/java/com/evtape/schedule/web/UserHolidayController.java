@@ -56,6 +56,51 @@ public class UserHolidayController {
         }
         return new ResponseBundle().success(list);
     }
+    @ApiOperation(value = "设置用户年假", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userIdCard", value = "身份证", paramType = "body",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "userId", value = "用户id", paramType = "body",
+                    dataType = "int"),
+            @ApiImplicitParam(name = "userCode", value = "员工编码", paramType = "body",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "yearStr", value = "年份",required = true,paramType = "body",
+                    dataType = "string"),
+            @ApiImplicitParam(name = "yearlyLimit", value = "年假天数",required = true,paramType = "body",
+                    dataType = "int"),
+    })
+    @PostMapping("annual")
+    public ResponseBundle modifyAnnual(@RequestBody UserHolidayLimit form) {
+        User user=null;
+        if (form.getUserId()!=null){
+            user = Repositories.userRepository.findOne(form.getUserId());
+        } else if(form.getUserIdCard()!=null){
+            user=Repositories.userRepository.findByIdCardNumber(form.getUserIdCard());
+        }else if(form.getUserCode()!=null){
+            user=Repositories.userRepository.findByEmployeeCode(form.getUserCode());
+        }
+
+        if (user==null){
+            return new ResponseBundle().failure(ResponseMeta.USER_ACCOUNT_NOT_EXISTS);
+        }
+
+        UserHolidayLimit limit = Repositories.holidayLimitRepository.findByYearStrAndUserId(form.getYearStr(), user.getId());
+        if (limit==null){
+            limit=new UserHolidayLimit();
+            limit.setStationId(user.getStationId());
+            limit.setUserIdCard(user.getIdCardNumber());
+            limit.setUserId(user.getId());
+            limit.setUserCode(user.getEmployeeCode());
+            limit.setUserName(user.getUserName());
+            limit.setPositionId(user.getPositionId());
+            limit.setDistrictId(user.getDistrictId());
+            limit.setDistrictName(user.getDistrictName());
+            limit.setLineNumber(Repositories.districtRepository.findOne(user.getDistrictId()).getLineNumber());
+        }
+        limit.setYearlyLimit(form.getYearlyLimit());
+        Repositories.holidayLimitRepository.save(limit);
+        return new ResponseBundle().success(limit);
+    }
 
     @ApiOperation(value = "获取用户剩余年假", produces = "application/json")
     @ApiImplicitParam(name = "userId", value = "用户id", required = true,  paramType = "path", dataType = "int")
@@ -165,6 +210,7 @@ public class UserHolidayController {
                 limit.setDistrictName(u.getDistrictName());
                 limit.setPositionId(u.getPositionId());
                 limit.setStationName(u.getPositionName());
+                limit.setUserIdCard(identity);
                 limit.setUserCode(code);
                 limit.setStationId(u.getStationId());
                 limit.setStationName(u.getStationName());

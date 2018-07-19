@@ -36,6 +36,8 @@ public class UserHolidayLimit {
 
 	private Integer userId;
 
+	private String userIdCard;
+
 	private String userCode;
 
 	private String userName;
