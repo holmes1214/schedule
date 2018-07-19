@@ -170,7 +170,9 @@ public class ScheduleTemplateService {
         DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
         if (StringUtils.isNotBlank(userName)) {
             List<User> users = Repositories.userRepository.findByUserNameOrEmployeeCard(userName, userName);
-            result = Repositories.scheduleInfoRepository.findByUserIds(df.parse(startDateStr), df.parse(endDateStr), users.stream().map(User::getId).collect(Collectors.toList()));
+            if (users.size()>0){
+                result = Repositories.scheduleInfoRepository.findByUserIds(df.parse(startDateStr), df.parse(endDateStr), users.stream().map(User::getId).collect(Collectors.toList()));
+            }
         } else {
             result = Repositories.scheduleInfoRepository.findByCondition(df.parse(startDateStr), df.parse(endDateStr), districtId);
             LOGGER.debug("start date {}, end date{}, districtId {}, size {}", startDateStr, endDateStr, districtId, result.size());
