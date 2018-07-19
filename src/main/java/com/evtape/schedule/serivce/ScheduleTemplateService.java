@@ -86,14 +86,16 @@ public class ScheduleTemplateService {
         ScheduleTemplate template2 = Repositories.scheduleTemplateRepository.
                 findBySuiteIdAndWeekNumAndDayNum(suiteId, weekNum2, dayNum2);
 
+        List<ScheduleTemplate> list=new ArrayList<>();
         if (template1 != null) {
             setDateInfo(template1, weekNum2, dayNum2);
-            Repositories.scheduleTemplateRepository.saveAndFlush(template1);
+            list.add(template1);
         }
         if (template2 != null) {
             setDateInfo(template2, weekNum1, dayNum1);
-            Repositories.scheduleTemplateRepository.saveAndFlush(template2);
+            list.add(template2);
         }
+        Repositories.scheduleTemplateRepository.save(list);
     }
 
     public void setDateInfo(ScheduleTemplate template, Integer week, Integer day) {
@@ -113,13 +115,16 @@ public class ScheduleTemplateService {
         List<ScheduleUser> users = Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
         List<ScheduleTemplate> templates = Repositories.scheduleTemplateRepository.findBySuiteIdOrderByOrderIndex(suiteId);
         int weeks = templates.stream().mapToInt(t -> t.getWeekNum()).max().getAsInt()+1;
+        List<ScheduleInfo> result = new ArrayList<>();
 
+        if (users.size()==0){
+            return result;
+        }
 
         Map<Integer, ScheduleTemplate> scheduleMap = templates.stream().collect(Collectors.toMap(ScheduleTemplate::getOrderIndex, t -> t));
         List<ScheduleInfo> list = Repositories.scheduleInfoRepository.findByUserIdsAndDate(users.stream().map(i -> i.getUserId()).collect(Collectors.toList()), from);
         Repositories.scheduleInfoRepository.deleteInBatch(list);
         Repositories.scheduleInfoRepository.flush();
-        List<ScheduleInfo> result = new ArrayList<>();
         users.forEach(u -> {
             List<ScheduleInfo> userLeft = Repositories.scheduleInfoRepository.findByUserWorkLeft(u.getUserId(), from);
             Repositories.scheduleInfoRepository.delete(userLeft);
