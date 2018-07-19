@@ -98,6 +98,7 @@ public class UserHolidayController {
             limit.setLineNumber(Repositories.districtRepository.findOne(user.getDistrictId()).getLineNumber());
         }
         limit.setYearlyLimit(form.getYearlyLimit());
+        limit.setYearStr(form.getYearStr());
         Repositories.holidayLimitRepository.save(limit);
         return new ResponseBundle().success(limit);
     }
