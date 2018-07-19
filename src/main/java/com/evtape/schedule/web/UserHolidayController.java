@@ -37,7 +37,7 @@ public class UserHolidayController {
             @ApiImplicitParam(name = "districtId", value = "站区id", paramType = "query",
                     dataType = "int"),
             @ApiImplicitParam(name = "idCardNo", value = "身份证号", paramType = "query",
-                    dataType = "int"),
+                    dataType = "String"),
     })
     @GetMapping
     public ResponseBundle search(@RequestParam("year") String year, @RequestParam(value = "districtId",required = false) Integer districtId,
@@ -48,6 +48,8 @@ public class UserHolidayController {
                 List<UserHolidayLimit> list=new ArrayList<>();
                 list.add(Repositories.holidayLimitRepository.findByYearStrAndUserId(year,user.getId()));
                 return new ResponseBundle().success(list);
+            }else {
+                return new ResponseBundle().success(new ArrayList<>());
             }
         }
         List<UserHolidayLimit> list = Repositories.holidayLimitRepository.findByYearStr(year);
