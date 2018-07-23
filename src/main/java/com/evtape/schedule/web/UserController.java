@@ -101,9 +101,9 @@ public class UserController {
                     dataType = "String"),
             @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育", paramType = "body",
                     dataType = "String"),
-            @ApiImplicitParam(name = "employeeCard", value = "员工卡号", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "employeeCard", value = "员工卡号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "employeeCode", value = "人员编码", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "employeeCode", value = "人员编码", paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "roleId", value = "角色Id", required = true, paramType = "body", dataType =
                     "integer"),
@@ -204,9 +204,9 @@ public class UserController {
                     dataType = "string"),
             @ApiImplicitParam(name = "hasChild", value = "已育未育 0未育 1已育", paramType = "body",
                     dataType = "string"),
-            @ApiImplicitParam(name = "employeeCard", value = "员工卡号", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "employeeCard", value = "员工卡号", paramType = "body", dataType =
                     "string"),
-            @ApiImplicitParam(name = "employeeCode", value = "人员编码", required = true, paramType = "body", dataType =
+            @ApiImplicitParam(name = "employeeCode", value = "人员编码", paramType = "body", dataType =
                     "string"),
             @ApiImplicitParam(name = "eduBackGround", value = "学历，高中以下，本科，专科，研究生，博士", paramType =
                     "body", dataType = "string"),
