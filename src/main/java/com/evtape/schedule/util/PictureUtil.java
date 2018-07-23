@@ -41,7 +41,7 @@ public class PictureUtil {
             ByteArrayOutputStream bs = new ByteArrayOutputStream();
             ImageIO.write(image, "jpg", bs);
 
-            ZipEntry entry = new ZipEntry(user.getPhoneNumber()+user.getUserName() + ".jpg");
+            ZipEntry entry = new ZipEntry(user.getPhoneNumber() + user.getUserName() + ".jpg");
             zip.putNextEntry(entry);
             bs.writeTo(zip);
             bs.close();
@@ -59,7 +59,7 @@ public class PictureUtil {
         }
         //上下留边，姓名，间距，标题，每日数据
         int height = MARGIN * 2 + SPACE_SIZE_BASE + SPACE_SIZE_BASE + SPACE_SIZE_BASE + SPACE_SIZE_BASE * 2 * scheduleInfos.size();
-        BufferedImage image = new BufferedImage(width, height,BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics graphics = image.getGraphics();
 
         graphics.setColor(Color.WHITE);
@@ -88,32 +88,32 @@ public class PictureUtil {
 
     private static void drawTable(Graphics graphics, int size) {
         int left = 0;
-        int top = MARGIN + HOUR_BASE;
+        int top = MARGIN + SPACE_SIZE_BASE * 3;
 
         int bottom = top + size * SPACE_SIZE_BASE * 2 + SPACE_SIZE_BASE;
         //加粗
-        graphics.drawLine(MARGIN-1, top, MARGIN-1, bottom);
-        graphics.drawLine(MARGIN-2, top, MARGIN-2, bottom);
+        graphics.drawLine(MARGIN - 1, top, MARGIN - 1, bottom);
+        graphics.drawLine(MARGIN - 2, top, MARGIN - 2, bottom);
         //表格竖线
         for (int i = 0; i < VERTICALS.length; i++) {
             left += VERTICALS[i];
             graphics.drawLine(left, top, left, bottom);
         }
         //加粗
-        graphics.drawLine(left+1, top, left+1, bottom);
-        graphics.drawLine(left+2, top, left+2, bottom);
+        graphics.drawLine(left + 1, top, left + 1, bottom);
+        graphics.drawLine(left + 2, top, left + 2, bottom);
         //顶上横线
         graphics.drawLine(MARGIN, top, left, top);
-        graphics.drawLine(MARGIN, top-1, left, top-1);
-        graphics.drawLine(MARGIN, top-2, left, top-2);
+        graphics.drawLine(MARGIN, top - 1, left, top - 1);
+        graphics.drawLine(MARGIN, top - 2, left, top - 2);
         for (int i = 0; i <= size; i++) {
             int t = top + SPACE_SIZE_BASE + i * SPACE_SIZE_BASE * 2;
             //时间表横线
             graphics.drawLine(left - VERTICALS[VERTICALS.length - 1], t - SPACE_SIZE_BASE, left, t - SPACE_SIZE_BASE);
             //表格横线
-            graphics.drawLine(MARGIN, t-1, left, t-1);
+            graphics.drawLine(MARGIN, t - 1, left, t - 1);
             graphics.drawLine(MARGIN, t, left, t);
-            graphics.drawLine(MARGIN, t+1, left, t+1);
+            graphics.drawLine(MARGIN, t + 1, left, t + 1);
         }
         //时间表小时线
         for (int i = 0; i < 24; i++) {
@@ -145,7 +145,7 @@ public class PictureUtil {
     }
 
     private static void drawDailyContent(Graphics graphics, int number, ScheduleInfo info, DutyClass dutyClass) {
-        setFont(graphics, 2);
+        setFont(graphics, 1);
         graphics.setColor(Color.black);
         int x = 1;
         int left = MARGIN;
@@ -181,18 +181,18 @@ public class PictureUtil {
         drawString(graphics, text, left, top, width);
 
 
+        if (info.getDutyCode() != null && info.getWorkflowCode() != null) {
+            text = info.getDutyCode();
+            text += info.getWorkflowCode();
+            left += VERTICALS[x - 1];
+            width = VERTICALS[x++];
 
-        text = info.getDutyCode()+info.getWorkflowCode();
-        left += VERTICALS[x - 1];
-        width = VERTICALS[x++];
+            int x1 = left, y1 = head - SPACE_SIZE_BASE * 2;
+            if (dutyClass != null && dutyClass.getClassColor() != null) {
+                graphics.setColor(getColor(dutyClass.getClassColor()));
+                graphics.fillRect(x1 + 2, y1 + 2, SPACE_SIZE_BASE * 8 - 4, SPACE_SIZE_BASE * 2 - 4);
+            }
 
-        int x1 = left, y1 = head - SPACE_SIZE_BASE * 2;
-        if (dutyClass != null && dutyClass.getClassColor() != null) {
-            graphics.setColor(getColor(dutyClass.getClassColor()));
-            graphics.fillRect(x1 + 2, y1 + 2, SPACE_SIZE_BASE * 8 - 4, SPACE_SIZE_BASE * 2 - 4);
-        }
-
-        if (text != null && text.length() > 0) {
             drawString(graphics, text, left, top, width);
         }
     }
@@ -202,7 +202,7 @@ public class PictureUtil {
             return;
         }
         Integer shiftId = info.getDutyClassId();
-        String serialNumber = info.getDutyCode()+info.getWorkflowCode();
+        String serialNumber = info.getDutyCode() + info.getWorkflowCode();
         List<ScheduleWorkflowContent> contents = null;
         for (ScheduleWorkflow w :
                 workflows) {
@@ -223,7 +223,7 @@ public class PictureUtil {
                 int left = leftBase + c.getStartTime() / 10 * HOUR_BASE / 6;
                 int width = (c.getEndTime() - c.getStartTime()) / 10 * HOUR_BASE / 6;
                 graphics.setColor(getColor(c.getColor()));
-                graphics.fillRect(left+1, head+1, width-2, SPACE_SIZE_BASE-2);
+                graphics.fillRect(left + 1, head + 1, width - 2, SPACE_SIZE_BASE - 2);
                 drawString(graphics, c.getContent(), left, top, width);
             }
         }
@@ -242,13 +242,12 @@ public class PictureUtil {
     }
 
     private static Color getColor(String shiftColor) {
-        Integer c = 16777215;
-        try{
-            c=Integer.parseInt(shiftColor, 16);
-        }catch (Exception e){
-            System.out.print("没有颜色默认白");
+        if (shiftColor==null||!shiftColor.startsWith("rgb")){
+            return Color.WHITE;
         }
-        return new Color(c >>> 16, c >>> 8 & 0xff, c & 0xff);
+        String color = shiftColor.substring(5, shiftColor.length() - 1);
+        String[] split = color.split(",");
+        return new Color(Integer.parseInt(split[0].trim()), Integer.parseInt(split[1].trim()), Integer.parseInt(split[2].trim()));
     }
 
     private static String getTimeText(int time) {
