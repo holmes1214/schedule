@@ -17,8 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by holmes1214 on 2018/5/12.
@@ -68,9 +70,30 @@ public class LeaveController {
     @Transactional
     public ResponseBundle cancelLeave(@RequestBody LeaveForm form) {
         try {
+            List<ScheduleInfo> updateList=new ArrayList<>();
             ScheduleInfo info = Repositories.scheduleInfoRepository.findOne(form.getScheduleInfoId());
-            info.setModified(0);
-            Repositories.scheduleInfoRepository.save(info);
+            updateList.add(info);
+            List<ScheduleLeave> leaveList = Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId());
+
+            for (ScheduleLeave leave : leaveList) {
+                Repositories.scheduleLeaveRepository.delete(leave);
+            }
+
+            List<Integer> userIds = leaveList.stream().filter(l -> l.getExchangeUserId() != null)
+                    .map(ScheduleLeave::getExchangeUserId).collect(Collectors.toList());
+            List<ScheduleLeave> others = Repositories.scheduleLeaveRepository.findByUserIdsAndDateStr(userIds, info.getDateStr());
+
+            for (ScheduleLeave other : others) {
+                Repositories.scheduleLeaveRepository.delete(other);
+                long c=Repositories.scheduleLeaveRepository.countByScheduleInfoId(other.getScheduleInfoId());
+                if (c==0){
+                    ScheduleInfo i = Repositories.scheduleInfoRepository.findOne(other.getScheduleInfoId());
+                    updateList.add(i);
+                }
+            }
+
+            updateList.forEach(i->i.setModified(0));
+            Repositories.scheduleInfoRepository.save(updateList);
             Repositories.scheduleLeaveRepository.deleteByScheduleInfoId(form.getScheduleInfoId());
             return new ResponseBundle().success();
         } catch (Exception e) {

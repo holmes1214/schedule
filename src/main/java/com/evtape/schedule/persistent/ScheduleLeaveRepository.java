@@ -24,4 +24,6 @@ public interface ScheduleLeaveRepository extends JpaRepository<ScheduleLeave, In
     long countSickLeave(Integer userId, String dateStr);
     @Query("from ScheduleLeave where userId in (?1) and leaveDateStr=?2")
     List<ScheduleLeave> findByUserIdsAndDateStr(List<Integer> collect, String dateStr);
+
+    long countByScheduleInfoId(Integer scheduleInfoId);
 }
