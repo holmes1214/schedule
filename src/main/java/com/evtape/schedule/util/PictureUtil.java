@@ -241,12 +241,23 @@ public class PictureUtil {
     }
 
     private static Color getColor(String shiftColor) {
-        if (shiftColor==null||!shiftColor.startsWith("rgb")){
+        if (shiftColor==null){
             return Color.WHITE;
         }
-        String color = shiftColor.substring(5, shiftColor.length() - 1);
-        String[] split = color.split(",");
-        return new Color(Integer.parseInt(split[0].trim()), Integer.parseInt(split[1].trim()), Integer.parseInt(split[2].trim()));
+        if (shiftColor.startsWith("rgb")){
+            String color = shiftColor.substring(5, shiftColor.length() - 1);
+            String[] split = color.split(",");
+            return new Color(Integer.parseInt(split[0].trim()), Integer.parseInt(split[1].trim()), Integer.parseInt(split[2].trim()));
+        }else {
+            Integer c = 16777215;
+            try{
+                c=Integer.parseInt(shiftColor, 16);
+            }catch (Exception e){
+                return Color.WHITE;
+            }
+            return new Color(c >>> 16, c >>> 8 & 0xff, c & 0xff);
+        }
+
     }
 
     private static String getTimeText(int time) {
