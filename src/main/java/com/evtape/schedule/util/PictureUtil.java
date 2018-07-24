@@ -145,7 +145,7 @@ public class PictureUtil {
     }
 
     private static void drawDailyContent(Graphics graphics, int number, ScheduleInfo info, DutyClass dutyClass) {
-        setFont(graphics, 0.75);
+        setFont(graphics, 1);
         graphics.setColor(Color.black);
         int x = 1;
         int left = MARGIN;
@@ -214,7 +214,7 @@ public class PictureUtil {
             for (int i = 0; i < VERTICALS.length - 1; i++) {
                 leftBase += VERTICALS[i];
             }
-            setFont(graphics, 1);
+            setFont(graphics, 0.75);
             for (ScheduleWorkflowContent c :
                     contents) {
                 int head = MARGIN + SPACE_SIZE_BASE * 4 + SPACE_SIZE_BASE * 2 * number + c.getLineNumber() * SPACE_SIZE_BASE;
