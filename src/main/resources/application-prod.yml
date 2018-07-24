@@ -1,11 +1,11 @@
 server:
-  port: 8765
+    port: 8765
 # 日志设定
 logging:
   level:
     com.sagacn: DEBUG
   config: classpath:logback-prod.xml
-  
+
 # 数据源设定 rm-2zew6wipk07tc4vw2.mysql.rds.aliyuncs.com
 druid:
   url: jdbc:mysql://rm-2zew6wipk07tc4vw2go.mysql.rds.aliyuncs.com:3306/schedule_new?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&cachePrepStmts=true&useServerPrepStmts=true&prepStmtCacheSize=250&prepStmtCacheSqlLimit=2048&useSSL=false
@@ -28,8 +28,6 @@ spring:
     hibernate:
       ddl-auto: update
     database: mysql
-    show-sql: false
+    show-sql: true
     generate-ddl: true
     database-platform: org.hibernate.dialect.MySQL5Dialect
-
-
