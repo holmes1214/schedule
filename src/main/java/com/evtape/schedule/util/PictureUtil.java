@@ -230,7 +230,7 @@ public class PictureUtil {
 
 
     private static void setFont(Graphics graphics, int ratio) {
-        Font font = new Font("宋体", Font.BOLD, FONT_SIZE_BASE * ratio);
+        Font font = new Font("汉仪中隶书简", Font.BOLD, FONT_SIZE_BASE * ratio);
         graphics.setFont(font);
     }
 
