@@ -24,7 +24,7 @@ public class PictureUtil {
 
     static final int MARGIN = 80;
     static final int SPACE_SIZE_BASE = 40;
-    static final int FONT_SIZE_BASE = 24;
+    static final int FONT_SIZE_BASE = 32;
     static final int HOUR_BASE = SPACE_SIZE_BASE * 4;
     static final int[] VERTICALS = new int[]{MARGIN, SPACE_SIZE_BASE * 10, SPACE_SIZE_BASE * 3, SPACE_SIZE_BASE * 12, SPACE_SIZE_BASE * 8, SPACE_SIZE_BASE * 8, HOUR_BASE * 24};
     static final String[] TITLES = new String[]{"日期", "星期", "工作时间", "班次", "工作岗位"};
@@ -145,7 +145,7 @@ public class PictureUtil {
     }
 
     private static void drawDailyContent(Graphics graphics, int number, ScheduleInfo info, DutyClass dutyClass) {
-        setFont(graphics, 1);
+        setFont(graphics, 0.75);
         graphics.setColor(Color.black);
         int x = 1;
         int left = MARGIN;
@@ -229,8 +229,8 @@ public class PictureUtil {
     }
 
 
-    private static void setFont(Graphics graphics, int ratio) {
-        Font font = new Font("汉仪中隶书简", Font.BOLD, FONT_SIZE_BASE * ratio);
+    private static void setFont(Graphics graphics, double ratio) {
+        Font font = new Font("汉仪中隶书简", Font.BOLD, (int) (FONT_SIZE_BASE * ratio));
         graphics.setFont(font);
     }
 
