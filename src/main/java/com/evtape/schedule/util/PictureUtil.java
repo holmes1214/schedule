@@ -134,12 +134,12 @@ public class PictureUtil {
         for (int i = 0; i < VERTICALS.length - 2; i++) {
             left += VERTICALS[i];
             int width = VERTICALS[i + 1];
-            drawString(graphics, TITLES[i], left, top, width);
+            drawString(graphics, TITLES[i], left, top, width,1);
         }
         left += VERTICALS[VERTICALS.length - 2] + SPACE_SIZE_BASE;
         for (int i = 0; i < PERIODS.length; i++) {
             int width = HOUR_BASE;
-            drawString(graphics, PERIODS[i], left, top, width);
+            drawString(graphics, PERIODS[i], left, top, width,1);
             left += width;
         }
     }
@@ -154,12 +154,12 @@ public class PictureUtil {
 
         String text = info.getDateStr();
         int width = VERTICALS[x++];
-        drawString(graphics, text, left, top, width);
+        drawString(graphics, text, left, top, width,1);
 
         text = info.getScheduleWeek();
         left += VERTICALS[x - 1];
         width = VERTICALS[x++];
-        drawString(graphics, text, left, top, width);
+        drawString(graphics, text, left, top, width,1);
 
         left += VERTICALS[x - 1];
         width = VERTICALS[x++];
@@ -167,7 +167,7 @@ public class PictureUtil {
             String start = getTimeText(dutyClass.getStartTime());
             String end = getTimeText(dutyClass.getEndTime());
             text = start + "-" + end;
-            drawString(graphics, text, left, top, width);
+            drawString(graphics, text, left, top, width,1);
         }
 
         text = info.getDutyName();
@@ -178,7 +178,12 @@ public class PictureUtil {
         if (dutyClass != null && dutyClass.getDutyCode() != null) {
             text += "(" + dutyClass.getDutyCode() + ")";
         }
-        drawString(graphics, text, left, top, width);
+        int x1 = left, y1 = head - SPACE_SIZE_BASE * 2;
+        if (dutyClass != null && dutyClass.getClassColor() != null) {
+            graphics.setColor(getColor(dutyClass.getClassColor()));
+            graphics.fillRect(x1 + 2, y1 + 2, SPACE_SIZE_BASE * 8 - 4, SPACE_SIZE_BASE * 2 - 4);
+        }
+        drawString(graphics, text, left, top, width,1);
 
 
         if (info.getDutyCode() != null && info.getWorkflowCode() != null) {
@@ -186,14 +191,7 @@ public class PictureUtil {
             text += info.getWorkflowCode();
             left += VERTICALS[x - 1];
             width = VERTICALS[x++];
-
-            int x1 = left, y1 = head - SPACE_SIZE_BASE * 2;
-            if (dutyClass != null && dutyClass.getClassColor() != null) {
-                graphics.setColor(getColor(dutyClass.getClassColor()));
-                graphics.fillRect(x1 + 2, y1 + 2, SPACE_SIZE_BASE * 8 - 4, SPACE_SIZE_BASE * 2 - 4);
-            }
-
-            drawString(graphics, text, left, top, width);
+            drawString(graphics, text, left, top, width,1);
         }
     }
 
@@ -223,7 +221,7 @@ public class PictureUtil {
                 int width = (c.getEndTime() - c.getStartTime()) / 10 * HOUR_BASE / 6;
                 graphics.setColor(getColor(c.getColor()));
                 graphics.fillRect(left + 1, head + 1, width - 2, SPACE_SIZE_BASE - 2);
-                drawString(graphics, c.getContent(), left, top, width);
+                drawString(graphics, c.getContent(), left, top, width,0.75);
             }
         }
     }
@@ -234,9 +232,9 @@ public class PictureUtil {
         graphics.setFont(font);
     }
 
-    private static void drawString(Graphics graphics, String text, int left, int top, int width) {
+    private static void drawString(Graphics graphics, String text, int left, int top, int width,double ratio) {
         graphics.setColor(Color.black);
-        int padding = Math.max((width - text.length() * SPACE_SIZE_BASE) / 2, 0);
+        int padding = (int) Math.max((width - text.length() * FONT_SIZE_BASE*ratio) / 2, 0);
         graphics.drawString(text, left + padding, top);
     }
 
