@@ -318,7 +318,7 @@ public class ScheduleController {
             List<DutyClass> classList=Repositories.dutyClassRepository.findByDistrictId(user.getDistrictId());
             Map<Integer, DutyClass> shiftMap=classList.stream().collect(Collectors.toMap(DutyClass::getId,d->d));
             List<ScheduleWorkflow> workflowList=Repositories.workflowRepository.findByDistrictId(user.getDistrictId());
-            Map<Integer, List<ScheduleWorkflow>> workflowMap=workflowList.stream().collect(Collectors.groupingBy(ScheduleWorkflow::getClassId));;
+            Map<Integer, List<ScheduleWorkflow>> workflowMap=workflowList.stream().collect(Collectors.groupingBy(ScheduleWorkflow::getClassId));
             List<ScheduleWorkflowContent> contentList=Repositories.contentRepository.findByDistrictId(user.getDistrictId());
             Map<Integer, List<ScheduleWorkflowContent>> contentMap=contentList.stream().collect(Collectors.groupingBy(ScheduleWorkflowContent::getWorkFlowId));
             response.setHeader("Content-Disposition", "attachment; filename=\"schedule.zip\"");

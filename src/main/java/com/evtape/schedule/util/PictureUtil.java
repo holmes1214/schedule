@@ -202,11 +202,10 @@ public class PictureUtil {
             return;
         }
         Integer shiftId = info.getDutyClassId();
-        String serialNumber = info.getDutyCode() + info.getWorkflowCode();
         List<ScheduleWorkflowContent> contents = null;
         for (ScheduleWorkflow w :
                 workflows) {
-            if (w.getClassId().toString().equals(shiftId) && serialNumber != null && serialNumber.endsWith(w.getCode())) {
+            if (w.getClassId().equals(shiftId) &&  w.getCode().equals(info.getWorkflowCode())) {
                 contents = contentMap.get(w.getId());
             }
         }
@@ -267,15 +266,4 @@ public class PictureUtil {
         return h + ":" + m;
     }
 
-    public static void main(String[] a) throws Exception {
-        File f = new File("/Users/holmes1214/Downloads/img.zip");
-        f.delete();
-        f.createNewFile();
-        Map<User, List<ScheduleInfo>> map = new HashMap<>();
-        List<ScheduleInfo> info = new ArrayList<>();
-        info.add(new ScheduleInfo());
-        info.add(new ScheduleInfo());
-        map.put(new User(), info);
-        createUserSchedulePicture(map, new HashMap<>(), new HashMap<>(), new HashMap<>(), new FileOutputStream(f));
-    }
 }
