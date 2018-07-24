@@ -2,12 +2,12 @@
 <configuration scan="true">
     <appender name="logfile"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>/home/appusr/schedule.log</File>
+        <File>/home/appusr/logs/schedule.log</File>
         <encoder>
             <pattern>%-20(%d{yyyy-MM-dd HH:mm:ss.SSS}) [%thread] %-5level %logger{80}.%method - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/home/appusr/schedule.log%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/home/appusr/logs/schedule.log%d{yyyy-MM-dd}.log</fileNamePattern>
         </rollingPolicy>
         <encoder>
             <pattern>
