@@ -50,7 +50,7 @@ public class ScheduleCalculator {
 		int totalHours = 0;
 		for (int i = 0; i < shifts.size(); i++) {
 			DutyClass shift = shifts.get(i);
-			if(shift.getRelevantClassId()!=null){
+			if(shift.getRelevantClassId()==null){
                 taskCountPerDay += shift.getUserCount();
                 totalHours += (shift.getWorkingLength() * shift.getUserCount());
             }
