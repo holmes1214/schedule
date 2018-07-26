@@ -50,8 +50,10 @@ public class ScheduleCalculator {
 		int totalHours = 0;
 		for (int i = 0; i < shifts.size(); i++) {
 			DutyClass shift = shifts.get(i);
-			taskCountPerDay += shift.getUserCount();
-			totalHours += (shift.getWorkingLength() * shift.getUserCount());
+			if(shift.getRelevantClassId()!=null){
+                taskCountPerDay += shift.getUserCount();
+                totalHours += (shift.getWorkingLength() * shift.getUserCount());
+            }
 		}
 
 		// 至少需要多少人：每天需要的人数*7，除以每个人每周工作多少天（有余数则商数加一）
