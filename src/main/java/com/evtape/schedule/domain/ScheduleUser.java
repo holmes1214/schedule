@@ -23,19 +23,33 @@ public class ScheduleUser {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-	
+	/**
+	 * 站区id
+	 */
 	private Integer districtId;
-
+	/**
+	 * 站点id
+	 */
 	private Integer stationId;
-
+	/**
+	 * 岗位id
+	 */
 	private Integer positionId;
-
+	/**
+	 * 班制id
+	 */
 	private Integer suiteId;
-
+	/**
+	 * 周编号
+	 */
 	private Integer weekNum;
-
+	/**
+	 * 用户id
+	 */
 	private Integer userId;
-
+	/**
+	 * 用户姓名
+	 */
 	private String userName;
 	
 }

@@ -25,16 +25,27 @@ public class RolePermission {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 
+	/**
+	 * 角色id
+	 */
 	private Integer roleId;
 
 	private String roleCold;
-
+	/**
+	 * 角色名称
+	 */
 	private String roleName;
-
+	/**
+	 * 权限id
+	 */
 	private Integer permissionId;
-
+	/**
+	 * 权限编码
+	 */
 	private String permissionCode;
-
+	/**
+	 * 权限名称
+	 */
 	private String permissionName;
 
 }
