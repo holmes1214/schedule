@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Setter
 @Table(name="biz_schedule_template",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,stationId"),
-		@Index(name="IDX_SUITE_ID", columnList="suiteId,weekNum,dayNum,temprory", unique = true),
+		@Index(name="IDX_SUITE_ID", columnList="suiteId,weekNum,dayNum"),
 		@Index(name="IDX_SUITEONLY_ID", columnList="suiteId"),
 		@Index(name="IDX_CLASS_ID", columnList="suiteId,classId"),
 		@Index(name="IDX_POSITION_ID", columnList="districtId,positionId")

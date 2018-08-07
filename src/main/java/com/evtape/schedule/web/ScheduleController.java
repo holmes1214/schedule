@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class ScheduleController {
     public ResponseBundle createTemplate(@PathVariable("suiteId") Integer suiteId) {
         try {
             List<ScheduleTemplate> templates = scheduleTemplateService.removeAndSaveTemplates(suiteId);
-            return returnTemplate(suiteId,templates);
+            return returnTemplate(suiteId, templates);
         } catch (BaseException e) {
             logger.error("error:", e);
             return new ResponseBundle().failure(e.getErrorCode());
@@ -88,7 +89,7 @@ public class ScheduleController {
         try {
             List<ScheduleTemplate> templates = Repositories.scheduleTemplateRepository
                     .findBySuiteIdOrderByOrderIndex(suiteId);
-            return returnTemplate(suiteId,templates);
+            return returnTemplate(suiteId, templates);
         } catch (Exception e) {
             logger.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
@@ -114,7 +115,7 @@ public class ScheduleController {
         }
     }
 
-    private ResponseBundle returnTemplate(Integer suiteId,List<ScheduleTemplate> templates) {
+    private ResponseBundle returnTemplate(Integer suiteId, List<ScheduleTemplate> templates) {
         Map<String, Object> result = new HashMap<>();
         DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(suiteId);
         List<User> userList;
@@ -122,7 +123,7 @@ public class ScheduleController {
         if (dutySuite.getBackup() == 1) {
             userList = Repositories.userRepository.findByDistrictIdAndBackup(dutySuite.getDistrictId(), 1);
         } else {
-            userList = Repositories.userRepository.findByDistrictIdAndStationIdAndPositionId(dutySuite.getDistrictId(),dutySuite.getStationId(),
+            userList = Repositories.userRepository.findByDistrictIdAndStationIdAndPositionId(dutySuite.getDistrictId(), dutySuite.getStationId(),
                     dutySuite.getPositionId());
         }
         result.put("templatelist", templates);
@@ -135,7 +136,7 @@ public class ScheduleController {
         });
 
         result.put("dutyclass", list);
-        result.put("weeks", templates.isEmpty()?0:templates.stream().mapToInt(i -> i.getWeekNum()).max().getAsInt());
+        result.put("weeks", templates.isEmpty() ? 0 : templates.stream().mapToInt(i -> i.getWeekNum()).max().getAsInt());
         result.put("scheduleUsers", users);
         return new ResponseBundle().success(result);
     }
@@ -194,8 +195,8 @@ public class ScheduleController {
         try {
             DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
             User u = Repositories.userRepository.findOne(form.getUserId());
-            ScheduleUser user2=Repositories.scheduleUserRepository.findBySuiteIdAndUserId(form.getSuiteId(),u.getId());
-            if (user2!=null){
+            ScheduleUser user2 = Repositories.scheduleUserRepository.findBySuiteIdAndUserId(form.getSuiteId(), u.getId());
+            if (user2 != null) {
                 Repositories.scheduleUserRepository.delete(user2.getId());
                 Repositories.scheduleUserRepository.flush();
             }
@@ -204,7 +205,7 @@ public class ScheduleController {
             ScheduleUser user1 = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(form.getSuiteId(),
                     form.getWeekNum());
             if (user1 == null) {
-                user1=new ScheduleUser();
+                user1 = new ScheduleUser();
                 user1.setDistrictId(dutySuite.getDistrictId());
                 user1.setPositionId(dutySuite.getPositionId());
                 user1.setStationId(dutySuite.getStationId());
@@ -258,32 +259,41 @@ public class ScheduleController {
     @ResponseBody
     @GetMapping("/scheduleinfo")
     @RequiresAuthentication
-    public ResponseBundle getscheduleinfo(@Identity String phoneNumber,@RequestParam("startDateStr") String startDateStr,
-                                          @RequestParam("endDateStr") String endDateStr,@RequestParam(value = "stationId",required = false) Integer stationId,
-                                          @RequestParam(value = "positionId",required = false) Integer positionId,@RequestParam(value = "userName",required = false) String userName) {
+    public ResponseBundle getscheduleinfo(@Identity String phoneNumber, @RequestParam("startDateStr") String startDateStr,
+                                          @RequestParam("endDateStr") String endDateStr, @RequestParam(value = "stationId", required = false) Integer stationId,
+                                          @RequestParam(value = "positionId", required = false) Integer positionId, @RequestParam(value = "userName", required = false) String userName) {
         User user = Repositories.userRepository.findByPhoneNumber(phoneNumber);
         try {
-            List<ScheduleInfo> list= scheduleTemplateService.searchScheduleInfo(startDateStr,endDateStr,user.getDistrictId(),user.getStationId(),positionId,userName);
-            List<User> userList=Repositories.userRepository.findByDistrictId(user.getDistrictId());
+            List<ScheduleInfo> list = scheduleTemplateService.searchScheduleInfo(startDateStr, endDateStr, user.getDistrictId(), user.getStationId(), positionId, userName);
+            List<User> userList = Repositories.userRepository.findByDistrictId(user.getDistrictId());
             Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, u -> u));
-            Set<User> result=list.stream().map(u->userMap.get(u.getUserId())).collect(Collectors.toSet());
-            list.forEach(i->{
+            Set<User> result = list.stream().map(u -> userMap.get(u.getUserId())).collect(Collectors.toSet());
+            list.forEach(i -> {
                 User u = userMap.get(i.getUserId());
-                if (u.getScheduleInfoList()==null){
+                if (u.getScheduleInfoList() == null) {
                     u.setScheduleInfoList(new ArrayList<>());
                 }
                 u.getScheduleInfoList().add(i);
             });
-            result.forEach(u->{
+
+            if (positionId != null) {
+                List<User> res = result.stream().filter(user1 -> user1.getPositionId().equals(positionId)).collect(Collectors.toList());
+                res.forEach(u -> {
+                    u.getScheduleInfoList().stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
+                });
+                return new ResponseBundle().success(res);
+            }
+
+            result.forEach(u -> {
                 u.getScheduleInfoList().stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
             });
-
             return new ResponseBundle().success(result);
         } catch (Exception e) {
             logger.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
+
     @ApiOperation(value = "导出个人排班计划", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "startDateStr", value = "开始时间", required = true, paramType = "query", dataType = "String"),
@@ -295,35 +305,35 @@ public class ScheduleController {
     @GetMapping("/scheduleinfo/export/img")
     @RequiresAuthentication
     public void exportImage(@Identity String phoneNumber, @RequestParam("startDateStr") String startDateStr,
-                                      @RequestParam("endDateStr") String endDateStr, @RequestParam(value = "stationId",required = false) Integer stationId,
-                                      @RequestParam(value = "positionId",required = false) Integer positionId,
-                                      @RequestParam(value = "userName",required = false) String userName, HttpServletResponse response) {
+                            @RequestParam("endDateStr") String endDateStr, @RequestParam(value = "stationId", required = false) Integer stationId,
+                            @RequestParam(value = "positionId", required = false) Integer positionId,
+                            @RequestParam(value = "userName", required = false) String userName, HttpServletResponse response) {
         User user = Repositories.userRepository.findByPhoneNumber(phoneNumber);
         try {
-            List<ScheduleInfo> list= scheduleTemplateService.searchScheduleInfo(startDateStr,endDateStr,user.getDistrictId(),user.getStationId(),positionId,userName);
-            List<User> userList=Repositories.userRepository.findByDistrictId(user.getDistrictId());
+            List<ScheduleInfo> list = scheduleTemplateService.searchScheduleInfo(startDateStr, endDateStr, user.getDistrictId(), user.getStationId(), positionId, userName);
+            List<User> userList = Repositories.userRepository.findByDistrictId(user.getDistrictId());
             Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, u -> u));
-            Map<User,List<ScheduleInfo>> scheduleMap=new HashMap<>();
-            list.forEach(i->{
+            Map<User, List<ScheduleInfo>> scheduleMap = new HashMap<>();
+            list.forEach(i -> {
                 User u = userMap.get(i.getUserId());
-                if (u.getScheduleInfoList()==null){
+                if (u.getScheduleInfoList() == null) {
                     u.setScheduleInfoList(new ArrayList<>());
-                    scheduleMap.put(u,u.getScheduleInfoList());
+                    scheduleMap.put(u, u.getScheduleInfoList());
                 }
                 u.getScheduleInfoList().add(i);
             });
-            scheduleMap.values().forEach(l->{
+            scheduleMap.values().forEach(l -> {
                 l.stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
             });
-            List<DutyClass> classList=Repositories.dutyClassRepository.findByDistrictId(user.getDistrictId());
-            Map<Integer, DutyClass> shiftMap=classList.stream().collect(Collectors.toMap(DutyClass::getId,d->d));
-            List<ScheduleWorkflow> workflowList=Repositories.workflowRepository.findByDistrictId(user.getDistrictId());
-            Map<Integer, List<ScheduleWorkflow>> workflowMap=workflowList.stream().collect(Collectors.groupingBy(ScheduleWorkflow::getClassId));
-            List<ScheduleWorkflowContent> contentList=Repositories.contentRepository.findByDistrictId(user.getDistrictId());
-            Map<Integer, List<ScheduleWorkflowContent>> contentMap=contentList.stream().collect(Collectors.groupingBy(ScheduleWorkflowContent::getWorkFlowId));
+            List<DutyClass> classList = Repositories.dutyClassRepository.findByDistrictId(user.getDistrictId());
+            Map<Integer, DutyClass> shiftMap = classList.stream().collect(Collectors.toMap(DutyClass::getId, d -> d));
+            List<ScheduleWorkflow> workflowList = Repositories.workflowRepository.findByDistrictId(user.getDistrictId());
+            Map<Integer, List<ScheduleWorkflow>> workflowMap = workflowList.stream().collect(Collectors.groupingBy(ScheduleWorkflow::getClassId));
+            List<ScheduleWorkflowContent> contentList = Repositories.contentRepository.findByDistrictId(user.getDistrictId());
+            Map<Integer, List<ScheduleWorkflowContent>> contentMap = contentList.stream().collect(Collectors.groupingBy(ScheduleWorkflowContent::getWorkFlowId));
             response.setHeader("Content-Disposition", "attachment; filename=\"schedule.zip\"");
             response.setContentType("application/octet-stream;charset=UTF-8");
-            PictureUtil.createUserSchedulePicture(scheduleMap,shiftMap,workflowMap,contentMap,response.getOutputStream());
+            PictureUtil.createUserSchedulePicture(scheduleMap, shiftMap, workflowMap, contentMap, response.getOutputStream());
         } catch (Exception e) {
             logger.error("error:", e);
         }
@@ -362,15 +372,15 @@ public class ScheduleController {
     @PutMapping("/settemplateclass")
     public ResponseBundle settemplateclass(@RequestBody ScheduleUserForm form) {
         try {
-            ScheduleTemplate scheduleTemplate = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(form.getSuiteId(),form.getWeekNum(),form.getDayNum());
-            if (scheduleTemplate==null){
-                scheduleTemplate=new ScheduleTemplate();
+            ScheduleTemplate scheduleTemplate = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(form.getSuiteId(), form.getWeekNum(), form.getDayNum());
+            if (scheduleTemplate == null) {
+                scheduleTemplate = new ScheduleTemplate();
                 DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
                 scheduleTemplate.setDistrictId(dutySuite.getDistrictId());
                 scheduleTemplate.setSuiteId(form.getSuiteId());
                 scheduleTemplate.setWeekNum(form.getWeekNum());
                 scheduleTemplate.setDayNum(form.getDayNum());
-                scheduleTemplate.setOrderIndex(form.getWeekNum()*7+form.getDayNum());
+                scheduleTemplate.setOrderIndex(form.getWeekNum() * 7 + form.getDayNum());
             }
             DutyClass dutyClass = Repositories.dutyClassRepository.findOne(form.getClassId());
             scheduleTemplate.setCellColor(dutyClass.getClassColor());
@@ -385,6 +395,7 @@ public class ScheduleController {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
     }
+
     @ApiOperation(value = "手动排班删除班次", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "templateId", value = "模板id", required = true, paramType = "path", dataType = "integer"),})

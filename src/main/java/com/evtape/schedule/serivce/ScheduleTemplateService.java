@@ -195,9 +195,6 @@ public class ScheduleTemplateService {
             if (stationId != null) {
                 result = result.stream().filter(i -> stationId.equals(i.getStationId())).collect(Collectors.toList());
             }
-            if (positionId != null) {
-                result = result.stream().filter(i -> positionId.equals(i.getPositionId())).collect(Collectors.toList());
-            }
         }
         if(result==null){
         	return new ArrayList<>();
