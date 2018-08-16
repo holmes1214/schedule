@@ -192,9 +192,12 @@ public class ScheduleTemplateService {
         } else {
             result = Repositories.scheduleInfoRepository.findByCondition(df.parse(startDateStr), df.parse(endDateStr), districtId);
             LOGGER.debug("start date {}, end date{}, districtId {}, size {}", startDateStr, endDateStr, districtId, result.size());
-            if (stationId != null) {
-                result = result.stream().filter(i -> stationId.equals(i.getStationId())).collect(Collectors.toList());
-            }
+//            if (stationId != null) {
+////                result = result.stream().filter(i -> stationId.equals(i.getStationId())).collect(Collectors.toList());
+////            }
+////            if (positionId != null) {
+////                result = result.stream().filter(i -> positionId.equals(i.getPositionId())).collect(Collectors.toList());
+////            }
         }
         if(result==null){
         	return new ArrayList<>();

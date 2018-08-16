@@ -49,6 +49,7 @@ import com.evtape.schedule.serivce.ScheduleTemplateService;
 import com.evtape.schedule.serivce.WorkflowService;
 import com.evtape.schedule.util.PictureUtil;
 import com.evtape.schedule.web.auth.Identity;
+import sun.security.krb5.SCDynamicStoreConfig;
 
 /**
  * 排班
@@ -265,9 +266,18 @@ public class ScheduleController {
         User user = Repositories.userRepository.findByPhoneNumber(phoneNumber);
         try {
             List<ScheduleInfo> list = scheduleTemplateService.searchScheduleInfo(startDateStr, endDateStr, user.getDistrictId(), user.getStationId(), positionId, userName);
+            //通过version对返回数据进行过滤
+            List<ScheduleInfo> ver = list.stream().filter(scheduleInfo -> scheduleInfo.getVersion() != null && scheduleInfo.getVersion() > 0).collect(Collectors.toList());
+            List<ScheduleInfo> resList = list.stream().filter(scheduleInfo -> !ver.contains(scheduleInfo)).collect(Collectors.toList());
+            HashMap<String,ScheduleInfo> hashMap = new HashMap<>();
+            for (ScheduleInfo s : ver){
+                hashMap.put(s.getDateStr()+s.getUserName(),s);
+            }
+            hashMap.forEach((k,v) -> resList.add(v));
+
             List<User> userList = Repositories.userRepository.findByDistrictId(user.getDistrictId());
             Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, u -> u));
-            Set<User> result = list.stream().map(u -> userMap.get(u.getUserId())).collect(Collectors.toSet());
+            Set<User> result = resList.stream().map(u -> userMap.get(u.getUserId())).collect(Collectors.toSet());
             list.forEach(i -> {
                 User u = userMap.get(i.getUserId());
                 if (u.getScheduleInfoList() == null) {
@@ -276,18 +286,26 @@ public class ScheduleController {
                 u.getScheduleInfoList().add(i);
             });
 
+            if (stationId != null) {
+                List<User> res = result.stream().filter(i -> stationId.equals(i.getStationId())).collect(Collectors.toList());
+                res.forEach(u -> {
+                    u.getScheduleInfoList().stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
+                });
+                return new ResponseBundle().success(res.stream().sorted(Comparator.comparing(User::getId)).collect(Collectors.toList()));
+            }
+
             if (positionId != null) {
                 List<User> res = result.stream().filter(user1 -> user1.getPositionId().equals(positionId)).collect(Collectors.toList());
                 res.forEach(u -> {
                     u.getScheduleInfoList().stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
                 });
-                return new ResponseBundle().success(res);
+                return new ResponseBundle().success(res.stream().sorted(Comparator.comparing(User::getId)).collect(Collectors.toList()));
             }
 
             result.forEach(u -> {
                 u.getScheduleInfoList().stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
             });
-            return new ResponseBundle().success(result);
+            return new ResponseBundle().success(result.stream().sorted(Comparator.comparing(User::getId)).collect(Collectors.toList()));
         } catch (Exception e) {
             logger.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);

@@ -15,7 +15,7 @@ import java.util.List;
 @Setter
 @Table(name="biz_schedule_info",indexes = {
 		@Index(name="IDX_DISTRICT_ID", columnList="districtId,scheduleDate"),
-		@Index(name="IDX_USER_DATE", columnList="userId,scheduleDate",unique = true),
+		@Index(name="IDX_USER_DATE", columnList="userId,scheduleDate,version",unique = true),
 
 })
 public class ScheduleInfo {
@@ -100,6 +100,11 @@ public class ScheduleInfo {
 	 * 是否有离岗记录
 	 */
 	private Integer modified;
+
+	/**
+	 * 版本号默认0
+	 */
+	private Integer version;
 
 	@Transient
 	private List<ScheduleLeave> leaveList;
