@@ -61,10 +61,6 @@ public class LeaveController {
         String handlerName = "handler_leave" + form.getLeaveType() + "_sub" + form.getSubType();
         try {
             User user = Repositories.userRepository.findByPhoneNumber(phoneNumber);
-            //1 管理员权限 2 站区长权限
-            if (user.getRoleId() == Constants.ADMIN || user.getRoleId() == Constants.DISTRICT) {
-
-            }
             //4 站长权限
             if (user.getRoleId() == 4){
                 ScheduleInfo s = Repositories.scheduleInfoRepository.findOne(form.getScheduleInfoId());
@@ -72,12 +68,12 @@ public class LeaveController {
                 Date dt1 = df.parse(s.getDateStr());
                 Date dt2 = new Date();
                 if (dt1.getTime() < dt2.getTime()){
-                    return new ResponseBundle().success("没有权限撤销假期");
+                    return new ResponseBundle().success("没有权限");
                 }
             }
             //3 普通权限
             if (user.getRoleId() == 3){
-                return new ResponseBundle().success("没有权限撤销假期");
+                return new ResponseBundle().success("没有权限");
             }
             List<ScheduleLeave> scheduleLeaves = handlerMap.get(handlerName).processLeaveHours(form.getScheduleInfoId(),
                     form.getLeaveCount(), form.getInstead(), form.getContent(), form.getLeaveType(), form.getSubType());

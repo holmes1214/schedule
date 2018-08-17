@@ -49,19 +49,23 @@ public class LogController {
     ) {
         try {
             User user = Repositories.userRepository.findByPhoneNumber(userPhoneNumber);
-            if (user.getRoleId() > 2) {
+            if (user.getRoleId().equals(Constants.COMMON)) {
                 return new ResponseBundle().failure(ResponseMeta.FORBIDDEN);
             }
             String sql = "select * from sys_operation_log where 1=1 ";
             if (user.getDistrictId() != null) {
                 sql += " and district_id=" + user.getDistrictId();
             }
+            if (user.getRoleId().equals(Constants.STATION)) {
+                sql += " and operator_name='" + user.getUserName() + "'";
+            }
             if (phoneNumber != null) {
-                sql += " and phone_number='" + phoneNumber+"'";
+                sql += " and phone_number='" + phoneNumber + "'";
             }
             if (dateStr != null) {
-                sql += " and date(create_date)='" + dateStr+"'";
+                sql += " and date(create_date)='" + dateStr + "'";
             }
+            sql += " order by create_date desc";
             List<OperationLog> resultList = em.createNativeQuery(sql, OperationLog.class).getResultList();
             return new ResponseBundle().success(resultList);
         } catch (Exception e) {
@@ -100,12 +104,12 @@ public class LogController {
                 sql += " and districtId=" + districtId;
             }
             if (season != null) {
-                sql += " and seasonStr='" + season+"'";
+                sql += " and seasonStr='" + season + "'";
             } else {
                 sql += " and seasonStr is null";
             }
             if (month != null) {
-                sql += " and monthStr='" + month+"'";
+                sql += " and monthStr='" + month + "'";
             } else {
                 sql += " and monthStr is null";
             }
@@ -133,16 +137,16 @@ public class LogController {
         }
 
         Map<Integer, District> districtMap = Repositories.districtRepository.findAll().stream()
-                .collect(Collectors.toMap(District::getId, d->d));
-        calcData(districtMap,begin,now,format[0],null,format[1]);
-        if (seasonly){
-            Date b=DateUtils.ceiling(DateUtils.addDays(lastDay,-93),Calendar.MONTH);
-            int season= (int) ((now.getTime()-b.getTime())/3600000/24/93+1);
-            calcData(districtMap,b,now,format[0],season+"",null);
+                .collect(Collectors.toMap(District::getId, d -> d));
+        calcData(districtMap, begin, now, format[0], null, format[1]);
+        if (seasonly) {
+            Date b = DateUtils.ceiling(DateUtils.addDays(lastDay, -93), Calendar.MONTH);
+            int season = (int) ((now.getTime() - b.getTime()) / 3600000 / 24 / 93 + 1);
+            calcData(districtMap, b, now, format[0], season + "", null);
         }
-        if (yearly){
-            Date b=DateUtils.ceiling(DateUtils.addDays(lastDay,-366),Calendar.YEAR);
-            calcData(districtMap,b,now,format[0],null,null);
+        if (yearly) {
+            Date b = DateUtils.ceiling(DateUtils.addDays(lastDay, -366), Calendar.YEAR);
+            calcData(districtMap, b, now, format[0], null, null);
         }
     }
 
@@ -152,49 +156,49 @@ public class LogController {
 
         for (Integer districtId :
                 collect.keySet()) {
-            WorkLoadReport r=new WorkLoadReport();
-            District d=districtMap.get(districtId);
+            WorkLoadReport r = new WorkLoadReport();
+            District d = districtMap.get(districtId);
             r.setLineNumber(d.getLineNumber());
             r.setDistrictId(d.getId());
             r.setDistrictName(d.getDistrictName());
             r.setYearStr(year);
             r.setSeasonStr(season);
             r.setMonthStr(month);
-            double planned=0d;
-            double actual=0d;
-            double offWorkTimes=0d;
-            Set<Integer> userSet=new HashSet<>();
+            double planned = 0d;
+            double actual = 0d;
+            double offWorkTimes = 0d;
+            Set<Integer> userSet = new HashSet<>();
             for (ScheduleInfo info :
                     collect.get(districtId)) {
                 userSet.add(info.getUserId());
-                planned+=info.getWorkingHours();
-                if (info.getModified()==1){
+                planned += info.getWorkingHours();
+                if (info.getModified() == 1) {
                     List<ScheduleLeave> leaveList = Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId());
-                    boolean countOrigin=true,offwork=false;
+                    boolean countOrigin = true, offwork = false;
                     for (ScheduleLeave leave :
                             leaveList) {
-                        if (leave.getCountOriginal()==0){
-                            countOrigin=false;
+                        if (leave.getCountOriginal() == 0) {
+                            countOrigin = false;
                         }
-                        if (leave.getInstead()==0&&leave.getLeaveHours()<0){
-                            offwork=true;
+                        if (leave.getInstead() == 0 && leave.getLeaveHours() < 0) {
+                            offwork = true;
                         }
-                        actual+=leave.getLeaveHours();
+                        actual += leave.getLeaveHours();
                     }
-                    if (countOrigin){
-                        actual+=info.getWorkingHours();
+                    if (countOrigin) {
+                        actual += info.getWorkingHours();
                     }
-                    if (offwork){
-                        offWorkTimes+=1;
+                    if (offwork) {
+                        offWorkTimes += 1;
                     }
                 }
             }
             r.setAverWorkerCount(userSet.size());
             r.setPlannedHours(planned);
             r.setActualHours(actual);
-            r.setOffWorkRate(offWorkTimes/collect.get(districtId).size());
-            r.setExtraHours(actual-planned);
-            r.setWorkedRate(actual/planned);
+            r.setOffWorkRate(offWorkTimes / collect.get(districtId).size());
+            r.setExtraHours(actual - planned);
+            r.setWorkedRate(actual / planned);
             Repositories.workLoadRepository.save(r);
         }
     }
