@@ -13,4 +13,7 @@ public class ScheduleUserForm {
 	private Integer weekNum;
 	private Integer dayNum;
 	private Integer userId;
+	private String userIds;
+	private Integer relevance;
+	private Integer reClassId;
 }

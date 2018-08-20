@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface ScheduleUserRepository extends JpaRepository<ScheduleUser, Integer> {
 
-    ScheduleUser findBySuiteIdAndWeekNum(Integer suiteId, Integer weekNum);
+    List<ScheduleUser> findBySuiteIdAndWeekNum(Integer suiteId, Integer weekNum);
 
     List<ScheduleUser> findBySuiteIdOrderByWeekNum(Integer suiteId);
     

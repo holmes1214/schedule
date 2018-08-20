@@ -5,20 +5,17 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -142,43 +139,43 @@ public class ScheduleController {
         return new ResponseBundle().success(result);
     }
 
-    @ApiOperation(value = "排班模板删除一周", produces = "application/json")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "integer"),
-            @ApiImplicitParam(name = "weekNum", value = "被删除的周数", required = true, paramType = "query", dataType = "integer"),})
-    @ResponseBody
-    @DeleteMapping("/deleteoneweek")
-    public ResponseBundle deleteOneWeek(@RequestParam("suiteId") Integer suiteId, @RequestParam("weekNum") Integer weekNum) {
-        try {
-            ScheduleUser user = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(suiteId, weekNum);
-            if (user != null) {
-                Repositories.scheduleUserRepository.delete(user);
-                Repositories.scheduleUserRepository.flush();
-            }
-            List<ScheduleTemplate> todoList = Repositories.scheduleTemplateRepository
-                    .findBySuiteIdOrderByOrderIndex(suiteId);
-            List<ScheduleTemplate> updateList = new ArrayList<>();
-            List<ScheduleTemplate> deleteList = new ArrayList<>();
-            for (ScheduleTemplate scheduleTemplate : todoList) {
-                if (weekNum > scheduleTemplate.getWeekNum()) {
-                    continue;
-                } else if (weekNum == scheduleTemplate.getWeekNum()) {
-                    deleteList.add(scheduleTemplate);
-                } else {
-                    scheduleTemplate.setWeekNum(scheduleTemplate.getWeekNum() - 1);
-                    scheduleTemplate.setOrderIndex(scheduleTemplate.getWeekNum() * 7 + scheduleTemplate.getDayNum());
-                    updateList.add(scheduleTemplate);
-                }
-            }
-            Repositories.scheduleTemplateRepository.delete(deleteList);
-            Repositories.scheduleTemplateRepository.flush();
-            Repositories.scheduleTemplateRepository.save(updateList);
-            return new ResponseBundle().success();
-        } catch (Exception e) {
-            logger.error("error:", e);
-            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
-        }
-    }
+//    @ApiOperation(value = "排班模板删除一周", produces = "application/json")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "integer"),
+//            @ApiImplicitParam(name = "weekNum", value = "被删除的周数", required = true, paramType = "query", dataType = "integer"),})
+//    @ResponseBody
+//    @DeleteMapping("/deleteoneweek")
+//    public ResponseBundle deleteOneWeek(@RequestParam("suiteId") Integer suiteId, @RequestParam("weekNum") Integer weekNum) {
+//        try {
+//            ScheduleUser user = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(suiteId, weekNum);
+//            if (user != null) {
+//                Repositories.scheduleUserRepository.delete(user);
+//                Repositories.scheduleUserRepository.flush();
+//            }
+//            List<ScheduleTemplate> todoList = Repositories.scheduleTemplateRepository
+//                    .findBySuiteIdOrderByOrderIndex(suiteId);
+//            List<ScheduleTemplate> updateList = new ArrayList<>();
+//            List<ScheduleTemplate> deleteList = new ArrayList<>();
+//            for (ScheduleTemplate scheduleTemplate : todoList) {
+//                if (weekNum > scheduleTemplate.getWeekNum()) {
+//                    continue;
+//                } else if (weekNum == scheduleTemplate.getWeekNum()) {
+//                    deleteList.add(scheduleTemplate);
+//                } else {
+//                    scheduleTemplate.setWeekNum(scheduleTemplate.getWeekNum() - 1);
+//                    scheduleTemplate.setOrderIndex(scheduleTemplate.getWeekNum() * 7 + scheduleTemplate.getDayNum());
+//                    updateList.add(scheduleTemplate);
+//                }
+//            }
+//            Repositories.scheduleTemplateRepository.delete(deleteList);
+//            Repositories.scheduleTemplateRepository.flush();
+//            Repositories.scheduleTemplateRepository.save(updateList);
+//            return new ResponseBundle().success();
+//        } catch (Exception e) {
+//            logger.error("error:", e);
+//            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+//        }
+//    }
 
     /**
      * setscheduleuser方法接收参数类
@@ -189,33 +186,50 @@ public class ScheduleController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "integer"),
             @ApiImplicitParam(name = "weekNum", value = "被设置的周数", required = true, paramType = "query", dataType = "integer"),
-            @ApiImplicitParam(name = "userId", value = "被设置人的id", required = true, paramType = "query", dataType = "integer"),})
+            @ApiImplicitParam(name = "userIds", value = "被设置人的id", required = true, paramType = "query", dataType = "String"),})
     @ResponseBody
     @PutMapping("/setscheduleuser")
     public ResponseBundle setScheduleUser(@RequestBody ScheduleUserForm form) {
         try {
+
             DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
+            List<User> user = new ArrayList<>();
+            if (StringUtils.isNotBlank(form.getUserIds())) {
+                String[] ids = form.getUserIds().split(",");
+                List<Integer> userList = new ArrayList<>();
+                for (int i = 0; i < ids.length; i++) {
+                    userList.add(Integer.parseInt(ids[i]));
+                }
+                user = Repositories.userRepository.findByIds(userList);
+            }
             User u = Repositories.userRepository.findOne(form.getUserId());
-            ScheduleUser user2 = Repositories.scheduleUserRepository.findBySuiteIdAndUserId(form.getSuiteId(), u.getId());
-            if (user2 != null) {
-                Repositories.scheduleUserRepository.delete(user2.getId());
-                Repositories.scheduleUserRepository.flush();
+
+            user.add(u);
+            for (int i = 0; i < user.size(); i++) {
+                ScheduleUser user2 = Repositories.scheduleUserRepository.findBySuiteIdAndUserId(form.getSuiteId(), user.get(i).getId());
+                if (user2 != null) {
+                    Repositories.scheduleUserRepository.delete(user2.getId());
+                    Repositories.scheduleUserRepository.flush();
+                }
             }
 
-            //先查待设置的周有没有user
-            ScheduleUser user1 = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(form.getSuiteId(),
-                    form.getWeekNum());
-            if (user1 == null) {
-                user1 = new ScheduleUser();
-                user1.setDistrictId(dutySuite.getDistrictId());
-                user1.setPositionId(dutySuite.getPositionId());
-                user1.setStationId(dutySuite.getStationId());
-                user1.setSuiteId(form.getSuiteId());
-                user1.setWeekNum(form.getWeekNum());
+//            //先查待设置的周有没有user
+//            List<ScheduleUser> user1 = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(form.getSuiteId(),
+//                    form.getWeekNum());
+
+            List<ScheduleUser> saveUser = new ArrayList<>();
+            for (int i = 0; i < user.size(); i++) {
+                ScheduleUser user3 = new ScheduleUser();
+                user3.setDistrictId(dutySuite.getDistrictId());
+                user3.setPositionId(dutySuite.getPositionId());
+                user3.setStationId(dutySuite.getStationId());
+                user3.setSuiteId(form.getSuiteId());
+                user3.setWeekNum(form.getWeekNum());
+                user3.setUserId(user.get(i).getId());
+                user3.setUserName(user.get(i).getUserName());
+                saveUser.add(user3);
             }
-            user1.setUserId(u.getId());
-            user1.setUserName(u.getUserName());
-            Repositories.scheduleUserRepository.save(user1);
+            Repositories.scheduleUserRepository.save(saveUser);
 
             return new ResponseBundle().success();
         } catch (Exception e) {
@@ -236,7 +250,7 @@ public class ScheduleController {
     @PutMapping(value = "/removescheduleuser")
     public ResponseBundle removescheduleuser(@RequestBody ScheduleUserForm form) {
         try {
-            ScheduleUser user = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(form.getSuiteId(), form.getWeekNum());
+            List<ScheduleUser> user = Repositories.scheduleUserRepository.findBySuiteIdAndWeekNum(form.getSuiteId(), form.getWeekNum());
             Repositories.scheduleUserRepository.delete(user);
             return new ResponseBundle().success();
         } catch (Exception e) {
@@ -269,11 +283,11 @@ public class ScheduleController {
             //通过version对返回数据进行过滤
             List<ScheduleInfo> ver = list.stream().filter(scheduleInfo -> scheduleInfo.getVersion() != null && scheduleInfo.getVersion() > 0).collect(Collectors.toList());
             List<ScheduleInfo> resList = list.stream().filter(scheduleInfo -> !ver.contains(scheduleInfo)).collect(Collectors.toList());
-            HashMap<String,ScheduleInfo> hashMap = new HashMap<>();
-            for (ScheduleInfo s : ver){
-                hashMap.put(s.getDateStr()+s.getUserName(),s);
+            HashMap<String, ScheduleInfo> hashMap = new HashMap<>();
+            for (ScheduleInfo s : ver) {
+                hashMap.put(s.getDateStr() + s.getUserName(), s);
             }
-            hashMap.forEach((k,v) -> resList.add(v));
+            hashMap.forEach((k, v) -> resList.add(v));
 
             List<User> userList = Repositories.userRepository.findByDistrictId(user.getDistrictId());
             Map<Integer, User> userMap = userList.stream().collect(Collectors.toMap(User::getId, u -> u));
@@ -385,11 +399,32 @@ public class ScheduleController {
             @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "body", dataType = "integer"),
             @ApiImplicitParam(name = "classId", value = "班次id", required = true, paramType = "body", dataType = "integer"),
             @ApiImplicitParam(name = "weekNum", value = "被设置的周数", required = true, paramType = "body", dataType = "integer"),
-            @ApiImplicitParam(name = "dayNum", value = "被设置的周天数", required = true, paramType = "body", dataType = "integer"),})
+            @ApiImplicitParam(name = "dayNum", value = "被设置的周天数", required = true, paramType = "body", dataType = "integer"),
+            @ApiImplicitParam(name = "relevance", value = "关联下夜班（0：没有关联），1：一周内关联下夜，2：两周（隔行）关联", required = true, paramType = "body", dataType = "integer"),
+            @ApiImplicitParam(name = "reClassId", value = "关联的id", required = false, paramType = "body", dataType = "integer")})
     @ResponseBody
     @PutMapping("/settemplateclass")
     public ResponseBundle settemplateclass(@RequestBody ScheduleUserForm form) {
         try {
+            if (form.getRelevance() == 1) {
+                if (form.getReClassId() == null) {
+                    return new ResponseBundle().success("没有要关联的班次!");
+                }
+                ScheduleUserForm form1 = new ScheduleUserForm();
+                BeanUtils.copyProperties(form, form1);
+                form1.setDayNum(form1.getDayNum() + 1);
+                settemplate(form1);
+            }
+            if (form.getRelevance() == 2) {
+                if (form.getReClassId() == null) {
+                    return new ResponseBundle().success("没有要关联的班次!");
+                }
+                ScheduleUserForm form1 = new ScheduleUserForm();
+                BeanUtils.copyProperties(form, form1);
+                form1.setWeekNum(form1.getWeekNum() + 1);
+                form1.setDayNum(0);
+                settemplate(form1);
+            }
             ScheduleTemplate scheduleTemplate = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(form.getSuiteId(), form.getWeekNum(), form.getDayNum());
             if (scheduleTemplate == null) {
                 scheduleTemplate = new ScheduleTemplate();
@@ -427,5 +462,32 @@ public class ScheduleController {
             logger.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
+    }
+
+    /**
+     * @Description: 插入排班模板
+     * @Param: ScheduleUserForm
+     * @return:
+     * @Author: sickle
+     * @Date: 2018-8-20
+     */
+    public void settemplate(ScheduleUserForm form) {
+        ScheduleTemplate scheduleTemplate = Repositories.scheduleTemplateRepository.findBySuiteIdAndWeekNumAndDayNum(form.getSuiteId(), form.getWeekNum(), form.getDayNum());
+        if (scheduleTemplate == null) {
+            scheduleTemplate = new ScheduleTemplate();
+            DutySuite dutySuite = Repositories.dutySuiteRepository.findOne(form.getSuiteId());
+            scheduleTemplate.setDistrictId(dutySuite.getDistrictId());
+            scheduleTemplate.setSuiteId(form.getSuiteId());
+            scheduleTemplate.setWeekNum(form.getWeekNum());
+            scheduleTemplate.setDayNum(form.getDayNum());
+            scheduleTemplate.setOrderIndex(form.getWeekNum() * 7 + form.getDayNum());
+        }
+        DutyClass dutyClass = Repositories.dutyClassRepository.findOne(form.getClassId());
+        scheduleTemplate.setCellColor(dutyClass.getClassColor());
+        scheduleTemplate.setWorkingLength(dutyClass.getWorkingLength());
+        scheduleTemplate.setDutyName(dutyClass.getDutyName());
+        scheduleTemplate.setDutyCode(dutyClass.getDutyCode());
+        scheduleTemplate.setClassId(form.getClassId());
+        Repositories.scheduleTemplateRepository.saveAndFlush(scheduleTemplate);
     }
 }

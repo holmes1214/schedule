@@ -2,6 +2,7 @@ package com.evtape.schedule.persistent;
 
 import com.evtape.schedule.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -37,4 +38,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	User findByIdCardNumber(String identity);
 
 	List<User> findByDistrictIdAndStationIdAndPositionId(Integer districtId, Integer stationId, Integer positionId);
+
+	@Query("from User where id in (?1)")
+	List<User> findByIds(List<Integer> list);
 }
