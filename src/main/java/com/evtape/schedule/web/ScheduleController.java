@@ -202,9 +202,6 @@ public class ScheduleController {
                 }
                 user = Repositories.userRepository.findByIds(userList);
             }
-            User u = Repositories.userRepository.findOne(form.getUserId());
-
-            user.add(u);
             for (int i = 0; i < user.size(); i++) {
                 ScheduleUser user2 = Repositories.scheduleUserRepository.findBySuiteIdAndUserId(form.getSuiteId(), user.get(i).getId());
                 if (user2 != null) {
