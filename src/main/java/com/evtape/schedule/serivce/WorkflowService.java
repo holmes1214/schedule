@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -94,7 +95,7 @@ public class WorkflowService {
 
         @Scheduled(cron = "0 0 0 1 * ?")
 //    @Scheduled(cron = "0 0/1 * * * ?")
-    public void calcWorkLoad() {
+    public void calcWorkLoad() throws ParseException {
         Date now = new Date();
         Date lastDay = DateUtils.addDays(now, -1);
         Date begin = DateUtils.ceiling(DateUtils.addDays(lastDay, -31), Calendar.MONTH);
@@ -123,7 +124,7 @@ public class WorkflowService {
         }
     }
 
-    private void calcData(Map<Integer, District> districtMap, Date begin, Date now, String year, String season, String month) {
+    private void calcData(Map<Integer, District> districtMap, Date begin, Date now, String year, String season, String month) throws ParseException {
         List<ScheduleInfo> list = Repositories.scheduleInfoRepository.findByDate(begin, now);
         Map<Integer, List<ScheduleInfo>> collect = list.stream().collect(Collectors.groupingBy(ScheduleInfo::getDistrictId));
 
@@ -148,36 +149,28 @@ public class WorkflowService {
                 actual += info.getWorkingHours();
                 if (info.getModified() == 1) {
                     List<ScheduleLeave> leaveList = Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId());
-                    boolean countOrigin = true, offwork = false;
+
                     for (ScheduleLeave leave :
                             leaveList) {
-                        if (leave.getCountOriginal() == 0) {
-                            countOrigin = false;
-                        }
                         if (leave.getInstead() == 0 && leave.getLeaveHours() < 0) {
-                            offwork = true;
+                            actual += leave.getLeaveHours();
+                            offWorkTimes += leave.getLeaveHours();
                         }
-                        actual += leave.getLeaveHours();
-                    }
-//                    if (countOrigin) {
-//                        actual += info.getWorkingHours();
-//                    }
-                    if (offwork) {
-                        offWorkTimes += 1;
+
                     }
                 }
             }
             r.setAverWorkerCount(userSet.size());
             r.setPlannedHours(planned);
             r.setActualHours(actual);
-            r.setOffWorkRate(offWorkTimes / collect.get(districtId).size());
+            DecimalFormat df   = new DecimalFormat("######0.00");
+            r.setOffWorkRate(Double.parseDouble(df.format( Math.abs(offWorkTimes) / collect.get(districtId).size())));
             double extra = (actual - planned)/planned;
             if (extra<0) {
                 r.setExtraHours(0d);
             } else {
                 r.setExtraHours(extra);
             }
-            DecimalFormat df   = new DecimalFormat("######0.00");
             r.setWorkedRate(Double.parseDouble(df.format(actual / planned)));
             logger.info(WorkflowService.class.getName() + "定时任务生成工时报表");
             Repositories.workLoadRepository.save(r);
