@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 @Api(value = "换班接口")
 @RestController
 @RequestMapping(value = "/change", produces = "application/json;charset=UTF-8")
-public class ChangeController {
+public class ScheduleChangeController {
 
-    private static Logger logger = LoggerFactory.getLogger(ChangeController.class);
+    private static Logger logger = LoggerFactory.getLogger(ScheduleChangeController.class);
 
     @ApiOperation(value = "交换排班")
     @ApiImplicitParams({

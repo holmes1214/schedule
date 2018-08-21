@@ -409,6 +409,7 @@ public class ScheduleController {
                 }
                 ScheduleUserForm form1 = new ScheduleUserForm();
                 BeanUtils.copyProperties(form, form1);
+                form1.setClassId(form.getReClassId());
                 form1.setDayNum(form1.getDayNum() + 1);
                 settemplate(form1);
             }
@@ -418,6 +419,7 @@ public class ScheduleController {
                 }
                 ScheduleUserForm form1 = new ScheduleUserForm();
                 BeanUtils.copyProperties(form, form1);
+                form1.setClassId(form.getReClassId());
                 form1.setWeekNum(form1.getWeekNum() + 1);
                 form1.setDayNum(0);
                 settemplate(form1);

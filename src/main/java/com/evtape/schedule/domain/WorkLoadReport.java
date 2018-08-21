@@ -44,23 +44,23 @@ public class WorkLoadReport {
 	 */
 	private String monthStr;
 	/**
-	 * 平均出勤人数
+	 * 平均出勤人数 所有上过班的人数
 	 */
 	private Integer averWorkerCount;
 	/**
-	 * 计划工时
+	 * 计划工时  上班总工时
 	 */
 	private Double plannedHours;
 	/**
-	 * 实际工时
+	 * 实际工时  实际出勤工时
 	 */
 	private Double actualHours;
 	/**
-	 * 出勤率
+	 * 出勤率  实际/计划
 	 */
 	private Double workedRate;
 	/**
-	 * 加班率
+	 * 加班率  加班数据/计划  负数为0
 	 */
 	private Double extraHours;
 	/**

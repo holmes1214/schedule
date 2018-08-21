@@ -99,20 +99,22 @@ public class LogController {
             if (user.getRoleId() == 2) {
                 districtId = user.getDistrictId();
             }
-            String sql = "from WorkLoadReport where yearStr=" + yearStr;
+            String sql = "from WorkLoadReport where yearStr='" + yearStr + "'";
             if (districtId != null) {
                 sql += " and districtId=" + districtId;
             }
             if (season != null) {
                 sql += " and seasonStr='" + season + "'";
-            } else {
-                sql += " and seasonStr is null";
             }
+//            else {
+//                sql += " and seasonStr is null";
+//            }
             if (month != null) {
                 sql += " and monthStr='" + month + "'";
-            } else {
-                sql += " and monthStr is null";
             }
+//            else {
+//                sql += " and monthStr is null";
+//            }
             List<WorkLoadReport> resultList = em.createQuery(sql, WorkLoadReport.class).getResultList();
             return new ResponseBundle().success(resultList.stream().collect(Collectors.groupingBy(WorkLoadReport::getLineNumber)));
         } catch (Exception e) {
@@ -120,86 +122,5 @@ public class LogController {
         }
     }
 
-    @Scheduled(cron = "0 0 0 1 * ?")
-    public void calcWorkLoad() {
-        Date now = new Date();
-        Date lastDay = DateUtils.addDays(now, -1);
-        Date begin = DateUtils.ceiling(DateUtils.addDays(lastDay, -31), Calendar.MONTH);
-        DateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
-        String[] format = df.format(lastDay).split("-");
 
-        boolean seasonly = false, yearly = false;
-        if (format[1].equals("12")) {
-            seasonly = true;
-            yearly = true;
-        } else if (format[1].equals("03") || format[1].equals("06") || format[1].equals("09")) {
-            seasonly = true;
-        }
-
-        Map<Integer, District> districtMap = Repositories.districtRepository.findAll().stream()
-                .collect(Collectors.toMap(District::getId, d -> d));
-        calcData(districtMap, begin, now, format[0], null, format[1]);
-        if (seasonly) {
-            Date b = DateUtils.ceiling(DateUtils.addDays(lastDay, -93), Calendar.MONTH);
-            int season = (int) ((now.getTime() - b.getTime()) / 3600000 / 24 / 93 + 1);
-            calcData(districtMap, b, now, format[0], season + "", null);
-        }
-        if (yearly) {
-            Date b = DateUtils.ceiling(DateUtils.addDays(lastDay, -366), Calendar.YEAR);
-            calcData(districtMap, b, now, format[0], null, null);
-        }
-    }
-
-    private void calcData(Map<Integer, District> districtMap, Date begin, Date now, String year, String season, String month) {
-        List<ScheduleInfo> list = Repositories.scheduleInfoRepository.findByDate(begin, now);
-        Map<Integer, List<ScheduleInfo>> collect = list.stream().collect(Collectors.groupingBy(ScheduleInfo::getDistrictId));
-
-        for (Integer districtId :
-                collect.keySet()) {
-            WorkLoadReport r = new WorkLoadReport();
-            District d = districtMap.get(districtId);
-            r.setLineNumber(d.getLineNumber());
-            r.setDistrictId(d.getId());
-            r.setDistrictName(d.getDistrictName());
-            r.setYearStr(year);
-            r.setSeasonStr(season);
-            r.setMonthStr(month);
-            double planned = 0d;
-            double actual = 0d;
-            double offWorkTimes = 0d;
-            Set<Integer> userSet = new HashSet<>();
-            for (ScheduleInfo info :
-                    collect.get(districtId)) {
-                userSet.add(info.getUserId());
-                planned += info.getWorkingHours();
-                if (info.getModified() == 1) {
-                    List<ScheduleLeave> leaveList = Repositories.scheduleLeaveRepository.findByScheduleInfoId(info.getId());
-                    boolean countOrigin = true, offwork = false;
-                    for (ScheduleLeave leave :
-                            leaveList) {
-                        if (leave.getCountOriginal() == 0) {
-                            countOrigin = false;
-                        }
-                        if (leave.getInstead() == 0 && leave.getLeaveHours() < 0) {
-                            offwork = true;
-                        }
-                        actual += leave.getLeaveHours();
-                    }
-                    if (countOrigin) {
-                        actual += info.getWorkingHours();
-                    }
-                    if (offwork) {
-                        offWorkTimes += 1;
-                    }
-                }
-            }
-            r.setAverWorkerCount(userSet.size());
-            r.setPlannedHours(planned);
-            r.setActualHours(actual);
-            r.setOffWorkRate(offWorkTimes / collect.get(districtId).size());
-            r.setExtraHours(actual - planned);
-            r.setWorkedRate(actual / planned);
-            Repositories.workLoadRepository.save(r);
-        }
-    }
 }
