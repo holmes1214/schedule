@@ -5,6 +5,7 @@ import com.evtape.schedule.domain.*;
 import com.evtape.schedule.domain.vo.DutyClassVo;
 import com.evtape.schedule.domain.vo.ScheduleWorkflowVo;
 import com.evtape.schedule.persistent.Repositories;
+import io.swagger.models.auth.In;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -115,7 +116,7 @@ public class WorkflowService {
         calcData(districtMap, begin, now, format[0], null, format[1]);
         if (seasonly) {
             Date b = DateUtils.ceiling(DateUtils.addDays(lastDay, -93), Calendar.MONTH);
-            int season = (int) ((now.getTime() - b.getTime()) / 3600000 / 24 / 93 + 1);
+            int season = (int) Math.ceil(Integer.parseInt(format[1]) / 3);
             calcData(districtMap, b, now, format[0], season + "", null);
         }
         if (yearly) {
@@ -163,10 +164,10 @@ public class WorkflowService {
             r.setAverWorkerCount(userSet.size());
             r.setPlannedHours(planned);
             r.setActualHours(actual);
-            DecimalFormat df   = new DecimalFormat("######0.00");
-            r.setOffWorkRate(Double.parseDouble(df.format( Math.abs(offWorkTimes) / collect.get(districtId).size())));
-            double extra = (actual - planned)/planned;
-            if (extra<0) {
+            DecimalFormat df = new DecimalFormat("######0.00");
+            r.setOffWorkRate(Double.parseDouble(df.format(Math.abs(offWorkTimes) / collect.get(districtId).size())));
+            double extra = (actual - planned) / planned;
+            if (extra < 0) {
                 r.setExtraHours(0d);
             } else {
                 r.setExtraHours(extra);
