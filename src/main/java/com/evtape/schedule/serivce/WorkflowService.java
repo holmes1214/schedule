@@ -164,7 +164,7 @@ public class WorkflowService {
             r.setPlannedHours(planned);
             r.setActualHours(actual);
             DecimalFormat df = new DecimalFormat("######0.00");
-            r.setOffWorkRate(Double.parseDouble(df.format(Math.abs(offWorkTimes) / collect.get(districtId).size())));
+            r.setOffWorkRate(Double.parseDouble(df.format(Math.abs(offWorkTimes) / planned)));
             double extra = (actual - planned) / planned;
             if (extra < 0) {
                 r.setExtraHours(0d);

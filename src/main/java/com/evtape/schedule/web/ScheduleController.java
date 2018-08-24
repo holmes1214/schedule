@@ -297,26 +297,21 @@ public class ScheduleController {
                 u.getScheduleInfoList().add(i);
             });
 
+            List<User> res = null;
             if (stationId != null) {
-                List<User> res = result.stream().filter(i -> stationId.equals(i.getStationId())).collect(Collectors.toList());
-                res.forEach(u -> {
-                    u.getScheduleInfoList().stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
-                });
-                return new ResponseBundle().success(res.stream().sorted(Comparator.comparing(User::getId)).collect(Collectors.toList()));
+                res = result.stream().filter(i -> stationId.equals(i.getStationId())).collect(Collectors.toList());
             }
 
             if (positionId != null) {
-                List<User> res = result.stream().filter(user1 -> user1.getPositionId().equals(positionId)).collect(Collectors.toList());
-                res.forEach(u -> {
-                    u.getScheduleInfoList().stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
-                });
-                return new ResponseBundle().success(res.stream().sorted(Comparator.comparing(User::getId)).collect(Collectors.toList()));
+                res = result.stream().filter(user1 -> user1.getPositionId().equals(positionId)).collect(Collectors.toList());
             }
-
-            result.forEach(u -> {
+            if (stationId == null && positionId == null) {
+                res = result.stream().collect(Collectors.toList());
+            }
+            res.forEach(u -> {
                 u.getScheduleInfoList().stream().sorted(Comparator.comparing(ScheduleInfo::getDateStr));
             });
-            return new ResponseBundle().success(result.stream().sorted(Comparator.comparing(User::getId)).collect(Collectors.toList()));
+            return new ResponseBundle().success(res.stream().sorted(Comparator.comparing(User::getId)).collect(Collectors.toList()));
         } catch (Exception e) {
             logger.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
