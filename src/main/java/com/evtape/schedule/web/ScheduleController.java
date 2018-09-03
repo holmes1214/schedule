@@ -94,6 +94,20 @@ public class ScheduleController {
         }
     }
 
+    @ApiOperation(value = "删除单个排班人员", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "path", dataType = "integer"),
+            @ApiImplicitParam(name = "userId",value = "用户id",required = true,paramType = "path")})
+    @ResponseBody
+    @DeleteMapping("/delete/{suiteId}/{userId}")
+    public ResponseBundle deleteOne(@PathVariable("suiteId") Integer suiteId,
+                                    @PathVariable("userId") Integer userId){
+        List<ScheduleUser> users = Repositories.scheduleUserRepository.findBySuiteIdOrderByWeekNum(suiteId);
+        List<ScheduleUser> delUser = users.stream().filter(u -> u.getUserId().equals(userId)).collect(Collectors.toList());
+        Repositories.scheduleUserRepository.delete(delUser);
+        return new ResponseBundle().success(ResponseMeta.SUCCESS);
+    }
+
     @ApiOperation(value = "排班模板交换任务", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "suiteId", value = "班制id", required = true, paramType = "query", dataType = "integer"),
