@@ -297,8 +297,11 @@ public class UserController {
     @ApiOperation(value = "导入用户列表", produces = "application/json")
     @ResponseBody
     @PostMapping("/import")
-    public ResponseBundle backuplist(@ApiParam(value = "上传的文件", required = true) MultipartFile file) {
+    public ResponseBundle backuplist(@Identity String phoneNumber,
+            @ApiParam(value = "上传的文件", required = true) MultipartFile file) {
         try {
+            User admin = Repositories.userRepository.findByPhoneNumber(phoneNumber);
+            Integer roleId = admin.getRoleId();
             if (!file.getOriginalFilename().endsWith("xlsx")) {
                 return new ResponseBundle().failure(ResponseMeta.BAD_FILE_FORMAT);
             }
@@ -331,6 +334,12 @@ public class UserController {
                     if (district == null) {
                         LOGGER.error("站区为空{}", name);
                         return;
+                    }
+                    if (roleId == 2){
+                        if (!district.equals(admin.getDistrictName())){
+                            LOGGER.error("站区长不能导入其它站区人员");
+                            return;
+                        }
                     }
                     if (!districtMap.containsKey(district)) {
                         return;
