@@ -303,7 +303,7 @@ public class UserController {
             User admin = Repositories.userRepository.findByPhoneNumber(phoneNumber);
             Integer roleId = admin.getRoleId();
             if (!file.getOriginalFilename().endsWith("xlsx")) {
-                return new ResponseBundle().failure(ResponseMeta.BAD_FILE_FORMAT);
+                return new ResponseBundle().failure(ResponseMeta.BAD_FILE_FORMAT,"请上传office2007版本的excel表格");
             }
             List<Map<String, String>> users = PoiUtil.readExcelContent(file, 0, 0);
             List<District> districts = Repositories.districtRepository.findAll();
@@ -359,7 +359,7 @@ public class UserController {
                         phone = map.get("电话");
                         if (phone == null) {
                             LOGGER.error("phone number为空{}", name);
-                            error.put("error","电话号码为空");
+                            error.put("error", "电话号码为空");
                             return;
                         }
                     }
@@ -425,14 +425,14 @@ public class UserController {
                 }
             });
             if (error.size() > 0) {
-                return new ResponseBundle().failure(ResponseMeta.BUSINESS_ERROR,error.get("error"));
-            }else {
+                return new ResponseBundle().failure(ResponseMeta.BUSINESS_ERROR, error.get("error"));
+            } else {
                 Repositories.userRepository.save(newUsers);
                 return new ResponseBundle().success();
             }
         } catch (Exception e) {
             LOGGER.error("error:", e);
-            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
+            return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID, "请求参数错误");
         }
     }
 
