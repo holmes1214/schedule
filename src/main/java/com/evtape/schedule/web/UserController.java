@@ -359,6 +359,7 @@ public class UserController {
                         phone = map.get("电话");
                         if (phone == null) {
                             LOGGER.error("phone number为空{}", name);
+                            error.put("error","电话号码为空");
                             return;
                         }
                     }
