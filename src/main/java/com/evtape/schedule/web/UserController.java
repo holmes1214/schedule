@@ -279,16 +279,16 @@ public class UserController {
     @ResponseBody
     @GetMapping("/backuplist/{districtId}")
     public ResponseBundle backuplist(@PathVariable("districtId") Integer districtId,
-                                     @RequestParam(value = "scheduleInfoId",required = false) Integer scheduleInfoId) {
+                                     @RequestParam(value = "scheduleInfoId", required = false) Integer scheduleInfoId) {
         try {
             List<User> backupList = Repositories.userRepository.findByDistrictIdAndBackup(districtId, 1);
-            if (scheduleInfoId==null){
+            if (scheduleInfoId == null) {
                 return new ResponseBundle().success(backupList);
             }
             ScheduleInfo info = Repositories.scheduleInfoRepository.findOne(scheduleInfoId);
             List<ScheduleLeave> list = Repositories.scheduleLeaveRepository.findByUserIdsAndDateStr(backupList.stream().map(User::getId).collect(Collectors.toList()), info.getDateStr());
             Set<Integer> userSet = list.stream().map(ScheduleLeave::getUserId).collect(Collectors.toSet());
-            return new ResponseBundle().success(backupList.stream().filter(u->!userSet.contains(u.getId())).collect(Collectors.toList()));
+            return new ResponseBundle().success(backupList.stream().filter(u -> !userSet.contains(u.getId())).collect(Collectors.toList()));
         } catch (Exception e) {
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
         }
@@ -298,14 +298,14 @@ public class UserController {
     @ResponseBody
     @PostMapping("/import")
     public ResponseBundle backuplist(@Identity String phoneNumber,
-            @ApiParam(value = "上传的文件", required = true) MultipartFile file) {
+                                     @ApiParam(value = "上传的文件", required = true) MultipartFile file) {
         try {
             User admin = Repositories.userRepository.findByPhoneNumber(phoneNumber);
             Integer roleId = admin.getRoleId();
             if (!file.getOriginalFilename().endsWith("xlsx")) {
                 return new ResponseBundle().failure(ResponseMeta.BAD_FILE_FORMAT);
             }
-            List<Map<String, String>> users = PoiUtil.readExcelContent(file, 0, 1);
+            List<Map<String, String>> users = PoiUtil.readExcelContent(file, 0, 0);
             List<District> districts = Repositories.districtRepository.findAll();
             Map<String, District> districtMap = districts.stream().collect(Collectors.toMap(District::getDistrictName, d -> d));
             Map<String, Station> stationMap = Repositories.stationRepository.findAll().stream().collect(Collectors.toMap(Station::getStationName, s -> s));
@@ -313,6 +313,7 @@ public class UserController {
             List<User> newUsers = new ArrayList<>();
             DateFormat df = new SimpleDateFormat("yyyyMMdd");
             DateFormat standard = new SimpleDateFormat(Constants.DATE_FORMAT);
+            Map<String, String> error = new HashMap<>();
             users.forEach(map -> {
                 try {
                     String empNo = map.get("员工卡号");
@@ -328,27 +329,31 @@ public class UserController {
                     String name = map.get("姓名");
                     if (name == null) {
                         LOGGER.error("姓名为空");
+                        error.put("error", "姓名为空");
                         return;
                     }
                     String district = map.get("站区");
                     if (district == null) {
                         LOGGER.error("站区为空{}", name);
+                        error.put("error", "站区为空");
                         return;
                     }
-                    if (roleId == 2){
-                        if (!district.equals(admin.getDistrictName())){
+                    if (roleId == 2) {
+                        if (!district.equals(admin.getDistrictName())) {
                             LOGGER.error("站区长不能导入其它站区人员");
+                            error.put("error", "站区长不能导入其它站区人员");
                             return;
                         }
                     }
                     if (!districtMap.containsKey(district)) {
+                        error.put("error", "没有这个站区!");
                         return;
                     }
                     String position = map.get("岗位");
-                    if (position == null) {
-                        LOGGER.error("position为空{}", name);
-                        return;
-                    }
+//                    if (position == null) {
+//                        LOGGER.error("position为空{}", name);
+//                        return;
+//                    }
                     String phone = map.get("手机号");
                     if (phone == null) {
                         phone = map.get("电话");
@@ -369,6 +374,7 @@ public class UserController {
                     user.setEmployeeCode(code);
                     District d = districtMap.get(district);
                     if (d == null) {
+                        error.put("error", "站区为空");
                         return;
                     }
                     user.setDistrictId(d.getId());
@@ -378,17 +384,23 @@ public class UserController {
                         user.setStationId(s.getId());
                         user.setStationName(s.getStationName());
                     }
-                    Position p = positionMap.get(d.getId() + position);
-                    if (p == null) {
-                        LOGGER.error("position为空{}", name);
-                        return;
+
+                    if (position != null) {
+                        Position p = positionMap.get(d.getId() + position);
+                        if (p == null) {
+                            LOGGER.error("position为空{}", name);
+                            error.put("error", "position为空");
+                            return;
+                        }
+                        user.setPositionId(p.getId());
+                        user.setPositionName(p.getPositionName());
+                        user.setBackup(p.getBackupPosition());
+                        if (p.getPositionName().equals("站区长")) {
+                            user.setRoleId(2);
+                        }
                     }
-                    user.setPositionId(p.getId());
-                    user.setPositionName(p.getPositionName());
-                    user.setBackup(p.getBackupPosition());
-                    if (p.getPositionName().equals("站区长")) {
-                        user.setRoleId(2);
-                    }
+
+
                     user.setPhoneNumber(phone);
                     user.setHomeAddress(map.get("住址"));
                     user.setIdCardNumber(map.get("身份证号码"));
@@ -411,8 +423,12 @@ public class UserController {
                     return;
                 }
             });
-            Repositories.userRepository.save(newUsers);
-            return new ResponseBundle().success();
+            if (error.size() > 0) {
+                return new ResponseBundle().failure(ResponseMeta.BUSINESS_ERROR,error.get("error"));
+            }else {
+                Repositories.userRepository.save(newUsers);
+                return new ResponseBundle().success();
+            }
         } catch (Exception e) {
             LOGGER.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID);
