@@ -418,6 +418,7 @@ public class UserController {
                     user.setBeginWorkDate(map.get("参加工作时间"));
                     user.setJoinDate(map.get("入党\\团时间"));
                     user.setEntryDate(map.get("入职时间"));
+                    user.setGender(map.get("性别"));
                     newUsers.add(user);
                 } catch (Exception e) {
                     LOGGER.error("import error: ", e);
