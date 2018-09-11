@@ -168,12 +168,12 @@ public class UserController {
             DateFormat df = new SimpleDateFormat("yyyyMMdd");
             DateFormat standard = new SimpleDateFormat(Constants.DATE_FORMAT);
             form.setBirthday(standard.format(df.parse(birthday)));
-            char c = form.getIdCardNumber().charAt(16);
-            if (c == '1') {
-                form.setGender("男");
-            } else {
-                form.setGender("女");
-            }
+//            char c = form.getIdCardNumber().charAt(16);
+//            if (c == '1') {
+//                form.setGender("男");
+//            } else {
+//                form.setGender("女");
+//            }
         } catch (Exception e) {
             LOGGER.error("set birthday error: ", e);
         }
