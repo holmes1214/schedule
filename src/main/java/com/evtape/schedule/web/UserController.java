@@ -303,7 +303,7 @@ public class UserController {
             User admin = Repositories.userRepository.findByPhoneNumber(phoneNumber);
             Integer roleId = admin.getRoleId();
             if (!file.getOriginalFilename().endsWith("xlsx")) {
-                return new ResponseBundle().failure(ResponseMeta.BAD_FILE_FORMAT,"请上传office2007版本的excel表格");
+                return new ResponseBundle().failure(ResponseMeta.BAD_FILE_FORMAT, "请上传office2007版本的excel表格");
             }
             List<Map<String, String>> users = PoiUtil.readExcelContent(file, 0, 0);
             List<District> districts = Repositories.districtRepository.findAll();
@@ -313,7 +313,7 @@ public class UserController {
             List<User> newUsers = new ArrayList<>();
             DateFormat df = new SimpleDateFormat("yyyyMMdd");
             DateFormat standard = new SimpleDateFormat(Constants.DATE_FORMAT);
-            Map<String, String> error = new HashMap<>();
+            List<String> errList = new LinkedList<>();
             users.forEach(map -> {
                 try {
                     String empNo = map.get("员工卡号");
@@ -329,24 +329,25 @@ public class UserController {
                     String name = map.get("姓名");
                     if (name == null) {
                         LOGGER.error("姓名为空");
-                        error.put("error", "姓名为空");
+                        errList.add("有数据姓名没有填写！");
                         return;
                     }
                     String district = map.get("站区");
                     if (district == null) {
                         LOGGER.error("站区为空{}", name);
-                        error.put("error", "站区为空");
+//                        error.put("error", "站区为空");
+                        errList.add(name + " 的站区没有填！");
                         return;
                     }
                     if (roleId == 2) {
                         if (!district.equals(admin.getDistrictName())) {
                             LOGGER.error("站区长不能导入其它站区人员");
-                            error.put("error", "站区长不能导入其它站区人员");
+                            errList.add(name + "   站区长不能导入其它站区人员");
                             return;
                         }
                     }
                     if (!districtMap.containsKey(district)) {
-                        error.put("error", "没有这个站区!");
+                        errList.add(name + "    没有他所在的站区!");
                         return;
                     }
                     String position = map.get("岗位");
@@ -359,7 +360,7 @@ public class UserController {
                         phone = map.get("电话");
                         if (phone == null) {
                             LOGGER.error("phone number为空{}", name);
-                            error.put("error", "电话号码为空");
+                            errList.add(name + "   电话号码为空！");
                             return;
                         }
                     }
@@ -375,7 +376,7 @@ public class UserController {
                     user.setEmployeeCode(code);
                     District d = districtMap.get(district);
                     if (d == null) {
-                        error.put("error", "站区为空");
+                        errList.add(name + "  没有这个站区，请添加对应站区！");
                         return;
                     }
                     user.setDistrictId(d.getId());
@@ -390,7 +391,7 @@ public class UserController {
                         Position p = positionMap.get(d.getId() + position);
                         if (p == null) {
                             LOGGER.error("position为空{}", name);
-                            error.put("error", "position为空");
+                            errList.add(name + "  没有他对应的岗位，请添加对应岗位！");
                             return;
                         }
                         user.setPositionId(p.getId());
@@ -425,12 +426,13 @@ public class UserController {
                     return;
                 }
             });
-            if (error.size() > 0) {
-                return new ResponseBundle().failure(ResponseMeta.BUSINESS_ERROR, error.get("error"));
+            Repositories.userRepository.save(newUsers);
+            if (errList.size() > 0) {
+                return new ResponseBundle().failure(ResponseMeta.BUSINESS_ERROR, errList.toString());
             } else {
-                Repositories.userRepository.save(newUsers);
                 return new ResponseBundle().success();
             }
+
         } catch (Exception e) {
             LOGGER.error("error:", e);
             return new ResponseBundle().failure(ResponseMeta.REQUEST_PARAM_INVALID, "请求参数错误");
