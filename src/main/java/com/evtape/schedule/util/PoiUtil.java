@@ -160,10 +160,10 @@ public class PoiUtil {
 
                     Cell firstCell = row.getCell(readFromColNum);
                     //假如第colNum列并且为空则终止行项数据处理
-                    if (firstCell == null) {
-                        logger.info("End as first cell is Null at row: {}", rowNum);
-                        break;
-                    }
+//                    if (firstCell == null) {
+//                        logger.info("End as first cell is Null at row: {}", rowNum);
+//                        break;
+//                    }
 
                     int j = readFromColNum;
                     int titleCnt = 0;
@@ -188,12 +188,12 @@ public class PoiUtil {
     private static void getColContent(Map<String, String> rowMap, int j, int colNum, int titleCnt, Row row,String[] titles) {
         while (j < colNum) {
             Cell cell = row.getCell(j);
-            if (cell != null) {
+//            if (cell != null) {
                 String cellValue = getCellFormatValue(cell);
                 if (StringUtils.isNotBlank(cellValue)) {
                     rowMap.put(titles[titleCnt], cellValue);
                 }
-            }
+//            }
             titleCnt++;
             j++;
         }
@@ -378,7 +378,7 @@ public class PoiUtil {
             }
         }
         if (cellvalue == null) {
-            logger.warn("NULL cell value [{}, {}]", cell.getRowIndex(), cell.getColumnIndex());
+//            logger.warn("NULL cell value [{}, {}]", cell.getRowIndex(), cell.getColumnIndex());
         } else {
             cellvalue = cellvalue.trim();
         }

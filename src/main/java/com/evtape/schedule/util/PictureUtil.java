@@ -24,8 +24,8 @@ public class PictureUtil {
 
     static final int MARGIN = 80;
     static final int SPACE_SIZE_BASE = 40;
-    static final int FONT_SIZE_BASE = 24;
-    static final int HOUR_BASE = SPACE_SIZE_BASE * 4;
+    static final int FONT_SIZE_BASE = 32;
+    static final int HOUR_BASE = SPACE_SIZE_BASE * 6;
     static final int[] VERTICALS = new int[]{MARGIN, SPACE_SIZE_BASE * 10, SPACE_SIZE_BASE * 3, SPACE_SIZE_BASE * 12, SPACE_SIZE_BASE * 8, SPACE_SIZE_BASE * 8, HOUR_BASE * 24};
     static final String[] TITLES = new String[]{"日期", "星期", "工作时间", "班次", "工作岗位"};
     static final String[] PERIODS = new String[]{"0100", "0200", "0300", "0400", "0500", "0600", "0700", "0800", "0900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700", "1800", "1900", "2000", "2100", "2200", "2300", "0000"};
@@ -121,7 +121,7 @@ public class PictureUtil {
             graphics.drawLine(x, top, x, top + SPACE_SIZE_BASE);
         }
         //时间表分钟线
-        for (int i = left; i > left - VERTICALS[VERTICALS.length - 1]; i -= SPACE_SIZE_BASE / 2) {
+        for (int i = left; i > left - VERTICALS[VERTICALS.length - 1]; i -= SPACE_SIZE_BASE) {
             graphics.drawLine(i, top + SPACE_SIZE_BASE, i, bottom);
         }
     }
@@ -134,12 +134,12 @@ public class PictureUtil {
         for (int i = 0; i < VERTICALS.length - 2; i++) {
             left += VERTICALS[i];
             int width = VERTICALS[i + 1];
-            drawString(graphics, TITLES[i], left, top, width);
+            drawString(graphics, TITLES[i], left, top, width,1);
         }
         left += VERTICALS[VERTICALS.length - 2] + SPACE_SIZE_BASE;
         for (int i = 0; i < PERIODS.length; i++) {
             int width = HOUR_BASE;
-            drawString(graphics, PERIODS[i], left, top, width);
+            drawString(graphics, PERIODS[i], left, top, width,1);
             left += width;
         }
     }
@@ -154,12 +154,12 @@ public class PictureUtil {
 
         String text = info.getDateStr();
         int width = VERTICALS[x++];
-        drawString(graphics, text, left, top, width);
+        drawString(graphics, text, left, top, width,1);
 
         text = info.getScheduleWeek();
         left += VERTICALS[x - 1];
         width = VERTICALS[x++];
-        drawString(graphics, text, left, top, width);
+        drawString(graphics, text, left, top, width,1);
 
         left += VERTICALS[x - 1];
         width = VERTICALS[x++];
@@ -167,7 +167,7 @@ public class PictureUtil {
             String start = getTimeText(dutyClass.getStartTime());
             String end = getTimeText(dutyClass.getEndTime());
             text = start + "-" + end;
-            drawString(graphics, text, left, top, width);
+            drawString(graphics, text, left, top, width,1);
         }
 
         text = info.getDutyName();
@@ -178,7 +178,12 @@ public class PictureUtil {
         if (dutyClass != null && dutyClass.getDutyCode() != null) {
             text += "(" + dutyClass.getDutyCode() + ")";
         }
-        drawString(graphics, text, left, top, width);
+        int x1 = left, y1 = head - SPACE_SIZE_BASE * 2;
+        if (dutyClass != null && dutyClass.getClassColor() != null) {
+            graphics.setColor(getColor(dutyClass.getClassColor()));
+            graphics.fillRect(x1 + 2, y1 + 2, SPACE_SIZE_BASE * 8 - 4, SPACE_SIZE_BASE * 2 - 4);
+        }
+        drawString(graphics, text, left, top, width,1);
 
 
         if (info.getDutyCode() != null && info.getWorkflowCode() != null) {
@@ -186,14 +191,7 @@ public class PictureUtil {
             text += info.getWorkflowCode();
             left += VERTICALS[x - 1];
             width = VERTICALS[x++];
-
-            int x1 = left, y1 = head - SPACE_SIZE_BASE * 2;
-            if (dutyClass != null && dutyClass.getClassColor() != null) {
-                graphics.setColor(getColor(dutyClass.getClassColor()));
-                graphics.fillRect(x1 + 2, y1 + 2, SPACE_SIZE_BASE * 8 - 4, SPACE_SIZE_BASE * 2 - 4);
-            }
-
-            drawString(graphics, text, left, top, width);
+            drawString(graphics, text, left, top, width,1);
         }
     }
 
@@ -202,11 +200,10 @@ public class PictureUtil {
             return;
         }
         Integer shiftId = info.getDutyClassId();
-        String serialNumber = info.getDutyCode() + info.getWorkflowCode();
         List<ScheduleWorkflowContent> contents = null;
         for (ScheduleWorkflow w :
                 workflows) {
-            if (w.getClassId().toString().equals(shiftId) && serialNumber != null && serialNumber.endsWith(w.getCode())) {
+            if (w.getCode()!=null&&w.getClassId().equals(shiftId) &&  w.getCode().equals(info.getWorkflowCode())) {
                 contents = contentMap.get(w.getId());
             }
         }
@@ -215,7 +212,7 @@ public class PictureUtil {
             for (int i = 0; i < VERTICALS.length - 1; i++) {
                 leftBase += VERTICALS[i];
             }
-            setFont(graphics, 1);
+            setFont(graphics, 0.75);
             for (ScheduleWorkflowContent c :
                     contents) {
                 int head = MARGIN + SPACE_SIZE_BASE * 4 + SPACE_SIZE_BASE * 2 * number + c.getLineNumber() * SPACE_SIZE_BASE;
@@ -224,30 +221,41 @@ public class PictureUtil {
                 int width = (c.getEndTime() - c.getStartTime()) / 10 * HOUR_BASE / 6;
                 graphics.setColor(getColor(c.getColor()));
                 graphics.fillRect(left + 1, head + 1, width - 2, SPACE_SIZE_BASE - 2);
-                drawString(graphics, c.getContent(), left, top, width);
+                drawString(graphics, c.getContent(), left, top, width,0.75);
             }
         }
     }
 
 
-    private static void setFont(Graphics graphics, int ratio) {
-        Font font = new Font("宋体", Font.BOLD, FONT_SIZE_BASE * ratio);
+    private static void setFont(Graphics graphics, double ratio) {
+        Font font = new Font("汉仪中隶书简", Font.BOLD, (int) (FONT_SIZE_BASE * ratio));
         graphics.setFont(font);
     }
 
-    private static void drawString(Graphics graphics, String text, int left, int top, int width) {
+    private static void drawString(Graphics graphics, String text, int left, int top, int width,double ratio) {
         graphics.setColor(Color.black);
-        int padding = Math.max((width - text.length() * SPACE_SIZE_BASE) / 2, 0);
+        int padding = (int) Math.max((width - text.length() * FONT_SIZE_BASE*ratio) / 2, 0);
         graphics.drawString(text, left + padding, top);
     }
 
     private static Color getColor(String shiftColor) {
-        if (shiftColor==null||!shiftColor.startsWith("rgb")){
+        if (shiftColor==null){
             return Color.WHITE;
         }
-        String color = shiftColor.substring(5, shiftColor.length() - 1);
-        String[] split = color.split(",");
-        return new Color(Integer.parseInt(split[0].trim()), Integer.parseInt(split[1].trim()), Integer.parseInt(split[2].trim()));
+        if (shiftColor.startsWith("rgb")){
+            String color = shiftColor.substring(5, shiftColor.length() - 1);
+            String[] split = color.split(",");
+            return new Color(Integer.parseInt(split[0].trim()), Integer.parseInt(split[1].trim()), Integer.parseInt(split[2].trim()));
+        }else {
+            Integer c = 16777215;
+            try{
+                c=Integer.parseInt(shiftColor, 16);
+            }catch (Exception e){
+                return Color.WHITE;
+            }
+            return new Color(c >>> 16, c >>> 8 & 0xff, c & 0xff);
+        }
+
     }
 
     private static String getTimeText(int time) {
@@ -267,15 +275,4 @@ public class PictureUtil {
         return h + ":" + m;
     }
 
-    public static void main(String[] a) throws Exception {
-        File f = new File("/Users/holmes1214/Downloads/img.zip");
-        f.delete();
-        f.createNewFile();
-        Map<User, List<ScheduleInfo>> map = new HashMap<>();
-        List<ScheduleInfo> info = new ArrayList<>();
-        info.add(new ScheduleInfo());
-        info.add(new ScheduleInfo());
-        map.put(new User(), info);
-        createUserSchedulePicture(map, new HashMap<>(), new HashMap<>(), new HashMap<>(), new FileOutputStream(f));
-    }
 }

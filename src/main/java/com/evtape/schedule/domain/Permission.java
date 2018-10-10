@@ -22,7 +22,13 @@ public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+    /**
+     * 权限编码
+     */
     private String code;
+    /**
+     * 权限名称
+     */
     private String name;
     @JsonIgnore
     private String category;

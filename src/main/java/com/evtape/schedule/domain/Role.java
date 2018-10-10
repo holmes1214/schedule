@@ -17,7 +17,16 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+    /**
+     * 角色编码
+     */
     private String code;
+    /**
+     * 角色名称
+     */
     private String name;
+    /**
+     * 角色描述
+     */
     private String description;
 }

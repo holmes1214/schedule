@@ -36,7 +36,7 @@ public class RoleController extends RolePermissionController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleController.class);
 
     @GetMapping
-    @RequiresRoles(value = {"role:admin", "role:district"}, logical = Logical.OR)
+    @RequiresRoles(value = {"role:admin", "role:district", "role:station"}, logical = Logical.OR)
     public ResponseBundle getRoles() {
         Subject currentUser = SecurityUtils.getSubject();
         if (currentUser.hasRole("role:admin")) {
@@ -45,7 +45,11 @@ public class RoleController extends RolePermissionController {
         }
         if (currentUser.hasRole("role:district")) {
             List<Role> roles = Repositories.roleRepository.findByCodeNot("role:admin");
-            return new ResponseBundle().success(roles);
+            return new ResponseBundle().success(roles.stream().filter(role -> !role.getCode().equals("role:admin")).collect(Collectors.toList()));
+        }
+        if (currentUser.hasRole("role:station")) {
+            List<Role> roles = Repositories.roleRepository.findByCodeNot("role:admin");
+            return new ResponseBundle().success(roles.stream().filter(role -> role.getCode().equals("role:station")).collect(Collectors.toList()));
         }
         throw new UnauthenticatedException();
     }

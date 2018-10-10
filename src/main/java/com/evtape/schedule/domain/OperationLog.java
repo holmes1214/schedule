@@ -20,12 +20,30 @@ public class OperationLog {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
+	/**
+	 * 站区id
+	 */
 	private Integer districtId;
+	/**
+	 * 操作人手机号
+	 */
 	private String phoneNumber;
+	/**
+	 * 操作人姓名
+	 */
 	private String operatorName;
+	/**
+	 * 操作名称
+	 */
 	private String operationName;
+	/**
+	 * 操作状态
+	 */
 	private Integer operationState;
 	private Date createDate;
+	/**
+	 * 备注
+	 */
 	private String content;
 	@Transient
 	private long beginTime;
