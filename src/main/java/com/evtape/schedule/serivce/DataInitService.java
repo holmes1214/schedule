@@ -1,3 +1,4 @@
+/*
 package com.evtape.schedule.serivce;
 
 import com.evtape.schedule.domain.LeaveDaySet;
@@ -8,9 +9,11 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
+*/
 /**
  * Created by holmes1214 on 2018/7/9.
- */
+ *//*
+
 @Service
 public class DataInitService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataInitService.class);
@@ -60,3 +63,4 @@ public class DataInitService {
         }
     }
 }
+*/
