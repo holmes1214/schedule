@@ -8,7 +8,7 @@ logging:
 
 # 数据源设定 rm-2zew6wipk07tc4vw2.mysql.rds.aliyuncs.com
 druid:
-  url: jdbc:mysql://127.0.0.1:3306/schedule_new?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&cachePrepStmts=true&useServerPrepStmts=true&prepStmtCacheSize=250&prepStmtCacheSqlLimit=2048&useSSL=false
+  url: jdbc:mysql://rm-uf6ita7002cwt04ka.mysql.rds.aliyuncs.com:3306/schedule_new?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&cachePrepStmts=true&useServerPrepStmts=true&prepStmtCacheSize=250&prepStmtCacheSqlLimit=2048&useSSL=false
   username: root
   password: Evtape123
   driver-class-name: com.mysql.jdbc.Driver
