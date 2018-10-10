@@ -2,6 +2,8 @@ package com.evtape.schedule.serivce;
 
 import com.evtape.schedule.domain.LeaveDaySet;
 import com.evtape.schedule.persistent.Repositories;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -11,6 +13,7 @@ import javax.annotation.PostConstruct;
  */
 @Service
 public class DataInitService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataInitService.class);
     @PostConstruct
     public void checkData(){
         checkLeaveDaySetData(1,1,"年假" ,"","年假");
@@ -52,6 +55,7 @@ public class DataInitService {
             d.setSubName(subName);
             d.setLeaveType(i);
             d.setSubType(i1);
+            LOGGER.info("------------------" + d);
             Repositories.leaveDaySetRepository.save(d);
         }
     }
